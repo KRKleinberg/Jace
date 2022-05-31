@@ -1,0 +1,2 @@
+# JaceBot
+ Multipurpose Discord Bot
