@@ -5,7 +5,7 @@ const { glob } = GlobPKG;
 const globPromise = promisify(glob);
 
 export default async (client) => {
-	const prefixCommandFiles = await globPromise("~/prefixCommands/**/*.js");
+	const prefixCommandFiles = await globPromise("./prefixCommands/**/*.js");
 	prefixCommandFiles.map((value) => {
 		const file = import(value);
 		const splitted = value.split("/");
@@ -17,10 +17,10 @@ export default async (client) => {
 		}
 	});
 
-	const eventFiles = await globPromise("~/events/**/*.js");
+	const eventFiles = await globPromise("./events/**/*.js");
 	eventFiles.map((value) => import(value));
 
-	const slashCommands = await globPromise("~/slashCommands/**/*.js");
+	const slashCommands = await globPromise("./slashCommands/**/*.js");
 
 	const arrayOfSlashCommands = [];
 	slashCommands.map((value) => {
