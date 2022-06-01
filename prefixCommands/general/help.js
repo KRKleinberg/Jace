@@ -1,4 +1,4 @@
-const pagination = require("discord.js-pagination");
+import pagination from "discord.js-pagination";
 
 export default {
 	name: "help",
