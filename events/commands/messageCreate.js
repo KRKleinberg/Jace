@@ -14,6 +14,5 @@ client.on("messageCreate", async (message) => {
 		client.prefixCommands.get(cmd.toLowerCase()) ||
 		client.prefixCommands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
 
-	if (!command) return;
-	await command.run(client, message, args);
+	if (command) await command.run(client, message, args);
 });
