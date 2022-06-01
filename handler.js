@@ -1,7 +1,6 @@
 import globPKG from "glob";
 import { promisify } from "util";
 const { glob } = globPKG;
-
 const globPromise = promisify(glob);
 
 export default async (client) => {
@@ -35,4 +34,7 @@ export default async (client) => {
 	client.on("ready", async () => {
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
+
+	// Comment out the line below for main branch
+	setTimeout(function () { process.exit(); }, 300000);
 };

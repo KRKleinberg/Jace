@@ -1,4 +1,4 @@
-import client, { on, commands } from "../../index";
+import client, { on, commands } from "../../index.js";
 
 on("messageCreate", async (message) => {
 	if (

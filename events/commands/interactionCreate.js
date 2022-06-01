@@ -1,4 +1,4 @@
-import client, { on, slashCommands } from "../../index";
+import client, { on, slashCommands } from "../../index.js";
 
 on("interactionCreate", async (interaction) => {
 	// Slash Command Handling
