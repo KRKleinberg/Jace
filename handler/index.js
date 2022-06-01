@@ -18,7 +18,7 @@ export default async (client) => {
 	});
 
 	const eventFiles = await globPromise(`${process.cwd()}/events/*.js`);
-	eventFiles.map((value) => require(value));
+	eventFiles.map((value) => import(value));
 
 	const slashCommands = await globPromise(`${process.cwd()}/slashCommands/*/*.js`);
 
