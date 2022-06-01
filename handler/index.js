@@ -1,6 +1,6 @@
 import pkg from "glob";
 import { promisify } from "util";
-const glob = pkg;
+const { glob } = pkg;
 
 const globPromise = promisify(glob);
 
