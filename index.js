@@ -28,6 +28,6 @@ connect(process.env.MONGOOSE).then(() => console.log("Connected to MongoDB"));
 client.prefixCommands = new Collection();
 client.slashCommands = new Collection();
 
-import "./handler";
+import "./handler/index.js";
 
 client.login(process.env.DJS_TOKEN);
