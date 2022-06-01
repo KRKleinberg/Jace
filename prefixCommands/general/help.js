@@ -5,7 +5,7 @@ export default {
 	aliases: [],
 	description: "Displays a list of all commands",
 	options: [],
-	run: async (client, message, args) => {
+	run: async (client, message) => {
 		const MAX_FIELDS = 25;
 		const fields = client.commands.map((command) => ({
 			name: command.aliases.length
