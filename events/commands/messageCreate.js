@@ -11,8 +11,8 @@ client.on("messageCreate", async (message) => {
 	const [cmd, ...args] = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
 
 	const command =
-		client.commands.get(cmd.toLowerCase()) ||
-		client.commands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
+		client.prefixCommands.get(cmd.toLowerCase()) ||
+		client.prefixCommands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
 
 	if (!command) return;
 	await command.run(client, message, args);

@@ -6,7 +6,6 @@ export const description = "Displays a list of all commands";
 export const options = [];
 export async function run(client, message) {
 	const MAX_FIELDS = 25;
-	// iterate over the commands and create field objects
 	const fields = client.commands.map((command) => ({
 		name: command.aliases.length
 			? `${command.name} (${command.aliases.join(", ")})`
@@ -16,7 +15,6 @@ export async function run(client, message) {
 			: `${command.description}`,
 	}));
 
-	// if there is less than 25 fields, you can safely send the embed in a single message
 	if (fields.length <= MAX_FIELDS)
 		return message.channel.send({
 			embeds: [
@@ -29,13 +27,10 @@ export async function run(client, message) {
 			],
 		});
 
-	// if there are more, you need to create chunks w/ max 25 fields
 	const chunks = chunkify(fields, MAX_FIELDS);
-	// an array of embeds used by `discord.js-pagination`
 	const pages = [];
 
 	chunks.forEach(() => {
-		// create a new embed for each 25 fields
 		pages.push({
 			embeds: [
 				{
@@ -51,7 +46,6 @@ export async function run(client, message) {
 	pagination("some message", pages);
 }
 
-// helper function to slice arrays
 function chunkify(arr, len) {
 	let chunks = [];
 	let i = 0;
