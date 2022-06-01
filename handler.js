@@ -16,9 +16,9 @@ export default async (client) => {
 		}
 	});
 
-	prefixCommandFiles.then(function (result)) {
+	prefixCommandFiles.then(function (file) {
 		console.log(file);
-	};
+	});
 
 	const eventFiles = await globPromise("./events/**/*.js");
 	eventFiles.map((value) => import(value));
