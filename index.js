@@ -1,7 +1,8 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
-import { HttpsProxyAgent } from "https-proxy-agent";
+import HttpsProxyAgentPKG from "https-proxy-agent";
 import { connect } from "mongoose";
+const { HttpsProxyAgent } = HttpsProxyAgentPKG;
 
 const client = new Client({
 	intents: 32767,
