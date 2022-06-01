@@ -36,5 +36,5 @@ export default async (client) => {
 	});
 
 	// Comment out the line below for main branch
-	setTimeout(function () { process.exit(); }, 300000);
+	setTimeout(function () { process.exit(0); }, 300000);
 };
