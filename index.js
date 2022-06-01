@@ -1,8 +1,9 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
 import HttpsProxyAgent from "https-proxy-agent";
-import MongoosePKG from "mongoose";
-const { connect } = MongoosePKG;
+import mongoosePKG from "mongoose";
+import handler from "./handler.js";
+const { connect } = mongoosePKG;
 
 const client = new Client({
 	intents: 32767,
@@ -29,6 +30,6 @@ connect(process.env.MONGOOSE).then(() => console.log("Connected to MongoDB"));
 client.prefixCommands = new Collection();
 client.slashCommands = new Collection();
 
-import "./handler.js";
+handler(client);
 
 client.login(process.env.DJS_TOKEN);
