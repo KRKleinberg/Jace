@@ -1,6 +1,6 @@
-import client, { on, commands } from "../../index.js";
+import client from "../../index.js";
 
-on("messageCreate", async (message) => {
+client.on("messageCreate", async (message) => {
 	if (
 		message.author.bot ||
 		!message.guild ||
@@ -11,7 +11,8 @@ on("messageCreate", async (message) => {
 	const [cmd, ...args] = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
 
 	const command =
-		commands.get(cmd.toLowerCase()) || commands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
+		client.commands.get(cmd.toLowerCase()) ||
+		client.commands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
 
 	if (!command) return;
 	await command.run(client, message, args);
