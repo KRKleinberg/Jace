@@ -1,4 +1,4 @@
-import { QueryType } from 'discord-player';
+import { QueryType } from "discord-player";
 
 export default {
 	name: "play",
@@ -16,9 +16,10 @@ export default {
 		if (!searchResult || !searchResult.tracks.length)
 			return message.channel.send({ content: `No results were found!` });
 
-		const queue = await client.player.createQueue(message.guild, {
-			metadata: message.channel,
-		});
+        const { playerOptions } = client;
+        playerOptions.metadata = message.channel;
+
+		const queue = await client.player.createQueue(message.guild, playerOptions);
 
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);
@@ -29,8 +30,8 @@ export default {
 
 		await message.channel.send({
 			content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
-        });
-        
+		});
+
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
 		else queue.addTrack(searchResult.tracks[0]);
 		if (!queue.playing) await queue.play();
