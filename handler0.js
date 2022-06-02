@@ -5,15 +5,15 @@ const globPromise = promisify(glob);
 
 export default async (client) => {
 	const prefixCommandFiles = await globPromise(`${process.cwd()}/prefixCommands/**/*.js`);
-	prefixCommandFiles.map( async (value) => {
-		const { default: prefixCommand } = await import(value);
+	prefixCommandFiles.map(async (value) => {
+		const file = await import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
 
-		if (prefixCommand.name) {
-			const properties = { directory, ...prefixCommand };
-			client.prefixCommands.set(prefixCommand.name, properties);
-			console.log(prefixCommand.name);
+		if (file.name) {
+			const properties = { directory, ...file };
+			client.prefixCommands.set(file.name, properties);
+			console.log(file.name);
 		}
 	});
 
@@ -23,8 +23,8 @@ export default async (client) => {
 	const slashCommands = await globPromise(`${process.cwd()}/slashCommands/**/*.js`);
 
 	const arrayOfSlashCommands = [];
-	slashCommands.map((value) => {
-		const file = import(value);
+	slashCommands.map(async (value) => {
+		const file = await import(value);
 		if (!file?.name) return;
 		client.slashCommands.set(file.name, file);
 
