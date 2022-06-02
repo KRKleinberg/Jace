@@ -34,7 +34,7 @@ export default async (client) => {
 
 	client.on("ready", async () => {
 		//Test Server
-		await client.guilds.cache.get("844223765302345749").commands.set(arrayOfSlashCommands);
+		//await client.guilds.cache.get("844223765302345749").commands.set(arrayOfSlashCommands);
 		//All servers
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
