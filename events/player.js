@@ -26,8 +26,8 @@ client.player.on("error", (queue, error) => {
 client.player.on("connectionError", (queue, error) => {
 	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`);
 	queue.metadata.send(
-		`⚠️ | ${error.message} You may need to retry that command or restart the bot using "/restart"`
-	);
+	`⚠️ | **Error!** ${error.message} You may need to retry that command or restart the bot using "/restart"`
+);
 	client.user.setActivity({
 		name: "Frogger | jacehelp",
 		type: "PLAYING",
@@ -136,7 +136,7 @@ client.player.on("trackAdd", (queue, track) => {
 });
 
 client.player.on("botDisconnect", (queue) => {
-	queue.metadata.send("❌ | I was manually disconnected from the voice channel, clearing queue!");
+	queue.metadata.send("❌ | Manually disconnected from the voice channel, clearing queue!");
 	client.user.setActivity({
 		name: "Frogger | jacehelp",
 		type: "PLAYING",

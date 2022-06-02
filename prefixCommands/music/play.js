@@ -16,7 +16,27 @@ export default {
 		if (!searchResult || !searchResult.tracks.length)
 			return message.channel.send({ content: `No results were found!` });
 
-		const queue = await client.player.createQueue(message.guild, { metadata: message.channel });
+		const queue = await client.player.createQueue(message.guild, {
+			ytdlOptions: {
+				requestOptions: {
+					headers: {
+						cookie: process.env.COOKIE,
+						"x-youtube-identity-token": process.env.ID_TOKEN,
+					},
+				},
+				quality: "highest",
+				filter: "audioonly",
+				// eslint-disable-next-line no-bitwise
+				highWaterMark: 1 << 25,
+				dlChunkSize: 0,
+			},
+			leaveOnEnd: false,
+			leaveOnStop: true,
+			leaveOnEmpty: false,
+			leaveOnEmptyCooldown: 5000,
+			autoSelfDeaf: true,
+			metadata: message.channel,
+		});
 
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);
