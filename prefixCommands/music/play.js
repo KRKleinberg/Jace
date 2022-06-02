@@ -38,7 +38,8 @@ export default {
 			leaveOnStop: true,
 			leaveOnEmpty: false,
 			leaveOnEmptyCooldown: 5000,
-			autoSelfDeaf: true,
+            autoSelfDeaf: true,
+            metadata: message.channel
 		});
 
 		try {
