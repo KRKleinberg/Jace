@@ -21,17 +21,17 @@ export default {
 					fields: [
 						{
 							name: "Team A",
-							value: teamA,
+							value: `1 ${teamA}`,
 							inline: true,
 						},
 						{
 							name: "Team B",
-							value: teamB,
+							value: `2 ${teamB}`,
 							inline: true,
 						},
 						{
 							name: "Map Choice",
-							value: mapChoice,
+							value: `3 ${mapChoice}`,
 						},
 					],
 					color: 0x5864f1,
