@@ -11,6 +11,7 @@ client.playerOptions = {
 		requestOptions: {
 			headers: {
 				cookie: process.env.COOKIE,
+				"x-youtube-identity-token": process.env.ID_TOKEN,
 			},
 		},
 		quality: "highest",
