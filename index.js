@@ -30,6 +30,7 @@ connect(process.env.MONGOOSE).then(() => console.log("Connected to MongoDB"));
 client.prefixCommands = new Collection();
 client.slashCommands = new Collection();
 
-handler(client);
+handler;
+//handler(client);
 
 client.login(process.env.DJS_TOKEN);
