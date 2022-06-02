@@ -1,4 +1,5 @@
 import { QueryType } from "discord-player";
+import { agent } from "../../index.js";
 
 export default {
 	name: "play",
@@ -19,7 +20,26 @@ export default {
 		const { playerOptions } = client;
 		playerOptions.metadata = message.channel;
 
-		const queue = await client.player.createQueue(message.guild, playerOptions);
+		const queue = await client.player.createQueue(message.guild, {
+			ytdlOptions: {
+				requestOptions: {
+					agent,
+					headers: {
+						cookie: process.env.COOKIE,
+					},
+				},
+				quality: "highest",
+				filter: "audioonly",
+				// eslint-disable-next-line no-bitwise
+				highWaterMark: 1 << 25,
+				dlChunkSize: 0,
+			},
+			leaveOnEnd: false,
+			leaveOnStop: true,
+			leaveOnEmpty: false,
+			leaveOnEmptyCooldown: 5000,
+			autoSelfDeaf: true,
+		});
 
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);
@@ -33,7 +53,7 @@ export default {
 		});
 
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-        else queue.addTrack(searchResult.tracks[0]);
+		else queue.addTrack(searchResult.tracks[0]);
 
 		if (!queue.playing) await queue.play();
 
