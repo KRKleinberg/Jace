@@ -13,8 +13,8 @@ function stopTimeout() {
 }
 
 client.player.on("error", (queue, error) => {
-	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error}`);
-	if (error === "Status code: 410") {
+	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+	if (error.message === "Status code: 410") {
 		queue.metadata.send(`🔞 | This video is age restricted, try a different one`);
 	}
 	queue.metadata.send(`⚠️ | **Error!** This video isn't working, try a different one`);
@@ -25,9 +25,9 @@ client.player.on("error", (queue, error) => {
 });
 
 client.player.on("connectionError", (queue, error) => {
-	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error}`);
+	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`);
 	queue.metadata.send(
-		`⚠️ | ${error} You may need to retry that command or restart the bot using "/restart"`
+		`⚠️ | ${error.message} You may need to retry that command or restart the bot using "/restart"`
 	);
 	client.user.setActivity({
 		name: "Frogger | jacehelp",
