@@ -17,7 +17,7 @@ client.player.on("error", (queue, error) => {
 	if (error.message === "Status code: 410")
 		queue.metadata.send(`🔞 | This video is age restricted, try a different one`);
 	else queue.metadata.send(`⚠️ | **Error!** This video isn't working, try a different one`);
-    client.activity.default();
+    client.defaultActivity();
 });
 
 client.player.on("connectionError", (queue, error) => {
@@ -25,7 +25,7 @@ client.player.on("connectionError", (queue, error) => {
 	queue.metadata.send(
 		`⚠️ | ${error.message} You may need to retry that command or restart the bot using "/restart"`
 	);
-	client.activity.default();
+	client.defaultActivity();
 });
 
 client.player.on("trackStart", (queue, track) => {
@@ -131,16 +131,16 @@ client.player.on("trackAdd", (queue, track) => {
 
 client.player.on("botDisconnect", (queue) => {
 	queue.metadata.send("❌ | I was manually disconnected from the voice channel, clearing queue!");
-	client.activity.default();
+	client.defaultActivity();
 });
 
 client.player.on("channelEmpty", (queue) => {
 	queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 	queue.destroy();
-	client.activity.default();
+	client.defaultActivity();
 });
 
 client.player.on("queueEnd", (queue) => {
 	voiceDisconnect(queue);
-	client.activity.default();
+	client.defaultActivity();
 });

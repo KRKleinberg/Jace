@@ -28,12 +28,10 @@ const client = new Client({
 	slashCommands: new Collection(),
 });
 
-client.activity = {
-	default: client.user.setActivity({
-		name: `Frogger | ${process.env.PREFIX}help`,
-		type: "PLAYING",
-	}),
-};
+client.defaultActivity = client.user.setActivity({
+	name: `Frogger | ${process.env.PREFIX}help`,
+	type: "PLAYING",
+});
 
 client.player = new Player(client, client.playerOptions);
 
