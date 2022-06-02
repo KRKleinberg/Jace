@@ -7,13 +7,13 @@ const client = new Client({
 	intents: 32767,
 });
 
-const proxy = "http://user:pass@111.111.111.111:8080";
-export const agent = HttpsProxyAgent(proxy);
+// const proxy = "http://user:pass@111.111.111.111:8080";
+// export const agent = HttpsProxyAgent(proxy);
 
 client.playerOptions = {
 	ytdlOptions: {
 		requestOptions: {
-			agent,
+			// agent,
 			headers: {
 				cookie: process.env.COOKIE,
 			},
@@ -31,26 +31,7 @@ client.playerOptions = {
 	autoSelfDeaf: true,
 };
 
-client.player = new Player(client, {
-	ytdlOptions: {
-		requestOptions: {
-			agent,
-			headers: {
-				cookie: process.env.COOKIE,
-			},
-		},
-		quality: "highest",
-		filter: "audioonly",
-		// eslint-disable-next-line no-bitwise
-		highWaterMark: 1 << 25,
-		dlChunkSize: 0,
-	},
-	leaveOnEnd: false,
-	leaveOnStop: true,
-	leaveOnEmpty: false,
-	leaveOnEmptyCooldown: 5000,
-	autoSelfDeaf: true,
-});
+client.player = new Player(client, client.playerOptions);
 
 export default client;
 
