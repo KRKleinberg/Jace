@@ -1,4 +1,4 @@
-const { QueryType } = require('discord-player');
+import { QueryType } from 'discord-player';
 
 export default {
 	name: "play",
