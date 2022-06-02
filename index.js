@@ -1,7 +1,7 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
 import HttpsProxyAgent from "https-proxy-agent";
-import handler from "./handler";
+import handler from "./handler.js";
 
 const client = new Client({
 	intents: 32767,

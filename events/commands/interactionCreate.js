@@ -1,4 +1,4 @@
-import client from "../../index";
+import client from "../../index.js";
 
 client.on("interactionCreate", async (interaction) => {
 	// Slash Command Handling
