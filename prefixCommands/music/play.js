@@ -19,7 +19,7 @@ export default {
 		const { playerOptions } = client;
 		playerOptions.metadata = message.channel;
 
-		const queue = await client.player.createQueue(message.guild);
+		const queue = await client.player.createQueue(message.guild, { metadata: message.channel });
 
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);
@@ -35,8 +35,8 @@ export default {
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
 		else queue.addTrack(searchResult.tracks[0]);
 
-        if (!queue.playing) await queue.play();
-        
-        return null;
+		if (!queue.playing) await queue.play();
+
+		return null;
 	},
 };
