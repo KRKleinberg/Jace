@@ -16,8 +16,8 @@ export default {
 		if (!searchResult || !searchResult.tracks.length)
 			return message.channel.send({ content: `No results were found!` });
 
-        const { playerOptions } = client;
-        playerOptions.metadata = message.channel;
+		const { playerOptions } = client;
+		playerOptions.metadata = message.channel;
 
 		const queue = await client.player.createQueue(message.guild, playerOptions);
 
@@ -32,8 +32,9 @@ export default {
 			content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 		});
 
-		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-		else queue.addTrack(searchResult.tracks[0]);
+		// if (searchResult.playlist) queue.addTracks(searchResult.tracks);
+        // else queue.addTrack(searchResult.tracks[0]);
+        searchResult.playlist ? queue.addTracks(searchResult.tracks) : queue.addTrack(searchResult.tracks[0]);
 		if (!queue.playing) await queue.play();
 
 		return null;
