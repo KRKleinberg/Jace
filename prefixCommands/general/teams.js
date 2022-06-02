@@ -5,14 +5,14 @@ export default {
 	options: [],
 	run: async (client, message) => {
 		const voiceMembers = message.member.voice.channel.members;
-		const half = Math.ciel(voiceMembers.lenth / 2);
+		const half = Math.ceil(voiceMembers.lenth / 2);
 		const teams = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
 		const teamA = `${teams.slice(0, half).join("\n")}`;
 		const teamB = `${teams.slice(half, voiceMembers.lenth).join("\n")}`;
-		const mapChoice = `${teams[Math.ciel(Math.random() * teams.lenth)]}`;
+		const mapChoice = `${teams[Math.ceil(Math.random() * teams.lenth)]}`;
 
 		message.channel.send({
 			embeds: [
