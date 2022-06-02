@@ -1,18 +1,14 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
-import HttpsProxyAgent from "https-proxy-agent";
 import handler from "./handler.js";
 
 const client = new Client({
 	intents: 32767,
 });
 
-const agent = HttpsProxyAgent("http://111.111.111.111:8080");
-
 client.playerOptions = {
 	ytdlOptions: {
 		requestOptions: {
-			agent,
 			headers: {
 				cookie: process.env.COOKIE,
 			},
@@ -30,16 +26,7 @@ client.playerOptions = {
 	autoSelfDeaf: true,
 };
 
-client.player = new Player(client, {
-	ytdlOptions: {
-		requestOptions: {
-			agent,
-			headers: {
-				cookie: process.env.COOKIE,
-			},
-		},
-	}
-});
+client.player = new Player(client, client.playerOptions);
 
 export default client;
 

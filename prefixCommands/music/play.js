@@ -16,8 +16,8 @@ export default {
 		if (!searchResult || !searchResult.tracks.length)
 			return message.channel.send({ content: `No results were found!` });
 
-		const { playerOptions } = client;
-		playerOptions.metadata = message.channel;
+		// const { playerOptions } = client;
+		// playerOptions.metadata = message.channel;
 
 		const queue = await client.player.createQueue(message.guild, { metadata: message.channel });
 
