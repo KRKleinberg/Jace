@@ -6,15 +6,15 @@ const globPromise = promisify(glob);
 export default async (client) => {
 	const prefixCommandFiles = await globPromise(`${process.cwd()}/prefixCommands/**/*.js`);
 	prefixCommandFiles.map((value) => {
+		const { prefixCommand } = import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
-		import(value).then((file) => {
-			if (file.name) {
-				const properties = { directory, ...file };
-				client.prefixCommands.set(file.name, properties);
-				console.log(file.name);
-			}
-		});
+
+		if (prefixCommand.name) {
+			const properties = { directory, ...prefixCommand };
+			client.prefixCommands.set(prefixCommand.name, properties);
+			console.log(prefixCommand.name);
+		}
 	});
 
 	const eventFiles = await globPromise(`${process.cwd()}/events/**/*.js`);
