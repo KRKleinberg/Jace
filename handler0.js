@@ -6,7 +6,7 @@ const globPromise = promisify(glob);
 export default async (client) => {
 	const prefixCommandFiles = await globPromise(`${process.cwd()}/prefixCommands/**/*.js`);
 	prefixCommandFiles.map((value) => {
-		const { prefixCommand } = import(value);
+		const { default: prefixCommand } = import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
 
