@@ -19,7 +19,6 @@ export default async (client) => {
 		if (prefixCommand.name) {
 			const properties = { directory, ...prefixCommand };
 			client.prefixCommands.set(prefixCommand.name, properties);
-			console.log(prefixCommand.name);
 		}
 	});
 
@@ -39,7 +38,7 @@ export default async (client) => {
 	});
 
 	// Comment out the line below for main branch
-	setTimeout(() => {
+	/* setTimeout(() => {
 		process.exit(0);
-	}, 300000);
+	}, 300000); */
 };
