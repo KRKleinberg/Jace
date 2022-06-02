@@ -1,10 +1,12 @@
 import globPKG from "glob";
+import { promisify } from "util";
 const { glob } = globPKG;
+const globPromise = promisify(glob);
 
 export default async (client) => {
-	const prefixCommandFiles = glob("./prefixCommands/**/*.js");
+	const prefixCommandFiles = await globPromise(`${process.cwd()}/prefixCommands/**/*.js`);
 	prefixCommandFiles.map((value) => {
-		const file = import(value);
+		const file = require(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
 
@@ -34,5 +36,7 @@ export default async (client) => {
 	});
 
 	// Comment out the line below for main branch
-	setTimeout(function () { process.exit(0); }, 300000);
+	setTimeout(function () {
+		process.exit(0);
+	}, 300000);
 };
