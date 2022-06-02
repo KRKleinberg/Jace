@@ -7,13 +7,12 @@ const client = new Client({
 	intents: 32767,
 });
 
-// const proxy = "http://user:pass@111.111.111.111:8080";
-// export const agent = HttpsProxyAgent(proxy);
+export const agent = HttpsProxyAgent("http://50.218.57.66:80");
 
 client.playerOptions = {
 	ytdlOptions: {
 		requestOptions: {
-			// agent,
+			agent,
 			headers: {
 				cookie: process.env.COOKIE,
 			},

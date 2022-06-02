@@ -1,5 +1,4 @@
 import { QueryType } from "discord-player";
-// import { agent } from "../../index.js";
 
 export default {
 	name: "play",
