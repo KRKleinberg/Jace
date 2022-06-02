@@ -1,4 +1,4 @@
-export default {
+export const slashCommand = {
 	name: "ping",
 	description: "Returns websocket ping",
 	type: "CHAT_INPUT",
