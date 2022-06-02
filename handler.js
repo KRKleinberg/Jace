@@ -26,7 +26,7 @@ export default async (client) => {
 	slashCommands.map((value) => {
 		const { slashCommand } = import(value);
 		if (!slashCommand?.name) return;
-		client.slashCommands.set(slashCommand.name, file);
+		client.slashCommands.set(slashCommand.name, slashCommand);
 
 		if (["MESSAGE", "USER"].includes(slashCommand.type)) delete slashCommand.description;
 		arrayOfSlashCommands.push(slashCommand);
