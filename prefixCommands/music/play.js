@@ -19,7 +19,7 @@ export default {
 		const { playerOptions } = client;
 		playerOptions.metadata = message.channel;
 
-		const queue = await client.player.createQueue(message.guild, playerOptions);
+		const queue = await client.player.createQueue(message.guild);
 
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);

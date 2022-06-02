@@ -7,7 +7,7 @@ const client = new Client({
 	intents: 32767,
 });
 
-export const agent = HttpsProxyAgent("http://50.218.57.66:80");
+const agent = HttpsProxyAgent("http://111.111.111.111:8080");
 
 client.playerOptions = {
 	ytdlOptions: {
@@ -30,7 +30,16 @@ client.playerOptions = {
 	autoSelfDeaf: true,
 };
 
-client.player = new Player(client, client.playerOptions);
+client.player = new Player(client, {
+	ytdlOptions: {
+		requestOptions: {
+			agent,
+			headers: {
+				cookie: process.env.COOKIE,
+			},
+		},
+	}
+});
 
 export default client;
 
