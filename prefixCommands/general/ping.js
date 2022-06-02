@@ -1,4 +1,4 @@
-const prefixCommand = {
+export const prefixCommand = {
 	name: "ping",
 	aliases: [],
 	description: "Returns websocket ping",
@@ -7,4 +7,3 @@ const prefixCommand = {
 		message.channel.send({ content: `📶 | \`${client.ws.ping}ms\`` });
 	},
 };
-export default prefixCommand;
