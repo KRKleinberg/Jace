@@ -25,9 +25,9 @@ client.playerOptions = {
 		dlChunkSize: 0,
 	},
 	leaveOnEnd: false,
-	leaveOnStop: false,
+	leaveOnStop: true,
 	leaveOnEmpty: false,
-	leaveOnEmptyCooldown: 1000,
+	leaveOnEmptyCooldown: 5000,
 	autoSelfDeaf: true,
 };
 
