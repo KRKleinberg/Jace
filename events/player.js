@@ -18,7 +18,7 @@ client.player.on("error", (queue, error) => {
 		queue.metadata.send(`🔞 | This video is age restricted, try a different one`);
 	else queue.metadata.send(`⚠️ | **Error!** This video isn't working, try a different one`);
     client.user.setActivity({
-		name: "Frogger | jacehelp",
+		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
 	});
 });
@@ -29,7 +29,7 @@ client.player.on("connectionError", (queue, error) => {
 	`⚠️ | **Error!** ${error.message} You may need to retry that command or restart the bot using "/restart"`
 );
 	client.user.setActivity({
-		name: "Frogger | jacehelp",
+		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
 	});
 });
@@ -138,7 +138,7 @@ client.player.on("trackAdd", (queue, track) => {
 client.player.on("botDisconnect", (queue) => {
 	queue.metadata.send("❌ | Manually disconnected from the voice channel, clearing queue!");
 	client.user.setActivity({
-		name: "Frogger | jacehelp",
+		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
 	});
 });
@@ -147,7 +147,7 @@ client.player.on("channelEmpty", (queue) => {
 	queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 	queue.destroy();
 	client.user.setActivity({
-		name: "Frogger | jacehelp",
+		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
 	});
 });
@@ -155,7 +155,7 @@ client.player.on("channelEmpty", (queue) => {
 client.player.on("queueEnd", (queue) => {
 	voiceDisconnect(queue);
 	client.user.setActivity({
-		name: "Frogger | jacehelp",
+		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
 	});
 });
