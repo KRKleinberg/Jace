@@ -11,32 +11,36 @@ export default {
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
 		const teamA = `${teams.slice(0, half).join("\n")}`;
-		const teamB = `${teams.slice(half, voiceMembers.length).join("\n")}`;
+		const teamB = `${teams.slice(half).join("\n")}`;
 		const mapChoice = `${teams[Math.ceil(Math.random() * teams.length)]}`;
 
 		message.channel.send({
-			embeds: [
+	embeds: [
+		{
+			title: "Teams",
+			fields: [
 				{
-					title: "Teams",
-					fields: [
-						{
-							name: "Team A",
-							value: `1 ${teamA}`,
-							inline: true,
-						},
-						{
-							name: "Team B",
-							value: `2 ${teamB}`,
-							inline: true,
-						},
-						{
-							name: "Map Choice",
-							value: `3 ${mapChoice}`,
-						},
-					],
-					color: 0x5864f1,
+					name: "Team A",
+					value: `1 ${teamA}`,
+					inline: true,
+				},
+				{
+					name: "Team B",
+					value: `2 ${teamB}`,
+					inline: true,
+				},
+				{
+					name: "Map Choice",
+					value: `3 ${mapChoice}`,
+				},
+				{
+					name: "Map Choice",
+					value: `3 ${teams}`,
 				},
 			],
-		});
+			color: 0x5864f1,
+		},
+	],
+});
 	},
 };
