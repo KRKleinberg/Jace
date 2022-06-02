@@ -12,7 +12,7 @@ export default {
 			.map(({ value }) => value);
 		const teamA = `${teams.slice(0, half).join("\n")}`;
 		const teamB = `${teams.slice(half, voiceMembers.length).join("\n")}`;
-		const mapChoice = `${teams[Math.ceil(Math.random() * teams.lenth)]}`;
+		const mapChoice = `${teams[Math.ceil(Math.random() * teams.length)]}`;
 
 		message.channel.send({
 			embeds: [
