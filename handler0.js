@@ -12,6 +12,7 @@ export default async (client) => {
 			if (file.name) {
 				const properties = { directory, ...file };
 				client.prefixCommands.set(file.name, properties);
+				console.log(file.name);
 			}
 		});
 	});
