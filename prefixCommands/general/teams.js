@@ -11,7 +11,7 @@ export default {
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
 		const teamA = `${teams.slice(0, half).join("\n")}`;
-		const teamB = `${teams.slice(half, voiceMembers.lenth).join("\n")}`;
+		const teamB = `${teams.slice(half, voiceMembers.length).join("\n")}`;
 		const mapChoice = `${teams[Math.ceil(Math.random() * teams.lenth)]}`;
 
 		message.channel.send({
