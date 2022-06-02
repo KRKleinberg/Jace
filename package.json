@@ -1,0 +1,36 @@
+{
+	"name": "jace-bot",
+	"version": "2.0.0",
+	"description": "Multipurpose Discord Bot",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/KRKleinberg/JaceBot.git"
+	},
+	"author": "Kevin Kleinberg",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/KRKleinberg/JaceBot/issues"
+	},
+	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
+	"dependencies": {
+		"@discordjs/opus": "^0.7.0",
+		"@supercharge/strings": "^1.28.0",
+		"discord-player": "^5.2.2",
+		"discord.js": "^13.7.0",
+		"ffmpeg-static": "^4.4.1",
+		"glob": "^8.0.3"
+	},
+	"devDependencies": {
+		"eslint": "^8.16.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-import": "^2.26.0",
+		"prettier": "2.6.2"
+	}
+}
