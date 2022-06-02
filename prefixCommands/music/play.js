@@ -15,7 +15,7 @@ export default {
 			})
 			.catch(() => {});
 		if (!searchResult || !searchResult.tracks.length)
-			return void message.channel.send({ content: `No results were found!` });
+			return message.channel.send({ content: `No results were found!` });
 
 		const { playerOptions } = client;
 		playerOptions.metadata = message.channel;
@@ -45,8 +45,8 @@ export default {
 		try {
 			if (!queue.connection) await queue.connect(message.member.voice.channel);
 		} catch {
-			void client.player.deleteQueue(message.guildId);
-			return void message.channel.send({ content: "Could not join your voice channel!" });
+			client.player.deleteQueue(message.guildId);
+			return message.channel.send({ content: "Could not join your voice channel!" });
 		}
 
 		await message.channel.send({
@@ -57,7 +57,5 @@ export default {
 		else queue.addTrack(searchResult.tracks[0]);
 
 		if (!queue.playing) await queue.play();
-
-		return null;
 	},
 };
