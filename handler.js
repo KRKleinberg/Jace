@@ -4,9 +4,14 @@ const { glob } = globPKG;
 const globPromise = promisify(glob);
 
 export default async (client) => {
+	// Event Handler
+	const eventFiles = await globPromise(`${process.cwd()}/events/**/*.js`);
+	eventFiles.map((value) => import(value));
+
+	// Prefix Command Handler
 	const prefixCommandFiles = await globPromise(`${process.cwd()}/prefixCommands/**/*.js`);
 	prefixCommandFiles.map(async (value) => {
-		const { prefixCommand } = await import(value);
+		const { default: prefixCommand } = await import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
 
@@ -17,11 +22,8 @@ export default async (client) => {
 		}
 	});
 
-	const eventFiles = await globPromise(`${process.cwd()}/events/**/*.js`);
-	eventFiles.map((value) => import(value));
-
+	// Slash Command Handler
 	const slashCommands = await globPromise(`${process.cwd()}/slashCommands/**/*.js`);
-
 	const arrayOfSlashCommands = [];
 	slashCommands.map(async (value) => {
 		const { slashCommand } = await import(value);
@@ -31,11 +33,7 @@ export default async (client) => {
 		if (["MESSAGE", "USER"].includes(slashCommand.type)) delete slashCommand.description;
 		arrayOfSlashCommands.push(slashCommand);
 	});
-
 	client.on("ready", async () => {
-		//Test Server
-		//await client.guilds.cache.get("844223765302345749").commands.set(arrayOfSlashCommands);
-		//All servers
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
 

@@ -1,4 +1,4 @@
-export const prefixCommand = {
+export default {
 	name: "ping",
 	aliases: [],
 	description: "Returns websocket ping",
