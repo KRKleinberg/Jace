@@ -18,7 +18,8 @@ export default {
 				requestedBy: interaction.user,
 				searchEngine: QueryType.AUTO,
 			})
-			.catch(() => {});
+            .catch(() => { });
+        
 		if (!searchResult || !searchResult.tracks.length)
 			return interaction.followUp({ content: "No results were found!" });
 

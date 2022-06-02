@@ -12,7 +12,8 @@ export default {
 				requestedBy: message.author,
 				searchEngine: QueryType.AUTO,
 			})
-			.catch(() => {});
+            .catch(() => { });
+        
 		if (!searchResult || !searchResult.tracks.length)
 			return message.channel.send({ content: `No results were found!` });
 

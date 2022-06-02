@@ -1,20 +1,18 @@
 export default {
 	name: "queue",
-	aliases: ["q"],
 	description: "Displays the queue",
-	options: [],
-	run: async (client, message) => {
-		const queue = client.player.getQueue(message.guildId);
+	run: async (client, interaction) => {
+		const queue = client.player.getQueue(interaction.guildId);
 
 		if (!queue || !queue.playing)
-			return message.channel.send({ content: "❌ | No music is being played!" });
+			return interaction.followUp({ content: "❌ | No music is being played!" });
 
 		const currentTrack = queue.current;
 		const tracks = queue.tracks
 			.slice(0, 10)
 			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
 
-		return message.channel.send({
+		return interaction.followUp({
 			embeds: [
 				{
 					title: "Server Queue",
