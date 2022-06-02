@@ -5,7 +5,7 @@ export default {
 	run: async (client, interaction) => {
 		const MAX_FIELDS = 25;
 		// Iterate over the commands and create field objects
-		const fields = client.commands.map((command) => ({
+		const fields = client.prefixCommands.map((command) => ({
 			name: command.aliases.length
 				? `${command.name} (${command.aliases.join(", ")})`
 				: `${command.name}`,
