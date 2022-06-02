@@ -1,18 +1,19 @@
-import client from "../../index.js";
+import client from "../../index";
 
 client.on("messageCreate", async (message) => {
 	if (
-		message.author.bot ||
-		!message.guild ||
-		!message.content.toLowerCase().startsWith(process.env.PREFIX)
-	)
-		return;
+		!message.author.bot ||
+		message.guild ||
+		message.content.toLowerCase().startsWith(process.env.PREFIX)
+	) {
+		// Get typed command and arguments
+		const [input, ...args] = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
 
-	const [cmd, ...args] = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
+		// Find command
+		const prefixCommand =
+			client.prefixCommands.get(input.toLowerCase()) ||
+			client.prefixCommands.find((c) => c.aliases?.includes(input.toLowerCase()));
 
-	const command =
-		client.prefixCommands.get(cmd.toLowerCase()) ||
-		client.prefixCommands.find((c) => c.aliases?.includes(cmd.toLowerCase()));
-
-	if (command) await command.run(client, message, args);
+		if (prefixCommand) await prefixCommand.run(client, message, args);
+	}
 });

@@ -1,4 +1,4 @@
-import client from "../index.js";
+import client from "../index";
 
 client.on("ready", () => {
 	console.log(`${client.user.tag} is online! Prefix set as "${process.env.PREFIX}"`);
