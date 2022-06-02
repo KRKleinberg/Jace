@@ -13,7 +13,7 @@ function stopTimeout() {
 }
 
 client.player.on("error", (queue, error) => {
-	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error}`);
 	queue.metadata.send(
 		`⚠️ | **Error!** You may need to retry that command or restart the bot using "/restart"`
 	);
