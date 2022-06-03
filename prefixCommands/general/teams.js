@@ -9,7 +9,7 @@ export default {
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
-		const half = Math.ceil(shuffled.length / 2);
+		const half = Math.floor(shuffled.length / 2);
 		const teamA = shuffled.slice(0, half);
 		const teamB = shuffled.slice(-half);
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
