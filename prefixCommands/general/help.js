@@ -11,7 +11,9 @@ export default {
 				name: command.aliases.length
 					? `${command.name} (${command.aliases.join(", ")})`
 					: `${command.name}`,
-				value: `${command.description}`,
+				value: command.options.length
+					? `${command.description}\nInput: ${command.options.join(", ")}`
+					: `${command.description}`,
 			}))
 			.slice(0, 25);
 
