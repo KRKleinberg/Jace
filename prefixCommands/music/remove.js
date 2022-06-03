@@ -5,7 +5,7 @@ export default {
 	options: ["\u0060track number\u0060"],
 	run: async (client, message, args) => {
 		const queue = client.player.getQueue(message.guildId);
-		if (queue || queue.playing) {
+		if (queue && queue.playing) {
             const trackIndex = parseInt(args[0], 10) - 1;
             const trackName = queue.tracks[trackIndex];
 			const success = queue.remove(trackIndex);
