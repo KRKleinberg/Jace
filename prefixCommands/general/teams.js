@@ -14,38 +14,38 @@ export default {
 				[array[i], array[j]] = [array[j], array[i]];
 			}
 		}
-		const shuffled = shuffle(voiceMembers);
-		const teamA = shuffled.slice(0, half).join("\n");
-		const teamB = shuffled.slice(-half).join("\n");
-		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
+		shuffle(voiceMembers);
+		const teamA = voiceMembers.slice(0, half).join("\n");
+		const teamB = voiceMembers.slice(-half).join("\n");
+		const mapChoice = voiceMembers[Math.floor(Math.random() * voiceMembers.length)];
 
 		message.channel.send({
-			embeds: [
+	embeds: [
+		{
+			title: "Teams",
+			fields: [
 				{
-					title: "Teams",
-					fields: [
-						{
-							name: "Team A",
-							value: `1 ${teamA}`,
-							inline: true,
-						},
-						{
-							name: "Team B",
-							value: `2 ${teamB}`,
-							inline: true,
-						},
-						{
-							name: "Map Choice",
-							value: `3 ${mapChoice}`,
-						},
-						{
-							name: "Map Choice",
-							value: `3 ${shuffled} ${shuffled.length}`,
-						},
-					],
-					color: 0x5864f1,
+					name: "Team A",
+					value: `1 ${teamA}`,
+					inline: true,
+				},
+				{
+					name: "Team B",
+					value: `2 ${teamB}`,
+					inline: true,
+				},
+				{
+					name: "Map Choice",
+					value: `3 ${mapChoice}`,
+				},
+				{
+					name: "Map Choice",
+					value: `3 ${voiceMembers} ${voiceMembers.length}`,
 				},
 			],
-		});
+			color: 0x5864f1,
+		},
+	],
+});
 	},
 };
