@@ -3,8 +3,8 @@ export default {
 	aliases: [],
 	description: "Splits users in voice channel into two teams",
 	options: [],
-	run: async (client, message) => {
-		const voiceMembers = message.member.voice.channel.members.filter((member) => !member.user.bot);
+	run: async (client, interaction) => {
+		const voiceMembers = interaction.member.voice.channel.members.filter((member) => !member.user.bot);
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
@@ -14,7 +14,7 @@ export default {
 		const teamB = shuffled.slice(half);
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
-		message.channel.send({
+		interaction.followUp({
 			embeds: [
 				{
 					title: "Teams",
