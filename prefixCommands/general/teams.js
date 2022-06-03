@@ -21,21 +21,17 @@ export default {
 					fields: [
 						{
 							name: "Team A",
-							value: `1 ${teamA}`,
+							value: `${teamA.join("\n")}`,
 							inline: true,
 						},
 						{
 							name: "Team B",
-							value: `2 ${teamB}`,
+							value: `${teamB.join("\n")}`,
 							inline: true,
 						},
 						{
 							name: "Map Choice",
-							value: `3 ${mapChoice}`,
-						},
-						{
-							name: "Map Choice",
-							value: `3 ${shuffled} ${shuffled.length}`,
+							value: `${mapChoice}`,
 						},
 					],
 					color: 0x5864f1,
