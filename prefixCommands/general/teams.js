@@ -39,6 +39,6 @@ export default {
 					},
 				],
 			});
-		} else message.channel.send({ content: "You're not in a voice channel!" });
+		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},
 };
