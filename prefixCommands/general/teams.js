@@ -7,17 +7,19 @@ export default {
 		const voiceMembers = message.member.voice.channel.members;
 		const half = Math.floor(voiceMembers.lenth / 2);
 		function shuffle(array) {
+			const shuffled = array;
 			// eslint-disable-next-line no-plusplus
-			for (let i = array.length - 1; i > 0; i--) {
+			for (let i = shuffled.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
 				// eslint-disable-next-line no-param-reassign
-				[array[i], array[j]] = [array[j], array[i]];
+				[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 			}
+			return shuffled;
 		}
-		shuffle(voiceMembers);
-		const teamA = voiceMembers.slice(0, half).join("\n");
-		const teamB = voiceMembers.slice(-half).join("\n");
-		const mapChoice = voiceMembers[Math.floor(Math.random() * voiceMembers.length)];
+		const shuffled = shuffle(voiceMembers);
+		const teamA = shuffled.slice(0, half);
+		const teamB = shuffled.slice(-half);
+		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
 		message.channel.send({
 	embeds: [
@@ -40,7 +42,7 @@ export default {
 				},
 				{
 					name: "Map Choice",
-					value: `3 ${voiceMembers} ${voiceMembers.length}`,
+					value: `3 ${shuffled} ${shuffled.length}`,
 				},
 			],
 			color: 0x5864f1,
