@@ -1,6 +1,6 @@
 export default {
 	name: "resume",
-	aliases: [],
+	aliases: ['res'],
 	description: "Resumes the current song",
 	options: [],
 	run: async (client, message) => {
