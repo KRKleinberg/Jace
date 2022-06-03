@@ -5,7 +5,7 @@ export default {
 	options: [],
 	run: async (client, message) => {
 		const voiceMembers = message.member.voice.channel.members;
-		const half = Math.floor(voiceMembers.lenth / 2);
+		const half = Math.floor(voiceMembers.length / 2);
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
