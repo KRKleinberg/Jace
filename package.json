@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "node index.js",
-		"start": "pm2-runtime start ecosystem.config.cjs"
+		"start": "pm2-runtime start ecosystem.config.cjs --env production"
 	},
 	"repository": {
 		"type": "git",
@@ -35,4 +35,5 @@
 		"prettier": "2.6.2"
 	}
 }
+
 
