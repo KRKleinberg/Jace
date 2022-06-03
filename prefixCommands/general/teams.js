@@ -21,17 +21,17 @@ export default {
 					fields: [
 						{
 							name: "Team A",
-							value: `1 ${teamA.join("\n")}`,
+							value: teamA.join("\n").toString(),
 							inline: true,
 						},
 						{
 							name: "Team B",
-							value: `2 ${teamB.join("\n")}`,
+							value: teamB.join("\n").toString(),
 							inline: true,
 						},
 						{
 							name: "Map Choice",
-							value: `3 ${mapChoice}`,
+							value: mapChoice.toString(),
 						},
 					],
 					color: 0x5864f1,
