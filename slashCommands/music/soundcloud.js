@@ -1,8 +1,8 @@
 import { QueryType } from "discord-player";
 
 export default {
-	name: "play",
-	description: "Plays a song",
+	name: "soundcloud",
+	description: "Plays a song from SoundCloud",
 	options: [
 		{
 			name: "song",
@@ -17,7 +17,7 @@ export default {
 			const searchResult = await client.player
 				.search(query, {
 					requestedBy: interaction.user,
-					searchEngine: QueryType.AUTO,
+					searchEngine: QueryType.SOUNDCLOUD_SEARCH,
 				})
 				.catch(() => {});
 

@@ -16,7 +16,7 @@ client.player.on("error", (queue, error) => {
 	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
 	if (error.message === "Status code: 410")
 		queue.metadata.send(`🔞 | This video is age restricted, try a different one`);
-	else queue.metadata.send(`⚠️ | **Error!** This video isn't working, try a different one`);
+	// else queue.metadata.send(`⚠️ | **Error!** This video isn't working, try a different one`);
     client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",

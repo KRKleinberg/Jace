@@ -27,18 +27,19 @@ export default async (client) => {
 	const arrayOfSlashCommands = [];
 	slashCommands.map(async (value) => {
 		const { default: slashCommand } = await import(value);
-		if (!slashCommand?.name) return;
-		client.slashCommands.set(slashCommand.name, slashCommand);
+		if (slashCommand?.name) {
+			client.slashCommands.set(slashCommand.name, slashCommand);
 
-		if (["MESSAGE", "USER"].includes(slashCommand.type)) delete slashCommand.description;
-		arrayOfSlashCommands.push(slashCommand);
+			if (["MESSAGE", "USER"].includes(slashCommand.type)) delete slashCommand.description;
+			arrayOfSlashCommands.push(slashCommand);
+		}
 	});
 	client.on("ready", async () => {
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
 
 	// Comment out the line below for main branch
-	/* setTimeout(() => {
+	setTimeout(() => {
 		process.exit(0);
-	}, 300000); */
+	}, 300000);
 };

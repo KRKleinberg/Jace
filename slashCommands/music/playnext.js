@@ -2,12 +2,12 @@ import { QueryType } from "discord-player";
 
 export default {
 	name: "play",
-	description: "Plays a song",
+	description: "Adds a song to the top of the queue",
 	options: [
 		{
 			name: "song",
 			type: "STRING",
-			description: "The song you want to play",
+			description: "The song you want to play next",
 			required: true,
 		},
 	],
@@ -22,7 +22,7 @@ export default {
 				.catch(() => {});
 
 			if (searchResult && searchResult.tracks.length) {
-				const queue = await client.player.createQueue(interaction.guild, {
+				const queue = await client.player.getQueue(interaction.guild, {
 					ytdlOptions: {
 						requestOptions: {
 							headers: {
@@ -44,20 +44,14 @@ export default {
 					metadata: interaction.channel,
 				});
 
-				try {
-					if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+				if (queue && queue.playing) {
 					await interaction.followUp({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
-					if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-					else queue.addTrack(searchResult.tracks[0]);
-
-					if (!queue.playing) await queue.play();
-				} catch {
-					client.player.deleteQueue(interaction.guildId);
-					interaction.followUp({ content: "❌ | Could not join your voice channel!" });
-				}
+					if (searchResult.playlist) queue.insert(searchResult.tracks);
+					else queue.insert(searchResult.tracks[0]);
+				} else interaction.followUp({ content: "❌ | No music is being played!" });
 			} else interaction.followUp({ content: "❌ | No results were found!" });
 		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
 	},

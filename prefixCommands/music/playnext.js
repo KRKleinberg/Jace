@@ -1,9 +1,9 @@
 import { QueryType } from "discord-player";
 
 export default {
-	name: "play",
-	aliases: ["p"],
-	description: "Plays a song",
+	name: "playnext",
+	aliases: ["pn"],
+	description: "Adds a song to the top of the queue",
 	options: ["\u0060song\u0060"],
 	run: async (client, message, args) => {
 		if (message.member.voice.channel) {
@@ -16,7 +16,7 @@ export default {
 				.catch(() => {});
 
 			if (searchResult && searchResult.tracks.length) {
-				const queue = await client.player.createQueue(message.guild, {
+				const queue = await client.player.getQueue(message.guild, {
 					ytdlOptions: {
 						requestOptions: {
 							headers: {
@@ -38,20 +38,14 @@ export default {
 					metadata: message.channel,
 				});
 
-				try {
-					if (!queue.connection) await queue.connect(message.member.voice.channel);
+				if (queue && queue.playing) {
 					await message.channel.send({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
-					if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-					else queue.addTrack(searchResult.tracks[0]);
-
-					if (!queue.playing) await queue.play();
-				} catch {
-					client.player.deleteQueue(message.guildId);
-					message.channel.send({ content: "❌ | Could not join your voice channel!" });
-				}
+					if (searchResult.playlist) queue.insert(searchResult.tracks);
+					else queue.insert(searchResult.tracks[0]);
+				} else message.channel.send({ content: "❌ | No music is being played!" });
 			} else message.channel.send({ content: "❌ | No results were found!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},

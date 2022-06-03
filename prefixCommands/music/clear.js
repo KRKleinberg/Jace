@@ -1,19 +1,16 @@
 export default {
-	name: "skip",
-	aliases: ["fs"],
-	description: "Skips the current song",
+	name: "clear",
+	aliases: ["clr"],
+	description: "Clears the queue",
 	options: [],
 	run: async (client, message) => {
 		if (message.member.voice.channel) {
 			const queue = client.player.getQueue(message.guildId);
 
 			if (queue && queue.playing) {
-				const currentTrack = queue.current;
-				const success = queue.skip();
+				queue.clear();
 
-				message.channel.send({
-					content: success ? `⏭️ | Skipped **${currentTrack}**!` : "❌ | Something went wrong!",
-				});
+				message.channel.send({ content: "🧼 | Queue cleared." });
 			} else message.channel.send({ content: "❌ | No music is being played!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},

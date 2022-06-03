@@ -10,6 +10,6 @@ export default {
 
         queue.destroy();
         
-		return message.channel.send({ content: "🔌 | Disconnected!" });
+		message.channel.send({ content: "🔌 | Disconnected!" });
 	},
 };

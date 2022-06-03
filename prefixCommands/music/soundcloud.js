@@ -1,28 +1,22 @@
 import { QueryType } from "discord-player";
 
 export default {
-	name: "play",
-	description: "Plays a song",
-	options: [
-		{
-			name: "song",
-			type: "STRING",
-			description: "The song you want to play",
-			required: true,
-		},
-	],
-	run: async (client, interaction) => {
-		if (interaction.member.voice.channel) {
-			const query = interaction.options.get("song").value;
+	name: "soundcloud",
+	aliases: ["sc"],
+	description: "Plays a song from SoundCloud",
+	options: ["\u0060song\u0060"],
+	run: async (client, message, args) => {
+		if (message.member.voice.channel) {
+			const query = args.join(" ");
 			const searchResult = await client.player
 				.search(query, {
-					requestedBy: interaction.user,
-					searchEngine: QueryType.AUTO,
+					requestedBy: message.author,
+					searchEngine: QueryType.SOUNDCLOUD_SEARCH,
 				})
 				.catch(() => {});
 
 			if (searchResult && searchResult.tracks.length) {
-				const queue = await client.player.createQueue(interaction.guild, {
+				const queue = await client.player.createQueue(message.guild, {
 					ytdlOptions: {
 						requestOptions: {
 							headers: {
@@ -41,12 +35,12 @@ export default {
 					leaveOnEmpty: false,
 					leaveOnEmptyCooldown: 5000,
 					autoSelfDeaf: true,
-					metadata: interaction.channel,
+					metadata: message.channel,
 				});
 
 				try {
-					if (!queue.connection) await queue.connect(interaction.member.voice.channel);
-					await interaction.followUp({
+					if (!queue.connection) await queue.connect(message.member.voice.channel);
+					await message.channel.send({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
@@ -55,10 +49,10 @@ export default {
 
 					if (!queue.playing) await queue.play();
 				} catch {
-					client.player.deleteQueue(interaction.guildId);
-					interaction.followUp({ content: "❌ | Could not join your voice channel!" });
+					client.player.deleteQueue(message.guildId);
+					message.channel.send({ content: "❌ | Could not join your voice channel!" });
 				}
-			} else interaction.followUp({ content: "❌ | No results were found!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else message.channel.send({ content: "❌ | No results were found!" });
+		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},
 };

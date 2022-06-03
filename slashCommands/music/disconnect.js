@@ -1,12 +1,6 @@
 export default {
 	name: "disconnect",
 	description: "Disconnects from voice channel",
-	/**
-	 *
-	 * @param {Client} client
-	 * @param {CommandInteraction} interaction
-	 * @param {String[]} args
-	 */
 	run: async (client, interaction) => {
 		let queue = client.player.getQueue(interaction.guildId);
 
@@ -14,6 +8,6 @@ export default {
 
 		queue.destroy();
 
-		return interaction.followUp({ content: "🔌 | Disconnected!" });
+		interaction.followUp({ content: "🔌 | Disconnected!" });
 	},
 };
