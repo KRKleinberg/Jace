@@ -35,7 +35,7 @@ export default {
 						},
 						{
 							name: "Map Choice",
-							value: `3 ${shuffled} ${voiceMembers.length/2}`,
+							value: `3 ${shuffled} ${voiceMembers.length}`,
 						},
 					],
 					color: 0x5864f1,
