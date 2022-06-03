@@ -1,8 +1,6 @@
 export default {
 	name: "back",
-	aliases: [],
 	description: "Plays the previous track",
-	options: [],
 	run: async (client, interaction) => {
 		if (interaction.member.voice.channel) {
             const queue = client.player.getQueue(interaction.guildId);
