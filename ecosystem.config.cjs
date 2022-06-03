@@ -3,7 +3,7 @@ module.exports = {
 		{
 			name: "jace-bot",
 			script: "./index.js",
-			instances: -1,
+			instances: "max",
 			exec_mode: "cluster",
 			stop_exit_codes: [0],
 			exp_backoff_restart_delay: 100,
@@ -13,6 +13,7 @@ module.exports = {
 			env_development: {
 				NODE_ENV: "development",
 			},
+			wait_ready: true,
 		},
 	],
 };
