@@ -4,7 +4,7 @@ export default {
 	description: "Splits users in voice channel into two teams",
 	options: [],
 	run: async (client, message) => {
-		const voiceMembers = Array.from(message.member.voice.channel.members);
+		const voiceMembers = message.member.voice.channel.members;
 		const half = Math.ceil(voiceMembers.length / 2);
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
@@ -35,7 +35,7 @@ export default {
 						},
 						{
 							name: "Map Choice",
-							value: `3 ${shuffled} ${voiceMembers.length}`,
+							value: `3 ${shuffled} ${voiceMembers}`,
 						},
 					],
 					color: 0x5864f1,
