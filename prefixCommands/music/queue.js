@@ -6,7 +6,7 @@ export default {
 	run: async (client, message) => {
 		const queue = client.player.getQueue(message.guildId);
 
-		if (queue || queue.playing) {
+		if (queue && queue.playing) {
 			const currentTrack = queue.current;
 			const tracks = queue.tracks
 				.slice(0, 10)

@@ -11,7 +11,7 @@ export default {
 	],
 	run: async (client, interaction) => {
 		const queue = client.player.getQueue(interaction.guildId);
-		if (queue || queue.playing) {
+		if (queue && queue.playing) {
 			const trackIndex = interaction.options.getNumber("track") - 1;
 			const trackName = queue.tracks[trackIndex];
 			const success = queue.remove(trackIndex);

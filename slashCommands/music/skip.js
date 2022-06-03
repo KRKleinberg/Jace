@@ -3,7 +3,7 @@ export default {
 	description: "Skips the current song",
 	run: async (client, interaction) => {
 		const queue = client.player.getQueue(interaction.guildId);
-		if (queue || queue.playing) {
+		if (queue && queue.playing) {
 			
 			const currentTrack = queue.current;
 			const success = queue.skip();

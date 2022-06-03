@@ -14,7 +14,7 @@ export default {
 			})
 			.catch(() => {});
 
-		if (searchResult || searchResult.tracks.length) {
+		if (searchResult && searchResult.tracks.length) {
 			const queue = await client.player.createQueue(message.guild, {
 				ytdlOptions: {
 					requestOptions: {

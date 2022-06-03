@@ -6,7 +6,7 @@ export default {
 	run: async (client, message) => {
 		const queue = client.player.getQueue(message.guildId);
 
-		if (queue || queue.playing) {
+		if (queue && queue.playing) {
 			const progress = queue.createProgressBar();
 			const perc = queue.getPlayerTimestamp();
 
