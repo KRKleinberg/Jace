@@ -18,7 +18,7 @@ export default {
 
 			interaction.followUp({
 				content: success
-					? `➖ | Removed *${trackName}*.`
+					? `➖ | Removed **${trackName}**.`
 					: "❌ | Please enter a valid track number in the queue",
 			});
 		} else interaction.followUp({ content: "❌ | No music is being played!" });

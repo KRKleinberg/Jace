@@ -12,7 +12,7 @@ export default {
 
 			message.channel.send({
 				content: success
-					? `➖ | Removed *${trackName}*.`
+					? `➖ | Removed **${trackName}**.`
 					: "❌ | Please enter a valid track number in the queue",
 			});
 		} else message.channel.send({ content: "❌ | No music is being played!" });
