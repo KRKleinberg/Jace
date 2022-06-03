@@ -1,7 +1,7 @@
 import { QueryType } from "discord-player";
 
 export default {
-	name: "play",
+	name: "playnext",
 	description: "Adds a song to the top of the queue",
 	options: [
 		{
