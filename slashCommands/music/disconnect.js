@@ -8,6 +8,6 @@ export default {
 
 		queue.destroy();
 
-		return interaction.followUp({ content: "🔌 | Disconnected!" });
+		interaction.followUp({ content: "🔌 | Disconnected!" });
 	},
 };

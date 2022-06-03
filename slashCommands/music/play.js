@@ -18,49 +18,45 @@ export default {
 				requestedBy: interaction.user,
 				searchEngine: QueryType.AUTO,
 			})
-            .catch(() => { });
-        
-		if (!searchResult || !searchResult.tracks.length)
-			return interaction.followUp({ content: "No results were found!" });
+			.catch(() => {});
 
-		const queue = await client.player.createQueue(interaction.guild, {
-			ytdlOptions: {
-				requestOptions: {
-					headers: {
-						cookie: process.env.COOKIE,
-						"x-youtube-identity-token": process.env.ID_TOKEN,
+		if (searchResult || searchResult.tracks.length) {
+			const queue = await client.player.createQueue(interaction.guild, {
+				ytdlOptions: {
+					requestOptions: {
+						headers: {
+							cookie: process.env.COOKIE,
+							"x-youtube-identity-token": process.env.ID_TOKEN,
+						},
 					},
+					quality: "highest",
+					filter: "audioonly",
+					// eslint-disable-next-line no-bitwise
+					highWaterMark: 1 << 25,
+					dlChunkSize: 0,
 				},
-				quality: "highest",
-				filter: "audioonly",
-				// eslint-disable-next-line no-bitwise
-				highWaterMark: 1 << 25,
-				dlChunkSize: 0,
-			},
-			leaveOnEnd: false,
-			leaveOnStop: true,
-			leaveOnEmpty: false,
-			leaveOnEmptyCooldown: 5000,
-			autoSelfDeaf: true,
-			metadata: interaction.channel,
-		});
+				leaveOnEnd: false,
+				leaveOnStop: true,
+				leaveOnEmpty: false,
+				leaveOnEmptyCooldown: 5000,
+				autoSelfDeaf: true,
+				metadata: interaction.channel,
+			});
 
-		try {
-			if (!queue.connection) await queue.connect(interaction.member.voice.channel);
-		} catch {
-			client.player.deleteQueue(interaction.guildId);
-			return interaction.followUp({ content: "Could not join your voice channel!" });
-		}
+			try {
+				if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+				await interaction.followUp({
+					content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
+				});
 
-		await interaction.followUp({
-			content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
-		});
+				if (searchResult.playlist) queue.addTracks(searchResult.tracks);
+				else queue.addTrack(searchResult.tracks[0]);
 
-		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-		else queue.addTrack(searchResult.tracks[0]);
-
-		if (!queue.playing) await queue.play();
-
-		return null;
+				if (!queue.playing) await queue.play();
+			} catch {
+				client.player.deleteQueue(interaction.guildId);
+				interaction.followUp({ content: "Could not join your voice channel!" });
+			}
+		} else interaction.followUp({ content: "No results were found!" });
 	},
 };

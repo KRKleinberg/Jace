@@ -4,16 +4,15 @@ export default {
 	description: "Skips the current song",
 	options: [],
 	run: async (client, message) => {
-        const queue = client.player.getQueue(message.guildId);
+		const queue = client.player.getQueue(message.guildId);
         
-		if (!queue || !queue.playing)
-            return message.channel.send({ content: "❌ | No music is being played!" });
+		if (queue || queue.playing) {
+			const currentTrack = queue.current;
+			const success = queue.skip();
         
-		const currentTrack = queue.current;
-        const success = queue.skip();
-        
-		return message.channel.send({
-			content: success ? `⏭️ | Skipped **${currentTrack}**!` : "❌ | Something went wrong!",
-		});
-	},
+			message.channel.send({
+				content: success ? `⏭️ | Skipped **${currentTrack}**!` : "❌ | Something went wrong!",
+			});
+		} else message.channel.send({ content: "❌ | No music is being played!" });
+	}
 };
