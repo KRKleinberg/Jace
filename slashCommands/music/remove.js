@@ -5,7 +5,7 @@ export default {
 		{
 			name: "track",
 			description: "The number of the track in the queue to remove",
-			type: "INTEGER",
+			type: "NUMBER",
 			required: true,
 		},
 	],
