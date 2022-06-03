@@ -2,7 +2,7 @@ export default {
 	name: "remove",
 	aliases: ["-"],
 	description: "Removes a specific track",
-	options: ["`track number`"],
+	options: ["\u0060track number\u0060"],
 	run: async (client, message, args) => {
 		const queue = client.player.getQueue(message.guildId);
 		if (queue || queue.playing) {

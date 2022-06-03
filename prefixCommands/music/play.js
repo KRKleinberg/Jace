@@ -4,7 +4,7 @@ export default {
 	name: "play",
 	aliases: ["p"],
 	description: "Plays a song",
-	options: ["`song`"],
+	options: ["\u0060song\u0060"],
 	run: async (client, message, args) => {
 		const query = args.join(" ");
 		const searchResult = await client.player
