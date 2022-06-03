@@ -4,7 +4,7 @@ export default {
 	description: "Splits users in voice channel into two teams",
 	options: [],
 	run: async (client, message) => {
-		const voiceMembers = message.member.voice.channel.members.map();
+		const voiceMembers = message.member.voice.channel.members;
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
