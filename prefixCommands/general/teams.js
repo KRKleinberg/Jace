@@ -15,28 +15,28 @@ export default {
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
 		message.channel.send({
-			embeds: [
+	embeds: [
+		{
+			title: "Teams",
+			fields: [
 				{
-					title: "Teams",
-					fields: [
-						{
-							name: "Team A",
-							value: `${teamA.join("\n")} `,
-							inline: true,
-						},
-						{
-							name: "Team B",
-							value: `${teamB.join("\n").toString()} `,
-							inline: true,
-						},
-						{
-							name: "Map Choice",
-							value: `${mapChoice.toString()} `,
-						},
-					],
-					color: 0x5864f1,
+					name: "Team A",
+					value: `\u200B${teamA.join("\n")}`,
+					inline: true,
+				},
+				{
+					name: "Team B",
+					value: `\u200B${teamB.join("\n").toString()}`,
+					inline: true,
+				},
+				{
+					name: "Map Choice",
+					value: `\u200B${mapChoice.toString()}`,
 				},
 			],
-		});
+			color: 0x5864f1,
+		},
+	],
+});
 	},
 };
