@@ -1,12 +1,12 @@
 {
 	"name": "jace-bot",
-	"version": "v0.1.2",
+	"version": "0.3.0",
 	"description": "Multipurpose Discord Bot",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node index.js"
+		"start": "pm2-runtime start ecosystem.config.js"
 	},
 	"repository": {
 		"type": "git",
@@ -24,7 +24,8 @@
 		"discord-player": "^5.2.2",
 		"discord.js": "^13.7.0",
 		"ffmpeg-static": "^4.4.1",
-		"glob": "^8.0.3"
+		"glob": "^8.0.3",
+		"pm2": "^5.2.0"
 	},
 	"devDependencies": {
 		"eslint": "^8.16.0",
@@ -34,3 +35,4 @@
 		"prettier": "2.6.2"
 	}
 }
+

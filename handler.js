@@ -38,8 +38,8 @@ export default async (client) => {
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
 
-	// Comment out the line below for main branch
+	/* Comment out the line below for main branch 
 	setTimeout(() => {
 		process.exit(0);
-	}, 300000);
+	}, 300000); */
 };

@@ -6,6 +6,6 @@ export default {
         await client.user.setStatus('idle');
         await console.log("Bot is restarting...");
         
-        process.exit(0);
+        process.exit(1);
     },
 };
