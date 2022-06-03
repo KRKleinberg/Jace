@@ -4,12 +4,14 @@ export default {
 	run: async (client, interaction) => {
 		const MAX_FIELDS = 25;
 		// Iterate over the commands and create field objects
-		const fields = client.prefixCommands.map((command) => ({
-			name: command.aliases.length
-				? `${command.name} (${command.aliases.join(", ")})`
-				: `${command.name}`,
-			value: `${command.description}`,
-		})).slice();
+		const fields = client.prefixCommands
+			.map((command) => ({
+				name: command.aliases.length
+					? `${command.name} (${command.aliases.join(", ")})`
+					: `${command.name}`,
+				value: `${command.description}`,
+			}))
+			.slice(0, 25);
 
 		// If there are less than 25 fields, you can safely send the embed in a single message
 		if (fields.length <= MAX_FIELDS)
@@ -23,6 +25,5 @@ export default {
 					},
 				],
 			});
-
 	},
 };

@@ -6,7 +6,8 @@ export default {
 	run: async (client, message) => {
 		// Iterate over the commands and create field objects
 		// If there are less than 25 fields, you can safely send the embed in a single message
-		const fields = client.prefixCommands.map((command) => ({
+		const fields = client.prefixCommands
+			.map((command) => ({
 				name: command.aliases.length
 					? `${command.name} (${command.aliases.join(", ")})`
 					: `${command.name}`,
