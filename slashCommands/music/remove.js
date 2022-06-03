@@ -15,7 +15,7 @@ export default {
             const trackIndex = interaction.options.getNumber("track") - 1;
             const success = queue.remove(trackIndex);
 
-            interaction.followUp({ content: success ? `➖ | Removed track ${queue.tracks[trackIndex]}.` : '❌ | Please enter a valid track number in the queue' });
+            interaction.followUp({ content: success ? `➖ | Removed track ${queue.tracks[trackIndex-1]}.` : '❌ | Please enter a valid track number in the queue' });
         } else interaction.followUp({ content: "❌ | No music is being played!" });
     },
 };

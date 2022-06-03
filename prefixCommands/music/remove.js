@@ -11,7 +11,7 @@ export default {
 
 			message.channel.send({
 				content: success
-					? `➖ | Removed track ${queue.tracks[trackIndex]}.`
+					? `➖ | Removed track ${queue.tracks[trackIndex-1]}.`
 					: "❌ | Please enter a valid track number in the queue",
 			});
 		} else message.channel.send({ content: "❌ | No music is being played!" });
