@@ -1,7 +1,6 @@
 export default {
 	name: "help",
 	description: `Displays a list of all commands`,
-	type: "CHAT_INPUT",
 	run: async (client, interaction) => {
 		const MAX_FIELDS = 25;
 		// Iterate over the commands and create field objects

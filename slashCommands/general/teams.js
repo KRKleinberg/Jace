@@ -1,8 +1,6 @@
 export default {
 	name: "teams",
-	aliases: [],
 	description: "Splits users in voice channel into two teams",
-	options: [],
 	run: async (client, interaction) => {
 		const voiceMembers = interaction.member.voice.channel.members.filter((member) => !member.user.bot);
 		const shuffled = voiceMembers
