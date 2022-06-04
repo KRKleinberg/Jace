@@ -2,8 +2,8 @@ import client from "../../index.js";
 
 client.on("messageCreate", async (message) => {
 	if (
-		!message.author.bot ||
-		message.guild ||
+		!message.author.bot &&
+		message.guild &&
 		message.content.toLowerCase().startsWith(process.env.PREFIX)
 	) {
 		// Get typed command and arguments
