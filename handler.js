@@ -37,9 +37,4 @@ export default async (client) => {
 	client.on("ready", async () => {
 		await client.application.commands.set(arrayOfSlashCommands);
 	});
-
-	/* Comment out the line below for main branch 
-	setTimeout(() => {
-		process.exit(0);
-	}, 300000); */
 };

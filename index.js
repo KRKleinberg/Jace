@@ -15,4 +15,10 @@ export default client;
 
 handler(client);
 
+if (process.env.HEROKU_BRANCH === "dev") {
+	setTimeout(() => {
+		process.exit(0);
+	}, 300000);
+}
+
 client.login(process.env.DJS_TOKEN);

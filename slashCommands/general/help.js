@@ -1,21 +1,19 @@
 export default {
 	name: "help",
-	description: `Displays a list of all commands`,
+	description: `Displays a list of all prefixCommands`,
 	run: async (client, interaction) => {
 		const MAX_FIELDS = 25;
-		// Iterate over the commands and create field objects
 		const fields = client.prefixCommands
-			.map((command) => ({
-				name: command.aliases.length
-					? `${command.name} (${command.aliases.join(", ")})`
-					: `${command.name}`,
-				value: command.options.length
-					? `${command.description}\nInput: ${command.options.join(", ")}`
-					: `${command.description}`,
+			.map((prefixCommand) => ({
+				name: prefixCommand.aliases.length
+					? `${prefixCommand.name} (${prefixCommand.aliases.join(", ")})`
+					: `${prefixCommand.name}`,
+				value: prefixCommand.options.length
+					? `${prefixCommand.description}\nInput: ${prefixCommand.options.join(", ")}`
+					: `${prefixCommand.description}`,
 			}))
 			.slice(0, 25);
 
-		// If there are less than 25 fields, you can safely send the embed in a single message
 		if (fields.length <= MAX_FIELDS)
 			interaction.followUp({
 				embeds: [
