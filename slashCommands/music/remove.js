@@ -18,12 +18,12 @@ export default {
 				const trackName = queue.tracks[trackIndex];
 				const success = queue.remove(trackIndex);
 
-				interaction.reply({
+				interaction.deferReply({
 					content: success
 						? `🗑️ | Removed **${trackName}**.`
 						: "❌ | Please enter a valid track number in the queue",
 				});
-			} else interaction.reply({ content: "❌ | No music is playing!" });
-		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.deferReply({ content: "❌ | No music is playing!" });
+		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
 	},
 };

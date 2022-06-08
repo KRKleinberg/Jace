@@ -9,7 +9,7 @@ export default {
 				const progress = queue.createProgressBar();
 				const perc = queue.getPlayerTimestamp();
 
-				interaction.reply({
+				interaction.deferReply({
 					embeds: [
 						{
 							title: "Now Playing",
@@ -24,7 +24,7 @@ export default {
 						},
 					],
 				});
-			} else interaction.reply({ content: "❌ | No music is playing!" });
-		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.deferReply({ content: "❌ | No music is playing!" });
+		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
 	},
 };

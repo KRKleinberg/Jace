@@ -8,8 +8,8 @@ export default {
 			if (queue && queue.playing) {
 				queue.clear();
 
-				interaction.reply({ content: "🧼 | Queue cleared." });
-			} else interaction.reply({ content: "❌ | No music is playing!" });
-		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
+				interaction.deferReply({ content: "🧼 | Queue cleared." });
+			} else interaction.deferReply({ content: "❌ | No music is playing!" });
+		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
 	},
 };

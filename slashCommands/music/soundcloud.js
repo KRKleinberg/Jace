@@ -46,7 +46,7 @@ export default {
 
 				try {
 					if (!queue.connection) await queue.connect(interaction.member.voice.channel);
-					await interaction.reply({
+					await interaction.deferReply({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
@@ -56,9 +56,9 @@ export default {
 					if (!queue.playing) await queue.play();
 				} catch {
 					client.player.deleteQueue(interaction.guildId);
-					interaction.reply({ content: "❌ | Could not join your voice channel!" });
+					interaction.deferReply({ content: "❌ | Could not join your voice channel!" });
 				}
-			} else interaction.reply({ content: "❌ | No results were found!" });
-		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.deferReply({ content: "❌ | No results were found!" });
+		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
 	},
 };
