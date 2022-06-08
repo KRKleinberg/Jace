@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	name: "seek",
 	aliases: [],
 	description: "Seeks to given time",

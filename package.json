@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "v0.4.0",
+	"version": "1.0.0",
 	"description": "A multipurpose Discord music bot for Heroku",
 	"main": "index.js",
 	"type": "module",
