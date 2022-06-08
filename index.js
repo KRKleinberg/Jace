@@ -1,5 +1,6 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
+import pm2 from "pm2";
 import handler from "./handler.js";
 
 const client = new Client({
@@ -17,7 +18,7 @@ handler(client);
 
 if (process.env.HEROKU_BRANCH === "dev") {
 	setTimeout(() => {
-		process.exit(0);
+		pm2.disconnect();
 	}, 300000);
 }
 
