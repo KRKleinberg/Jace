@@ -37,6 +37,6 @@ export default {
 					},
 				],
 			});
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

@@ -1,6 +1,6 @@
 import client from "../index.js";
 
-client.on("ready", () => {
+client.once("ready", () => {
 	console.log(`${client.user.tag} is online! Prefix set as "${process.env.PREFIX}"`);
 	client.user.setStatus("online");
 	client.user.setActivity({

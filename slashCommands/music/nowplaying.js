@@ -24,7 +24,7 @@ export default {
 						},
 					],
 				});
-			} else interaction.followUp({ content: "❌ | No music is being played!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

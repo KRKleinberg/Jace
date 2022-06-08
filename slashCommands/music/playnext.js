@@ -1,7 +1,7 @@
 import { QueryType } from "discord-player";
 
 export default {
-	name: "play",
+	name: "playnext",
 	description: "Adds a song to the top of the queue",
 	options: [
 		{
@@ -51,8 +51,8 @@ export default {
 
 					if (searchResult.playlist) queue.insert(searchResult.tracks);
 					else queue.insert(searchResult.tracks[0]);
-				} else interaction.followUp({ content: "❌ | No music is being played!" });
+				} else interaction.followUp({ content: "❌ | No music is playing!" });
 			} else interaction.followUp({ content: "❌ | No results were found!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

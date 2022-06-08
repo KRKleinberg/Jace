@@ -11,8 +11,8 @@ export default {
 	],
 	run: async (client, interaction) => {
 		if (interaction.member.voice.channel) {
-            const queue = client.player.getQueue(interaction.guildId);
-            
+			const queue = client.player.getQueue(interaction.guildId);
+
 			if (queue && queue.playing) {
 				const trackIndex = interaction.options.getNumber("track") - 1;
 				const trackName = queue.tracks[trackIndex];
@@ -23,7 +23,7 @@ export default {
 						? `🗑️ | Removed **${trackName}**.`
 						: "❌ | Please enter a valid track number in the queue",
 				});
-			} else interaction.followUp({ content: "❌ | No music is being played!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

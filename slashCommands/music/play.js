@@ -59,6 +59,6 @@ export default {
 					interaction.followUp({ content: "❌ | Could not join your voice channel!" });
 				}
 			} else interaction.followUp({ content: "❌ | No results were found!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };
