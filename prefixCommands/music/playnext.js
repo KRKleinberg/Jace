@@ -45,7 +45,7 @@ export default {
 
 					if (searchResult.playlist) queue.insert(searchResult.tracks);
 					else queue.insert(searchResult.tracks[0]);
-				} else message.channel.send({ content: "❌ | No music is being played!" });
+				} else message.channel.send({ content: "❌ | No music is playing!" });
 			} else message.channel.send({ content: "❌ | No results were found!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},

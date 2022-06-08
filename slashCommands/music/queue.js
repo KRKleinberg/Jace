@@ -11,7 +11,7 @@ export default {
 					.slice(0, 10)
 					.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
 
-				interaction.followUp({
+				interaction.reply({
 					embeds: [
 						{
 							title: "Server Queue",
@@ -31,7 +31,7 @@ export default {
 						},
 					],
 				});
-			} else interaction.followUp({ content: "❌ | No music is being played!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.reply({ content: "❌ | No music is playing!" });
+		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
 	},
 };
