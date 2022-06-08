@@ -8,9 +8,9 @@ export default {
 			const queue = client.player.getQueue(message.guildId);
 
 			if (queue && queue.playing) {
-				const resumed = queue.setPaused(false);
+				const success = queue.setPaused(false);
 
-				message.channel.send({ content: resumed ? "▶ | Resumed!" : "❌ | Something went wrong!" });
+				message.channel.send({ content: success ? "▶ | Resumed!" : "❌ | Something went wrong!" });
 			} else message.channel.send({ content: "❌ | No music is playing!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},
