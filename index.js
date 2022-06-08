@@ -19,6 +19,7 @@ handler(client);
 if (process.env.HEROKU_BRANCH === "dev") {
 	setTimeout(() => {
 		pm2.disconnect();
+		process.exit(0);
 	}, 300000);
 }
 
