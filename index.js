@@ -18,9 +18,8 @@ handler(client);
 
 if (process.env.HEROKU_BRANCH === "dev") {
 	setTimeout(() => {
-		pm2.disconnect();
-		process.exit(0);
-	}, 300000);
+		pm2.stop("jace-bot");
+	}, 10000);
 }
 
 client.login(process.env.DJS_TOKEN);
