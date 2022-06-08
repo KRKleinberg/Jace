@@ -14,7 +14,7 @@ export default {
 				message.channel.send({
 					content: success ? `⏭️ | Skipped **${currentTrack}**!` : "❌ | Something went wrong!",
 				});
-			} else message.channel.send({ content: "❌ | No music is being played!" });
+			} else message.channel.send({ content: "❌ | No music is playing!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},
 };

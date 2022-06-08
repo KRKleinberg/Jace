@@ -13,7 +13,7 @@ export default {
 			const teamB = shuffled.slice(half);
 			const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
-			interaction.followUp({
+			interaction.reply({
 				embeds: [
 					{
 						title: "Teams",
@@ -37,6 +37,6 @@ export default {
 					},
 				],
 			});
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });
 	},
 };

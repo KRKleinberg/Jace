@@ -1,10 +1,10 @@
 export default {
-	name: "remove",
-	description: "Removes a specific track",
+	name: "seek",
+	description: "Seeks to given time",
 	options: [
 		{
-			name: "track",
-			description: "The number of the track in the queue to remove",
+			name: "time",
+			description: "The time to seek to (in seconds)",
 			type: "NUMBER",
 			required: true,
 		},
@@ -14,14 +14,11 @@ export default {
 			const queue = client.player.getQueue(interaction.guildId);
 
 			if (queue && queue.playing) {
-				const trackIndex = interaction.options.getNumber("track") - 1;
-				const trackName = queue.tracks[trackIndex];
-				const success = queue.remove(trackIndex);
+				const time = interaction.options.time * 1000;
+				const success = queue.seek(time);
 
 				interaction.reply({
-					content: success
-						? `🗑️ | Removed **${trackName}**.`
-						: "❌ | Please enter a valid track number in the queue",
+					content: success ? `⏩ | Seeked to ${time / 1000} seconds` : "❌ | Something went wrong!",
 				});
 			} else interaction.reply({ content: "❌ | No music is playing!" });
 		} else interaction.reply({ content: "❌ | You're not in a voice channel!" });

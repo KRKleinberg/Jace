@@ -17,7 +17,7 @@ export default {
 
 		// If there are less than 25 fields, you can safely send the embed in a single message
 		if (fields.length <= MAX_FIELDS)
-			interaction.followUp({
+			interaction.reply({
 				embeds: [
 					{
 						title: "Commands",

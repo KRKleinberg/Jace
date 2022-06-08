@@ -11,7 +11,7 @@ export default {
 				const paused = queue.setPaused(true);
 
 				message.channel.send({ content: paused ? "⏸ | Paused!" : "❌ | Something went wrong!" });
-			} else message.channel.send({ content: "❌ | No music is being played!" });
+			} else message.channel.send({ content: "❌ | No music is playing!" });
 		} else message.channel.send({ content: "❌ | You're not in a voice channel!" });
 	},
 };
