@@ -17,10 +17,10 @@ export default {
 				const time = interaction.options.time * 1000;
 				const success = queue.seek(time);
 
-				interaction.deferReply({
+				interaction.followUp({
 					content: success ? `⏩ | Seeked to ${time / 1000} seconds` : "❌ | Something went wrong!",
 				});
-			} else interaction.deferReply({ content: "❌ | No music is playing!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

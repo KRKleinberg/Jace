@@ -10,10 +10,10 @@ export default {
 			if (queue && queue.playing) {
 				const success = queue.shuffle();
 
-				interaction.deferReply({
+				interaction.followUp({
 					content: success ? "🔀 | Queue has been shuffled!" : "❌ | Something went wrong!",
 				});
-			} else interaction.deferReply({ content: "❌ | No music is playing!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

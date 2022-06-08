@@ -8,10 +8,10 @@ export default {
 			if (queue && queue.playing) {
 				const currentTrack = queue.current;
 				const success = queue.skip();
-				interaction.deferReply({
+				interaction.followUp({
 					content: success ? `⏭️ | Skipped **${currentTrack}**!` : "❌ | Something went wrong!",
 				});
-			} else interaction.deferReply({ content: "❌ | No music is playing!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

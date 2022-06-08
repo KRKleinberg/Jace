@@ -8,8 +8,8 @@ export default {
 			if (queue && queue.playing) {
 				const paused = queue.setPaused(true);
 
-				interaction.deferReply({ content: paused ? "⏸ | Paused!" : "❌ | Something went wrong!" });
-			} else interaction.deferReply({ content: "❌ | No music is playing!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+				interaction.followUp({ content: paused ? "⏸ | Paused!" : "❌ | Something went wrong!" });
+			} else interaction.followUp({ content: "❌ | No music is playing!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };

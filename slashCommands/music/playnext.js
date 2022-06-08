@@ -45,14 +45,14 @@ export default {
 				});
 
 				if (queue && queue.playing) {
-					await interaction.deferReply({
+					await interaction.followUp({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
 					if (searchResult.playlist) queue.insert(searchResult.tracks);
 					else queue.insert(searchResult.tracks[0]);
-				} else interaction.deferReply({ content: "❌ | No music is playing!" });
-			} else interaction.deferReply({ content: "❌ | No results were found!" });
-		} else interaction.deferReply({ content: "❌ | You're not in a voice channel!" });
+				} else interaction.followUp({ content: "❌ | No music is playing!" });
+			} else interaction.followUp({ content: "❌ | No results were found!" });
+		} else interaction.followUp({ content: "❌ | You're not in a voice channel!" });
 	},
 };
