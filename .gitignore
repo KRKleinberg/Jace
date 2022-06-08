@@ -127,4 +127,4 @@ dist
 .pnp.*
 
 # ESLint
-ecosystem.config.cjs
+.eslintrc.json
