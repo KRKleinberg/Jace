@@ -14,8 +14,10 @@ function stopTimeout() {
 
 client.player.on("error", (queue, error) => {
 	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+
 	if (error.message === "Status code: 410")
 		queue.metadata.send(`🔞 | This video is age restricted, try a different one`);
+	
     client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
@@ -24,9 +26,11 @@ client.player.on("error", (queue, error) => {
 
 client.player.on("connectionError", (queue, error) => {
 	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`);
+
 	queue.metadata.send(
-	`⚠️ | **Error!** ${error.message} You may need to retry that command or restart the bot using "/restart"`
-);
+		`⚠️ | **Error!** ${error.message} You may need to retry that command or restart the bot using "/restart"`
+	);
+
 	client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
@@ -35,7 +39,9 @@ client.player.on("connectionError", (queue, error) => {
 
 client.player.on("trackStart", (queue, track) => {
 	stopTimeout();
+
 	queue.metadata.send(`🎶 | Playing: **${track.title}** in **${queue.connection.channel.name}**!`);
+
 	client.user.setActivity({
 		name: `${track.title}`,
 		type: "LISTENING",
@@ -44,6 +50,7 @@ client.player.on("trackStart", (queue, track) => {
 
 client.player.on("trackAdd", (queue, track) => {
 	stopTimeout();
+
 	if (track.url.includes("youtube") || track.url.includes("youtu.be")) {
 		queue.metadata.send({
 			embeds: [
@@ -136,6 +143,7 @@ client.player.on("trackAdd", (queue, track) => {
 
 client.player.on("botDisconnect", (queue) => {
 	queue.metadata.send("❌ | Manually disconnected from the voice channel, clearing queue!");
+
 	client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
@@ -145,6 +153,7 @@ client.player.on("botDisconnect", (queue) => {
 client.player.on("channelEmpty", (queue) => {
 	queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 	queue.destroy();
+
 	client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
@@ -153,6 +162,7 @@ client.player.on("channelEmpty", (queue) => {
 
 client.player.on("queueEnd", (queue) => {
 	voiceDisconnect(queue);
+	
 	client.user.setActivity({
 		name: `Frogger | ${process.env.PREFIX}help`,
 		type: "PLAYING",
