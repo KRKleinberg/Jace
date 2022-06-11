@@ -46,16 +46,17 @@ export default {
 
 				try {
 					if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+
 					await interaction.followUp({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
 					if (searchResult.playlist) queue.addTracks(searchResult.tracks);
 					else queue.addTrack(searchResult.tracks[0]);
-
 					if (!queue.playing) await queue.play();
 				} catch {
 					client.player.deleteQueue(interaction.guildId);
+					
 					interaction.followUp({ content: "❌ | Could not join your voice channel!" });
 				}
 			} else interaction.followUp({ content: "❌ | No results were found!" });

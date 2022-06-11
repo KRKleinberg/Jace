@@ -40,16 +40,17 @@ export default {
 
 				try {
 					if (!queue.connection) await queue.connect(message.member.voice.channel);
+
 					await message.channel.send({
 						content: `⏱ | Loading your ${searchResult.playlist ? "playlist" : "track"}...`,
 					});
 
 					if (searchResult.playlist) queue.addTracks(searchResult.tracks);
 					else queue.addTrack(searchResult.tracks[0]);
-
 					if (!queue.playing) await queue.play();
 				} catch {
 					client.player.deleteQueue(message.guildId);
+					
 					message.channel.send({ content: "❌ | Could not join your voice channel!" });
 				}
 			} else message.channel.send({ content: "❌ | No results were found!" });
