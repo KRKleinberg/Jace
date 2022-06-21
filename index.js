@@ -21,10 +21,5 @@ if (process.env.HEROKU_BRANCH === "dev") {
 	}, 300000);
 }
 
-try {
-	client.login(1);
-} catch (error) {
-	console.log(error);
-	pm2.restart("jace-bot");
-}
+if(!client.login(1)) pm2.restart("jace-bot");
 
