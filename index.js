@@ -21,4 +21,4 @@ if (process.env.HEROKU_BRANCH === "dev") {
 	}, 300000);
 }
 
-client.login(1);
+client.login(process.env.DJS_TOKEN);
