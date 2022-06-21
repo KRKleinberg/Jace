@@ -24,6 +24,7 @@ if (process.env.HEROKU_BRANCH === "dev") {
 try {
 	client.login(1);
 } catch (error) {
+	console.log(error);
 	pm2.restart("jace-bot");
 }
 
