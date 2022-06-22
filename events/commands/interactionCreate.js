@@ -6,17 +6,20 @@ client.on("interactionCreate", async (interaction) => {
 		await interaction.followUp({ ephemeral: false }).catch(() => {});
 
 		const slashCommand = client.slashCommands.get(interaction.commandName);
+
 		if (slashCommand) {
 			const args = [];
-
 			const options = interaction.options.data;
+			
 			options.map((option) => {
 				if (option.type === "SUB_COMMAND") {
 					if (option.name) args.push(option.name);
+
 					option.options.forEach((x) => {
 						if (x.value) args.push(x.value);
 					});
 				} else if (option.value) args.push(option.value);
+
 				return null;
 			});
 

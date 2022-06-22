@@ -8,7 +8,6 @@ const client = new Client({
 });
 
 client.player = new Player(client);
-
 client.prefixCommands = new Collection();
 client.slashCommands = new Collection();
 

@@ -2,7 +2,6 @@ export default {
 	name: "help",
 	description: `Displays a list of all prefixCommands`,
 	run: async (client, interaction) => {
-		const MAX_FIELDS = 25;
 		const fields = client.prefixCommands
 			.map((prefixCommand) => ({
 				name: prefixCommand.aliases.length
@@ -14,16 +13,15 @@ export default {
 			}))
 			.slice(0, 25);
 
-		if (fields.length <= MAX_FIELDS)
-			interaction.followUp({
-				embeds: [
-					{
-						title: "Commands",
-						description: `Prefix: **${process.env.PREFIX}**`,
-						fields,
-						color: 0x5864f1,
-					},
-				],
-			});
+		interaction.followUp({
+			embeds: [
+				{
+					title: "Commands",
+					description: `Prefix: **${process.env.PREFIX}**`,
+					fields,
+					color: 0x5864f1,
+				},
+			],
+		});
 	},
 };

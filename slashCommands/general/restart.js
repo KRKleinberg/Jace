@@ -11,6 +11,6 @@ export default {
         
 		console.log("Bot is restarting...");
 
-		process.exit(1);
+		process.exit(0);
 	},
 };
