@@ -1,8 +1,8 @@
-import { glob } from "glob";
+import globPkg from "glob";
 import { promisify } from "util";
 import { prefixCommands, slashCommands } from "./index.js";
 
-// const { glob } = globPKG;
+const { glob } = globPkg;
 const globPromise = promisify(glob);
 
 export default async () => {
