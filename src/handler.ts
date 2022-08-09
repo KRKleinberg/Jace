@@ -9,10 +9,10 @@ export default async () => {
 
 	// import("./events/ready.js");
 
-	eventFiles.forEach((value) => {
-		import(value);
-		console.log(value);
-	});
+	// eventFiles.forEach((value) => {
+	//	import(value);
+	//	console.log(value);
+	// });
 
 	// Prefix Command Handler
 	const prefixCommandFiles: string[] = await globby(`./commands/prefix/**/*.js`);
