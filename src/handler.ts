@@ -7,14 +7,12 @@ const globPromise = promisify(glob);
 
 export default async () => {
 	// Event handler
-	const eventFiles: string[] = await globPromise(`${process.cwd()}/src/events/**/*.js`);
+	const eventFiles: string[] = await globPromise(`./events/**/*.js`);
 
 	eventFiles.forEach((value) => import(value));
 
 	// Prefix Command Handler
-	const prefixCommandFiles: string[] = await globPromise(
-		`${process.cwd()}/src/commands/prefix/**/*.js`
-	);
+	const prefixCommandFiles: string[] = await globPromise(`./commands/prefix/**/*.js`);
 
 	prefixCommandFiles.forEach(async (value) => {
 		const { default: prefixCommand } = await import(value);
@@ -29,7 +27,7 @@ export default async () => {
 	});
 
 	// Slash Command Handler
-	const slashCommandFiles = await globPromise(`$process.cwd()}/src/commands/slash/**/*.js`);
+	const slashCommandFiles = await globPromise(`./commands/slash/**/*.js`);
 	const slashCommandArray: any[] = [];
 
 	slashCommandFiles.forEach(async (value) => {
