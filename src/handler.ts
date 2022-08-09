@@ -9,6 +9,8 @@ export default async () => {
 	// Event handler
 	const eventFiles: string[] = await globPromise(`./events/**/*.js`);
 
+	console.log(eventFiles);
+
 	eventFiles.forEach((value) => {
 		import(value);
 		console.log(value);
