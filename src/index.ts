@@ -21,6 +21,7 @@ export const client = new Client({
 		"DirectMessageTyping",
 	],
 });
+
 export const player: Player = new Player(client);
 
 export const prefixCommands: Collection<string, any> = new Collection();
