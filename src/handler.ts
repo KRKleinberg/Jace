@@ -11,6 +11,8 @@ export default async () => {
 
 	console.log(eventFiles);
 
+	import('./events/ready.js');
+
 	eventFiles.forEach((value) => {
 		import(value);
 		console.log(value);
