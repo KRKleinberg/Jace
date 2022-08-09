@@ -9,12 +9,12 @@ export default async () => {
 	// Event handler
 	const eventFiles: string[] = await globPromise(`./events/**/*.js`);
 
-	eventFiles.forEach((value) => import(value));
+	eventFiles.map((value) => import(value));
 
 	// Prefix Command Handler
 	const prefixCommandFiles: string[] = await globPromise(`./commands/prefix/**/*.js`);
 
-	prefixCommandFiles.forEach(async (value) => {
+	prefixCommandFiles.map(async (value) => {
 		const { default: prefixCommand } = await import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
@@ -30,7 +30,7 @@ export default async () => {
 	const slashCommandFiles = await globPromise(`./commands/slash/**/*.js`);
 	const slashCommandArray: any[] = [];
 
-	slashCommandFiles.forEach(async (value) => {
+	slashCommandFiles.map(async (value) => {
 		const { default: slashCommand } = await import(value);
 
 		if (slashCommand.name) {
