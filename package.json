@@ -3,11 +3,11 @@
 	"version": "3.0.0",
 	"description": "A multipurpose Discord music bot for Heroku",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
 		"start": "pm2-runtime start ecosystem.config.cjs",
-    "build": "tsc",
-    "postinstall": "npm run build"
-
+		"build": "tsc",
+		"postinstall": "npm run build"
 	},
 	"repository": {
 		"type": "git",
@@ -38,4 +38,3 @@
 		"pm2": "^5.2.0"
 	}
 }
-
