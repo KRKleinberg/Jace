@@ -3,14 +3,14 @@ import { prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler
-	const eventFiles: string[] = await globby("./**", { cwd: "./dist/" });
+	const eventFiles: string[] = await globby("./**", { cwd: "./" });
 
 	console.log(eventFiles);
 
-	eventFiles.forEach((value) => {
-		import(value);
-		console.log(value);
-	});
+	// eventFiles.forEach((value) => {
+	// 	import(value);
+	// 	console.log(value);
+	// });
 
 	// Prefix Command Handler
 	const prefixCommandFiles: string[] = await globby(`../commands/prefix/**/*.js`);
