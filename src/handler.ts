@@ -1,21 +1,17 @@
-import { globby } from 'globby';
+import { globby } from "globby";
 import { prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler
-	const eventFiles = await globby("./dist/events/**/*.js");
+	const eventFiles: string[] = await globby("./dist/events/**/*.js");
 
-	console.log(eventFiles);
-
-	// import("./events/ready.js");
-
-	// eventFiles.forEach((value) => {
-	//	import(value);
-	//	console.log(value);
-	// });
+	eventFiles.forEach((value) => {
+		import(value);
+		console.log(value);
+	});
 
 	// Prefix Command Handler
-	const prefixCommandFiles: string[] = await globby(`./commands/prefix/**/*.js`);
+	const prefixCommandFiles: string[] = await globby(`./dist/commands/prefix/**/*.js`);
 
 	console.log(prefixCommandFiles);
 
@@ -32,7 +28,7 @@ export default async () => {
 	});
 
 	// Slash Command Handler
-	const slashCommandFiles = await globby(`./commands/slash/**/*.js`);
+	const slashCommandFiles = await globby(`./dist/commands/slash/**/*.js`);
 	const slashCommandArray: any[] = [];
 
 	slashCommandFiles.map(async (value) => {
