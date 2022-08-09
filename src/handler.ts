@@ -3,7 +3,7 @@ import { prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler
-	const eventFiles = await globby("./events/**/*.js");
+	const eventFiles = await globby("./events/**");
 
 	console.log(eventFiles);
 
