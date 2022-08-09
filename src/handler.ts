@@ -41,4 +41,5 @@ export default async () => {
 			slashCommandArray.push(slashCommand);
 		}
 	});
+	console.log("handler");
 };
