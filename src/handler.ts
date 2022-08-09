@@ -5,8 +5,6 @@ export default async () => {
 	// Event handler
 	const eventFiles: string[] = await globby("./events/**/*.js", { cwd: "./dist/" });
 
-	console.log(process.cwd());
-
 	eventFiles.forEach((value) => import(value));
 
 	// Prefix Command Handler
