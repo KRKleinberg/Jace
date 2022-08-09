@@ -1,12 +1,9 @@
 import { globby } from 'globby';
-import { promisify } from "util";
 import { prefixCommands, slashCommands } from "./index.js";
-
-// const globPromise = promisify(globby);
 
 export default async () => {
 	// Event handler
-	const eventFiles: string[] = await globby("./events/**/*.js");
+	const eventFiles: string[] = await globby("dist/events/**/*.js");
 
 	console.log(eventFiles);
 
