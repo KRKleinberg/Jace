@@ -3,7 +3,7 @@ import { prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler
-	const eventFiles: string[] = await globby("./events/**/*.js", { cwd: "./dist/" });
+	const eventFiles: string[] = await globby("../events/**/*.js");
 
 	console.log(process.cwd());
 
