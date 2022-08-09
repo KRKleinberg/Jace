@@ -20,7 +20,6 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
 	"devDependencies": {
-		"@types/glob": "^7.2.0",
 		"@types/node": "^18.6.5",
 		"@typescript-eslint/eslint-plugin": "^5.33.0",
 		"@typescript-eslint/parser": "^5.33.0",
@@ -34,7 +33,7 @@
 	"dependencies": {
 		"discord-player": "^5.3.1",
 		"discord.js": "^14.1.2",
-		"glob": "^8.0.3",
+		"globby": "^13.1.2",
 		"pm2": "^5.2.0"
 	}
 }
