@@ -19,6 +19,8 @@ export default async () => {
 	// Prefix Command Handler
 	const prefixCommandFiles: string[] = await globPromise(`./commands/prefix/**/*.js`);
 
+	console.log(prefixCommandFiles);
+
 	prefixCommandFiles.map(async (value) => {
 		const { default: prefixCommand } = await import(value);
 		const splitted = value.split("/");
