@@ -7,7 +7,7 @@ const globPromise = promisify(glob);
 
 export default async () => {
 	// Event handler
-	const eventFiles: string[] = await globPromise(`./events/**/*.js`);
+	const eventFiles: any[] = await globPromise(`./events/**/*.js`);
 
 	eventFiles.map((value) => import(value));
 
