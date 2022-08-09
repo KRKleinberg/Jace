@@ -7,19 +7,14 @@ export default async () => {
 
 	console.log(process.cwd());
 
-	import(eventFiles[0]);
-
-	// eventFiles.forEach((value) => {
-	// 	import(value);
-	// 	console.log(value);
-	// });
+	eventFiles.forEach((value) => import(value));
 
 	// Prefix Command Handler
 	const prefixCommandFiles: string[] = await globby("./commands/prefix/**/*.js", { cwd: "./dist/" });
 
 	console.log(prefixCommandFiles);
 
-	prefixCommandFiles.map(async (value) => {
+	prefixCommandFiles.forEach(async (value) => {
 		const { default: prefixCommand } = await import(value);
 		const splitted = value.split("/");
 		const directory = splitted[splitted.length - 2];
@@ -35,7 +30,7 @@ export default async () => {
 	const slashCommandFiles = await globby(".commands/slash/**/*.js", { cwd: "./dist/" });
 	const slashCommandArray: any[] = [];
 
-	slashCommandFiles.map(async (value) => {
+	slashCommandFiles.forEach(async (value) => {
 		const { default: slashCommand } = await import(value);
 
 		if (slashCommand.name) {
