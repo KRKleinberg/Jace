@@ -1,6 +1,7 @@
 import { ActivityType } from "discord.js";
 import { client } from "../index.js";
 
+console.log("ready");
 client.once("ready", () => {
 	console.log(`${client.user?.tag} is online! Prefix set as "${process.env.PREFIX}"`);
 
