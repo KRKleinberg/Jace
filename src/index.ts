@@ -1,7 +1,7 @@
 import { Player } from "discord-player";
 import { Client, Collection } from "discord.js";
 import pm2 from "pm2";
-import handler from "./handler";
+import handler from "./handler.js";
 
 export const client = new Client({
 	intents: [
