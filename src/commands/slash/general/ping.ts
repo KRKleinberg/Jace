@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { client } from '../../index.js';
+import { client } from '../../../index.js';
 
 export default {
 	data: new SlashCommandBuilder().setName('ping').setDescription('Returns websocket ping'),
