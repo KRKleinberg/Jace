@@ -4,9 +4,7 @@ import { prefixCommands } from '../../../index.js';
 export default {
 	data: {
 		name: 'help',
-		aliases: [],
 		description: 'Displays a list of all prefix commands',
-		options: [],
 	},
 	async execute(client: Client, message: Message) {
 		const fields = prefixCommands
