@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { prefixCommands } from '../../../index.js';
 
 export default {
@@ -6,7 +6,7 @@ export default {
 		name: 'help',
 		description: 'Displays a list of all prefix commands',
 	},
-	async execute(client: Client, interaction: ChatInputCommandInteraction) {
+	async execute(interaction: ChatInputCommandInteraction) {
 		const fields = prefixCommands
 			.map((prefixCommand) => ({
 				name: prefixCommand.data.aliases.length
