@@ -20,7 +20,7 @@ client.on("messageCreate", async (message) => {
 client.on("interactionCreate", async (interaction) => {
 	// Slash Command Handling
 	if (interaction.isChatInputCommand()) {
-		await interaction.followUp({ ephemeral: false }).catch(() => {});
+		interaction.deferReply({ ephemeral: false });
 
 		const slashCommand = slashCommands.get(interaction.commandName);
 
@@ -38,7 +38,7 @@ client.on("interactionCreate", async (interaction) => {
 				} else if (option.value) args.push(option.value);
 			});
 
-			slashCommand.run(client, interaction, args);
-		} else interaction.followUp({ content: "An error has occured" });
+			await slashCommand.run(client, interaction, args);
+		} else interaction.reply({ content: "An error has occured" });
 	}
 });
