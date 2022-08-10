@@ -39,6 +39,6 @@ client.on("interactionCreate", async (interaction) => {
 			});
 
 			await slashCommand.run(client, interaction, args);
-		} else interaction.followUp({ content: "An error has occured" });
+		} else interaction.editReply({ content: "An error has occured" });
 	}
 });
