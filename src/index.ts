@@ -3,7 +3,7 @@ import { Player } from 'discord-player';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import pm2 from 'pm2';
 
-export const client = new Client({
+export const client: Client = new Client({
 	intents: [
 		GatewayIntentBits.DirectMessageReactions,
 		GatewayIntentBits.DirectMessageTyping,
@@ -30,7 +30,7 @@ export const player: Player = new Player(client);
 // Events
 (async () => {
 	const eventFiles: string[] = await globby('./events/**/*.js', { cwd: './dist/' });
-	console.log(eventFiles);
+
 	eventFiles.forEach((value) => import(value));
 })();
 
@@ -42,9 +42,9 @@ export const prefixCommands: Collection<string, any> = new Collection();
 
 	prefixCommandFiles.forEach(async (value) => {
 		const { default: prefixCommand } = await import(value);
-		const splitted = value.split('/');
-		const directory = splitted[splitted.length - 2];
-		const properties = { directory, ...prefixCommand };
+		const splitted: string[] = value.split('/');
+		const directory: string = splitted[splitted.length - 2];
+		const properties: object = { directory, ...prefixCommand };
 
 		prefixCommands.set(prefixCommand.data.name, properties);
 	});
@@ -55,7 +55,7 @@ export const slashCommands: Collection<string, any> = new Collection();
 export const slashCommandArray: any[] = [];
 
 (async () => {
-	const slashCommandFiles = await globby('./commands/slash/**/*.js', { cwd: './dist/' });
+	const slashCommandFiles: string[] = await globby('./commands/slash/**/*.js', { cwd: './dist/' });
 
 	slashCommandFiles.forEach(async (value) => {
 		const { default: slashCommand } = await import(value);
