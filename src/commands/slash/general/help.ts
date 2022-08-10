@@ -10,11 +10,11 @@ export default {
 		const fields = prefixCommands
 			.map((prefixCommand) => ({
 				name: prefixCommand.data.aliases.length
-					? `${prefixCommand.name} (${prefixCommand.aliases.join(', ')})`
-					: `${prefixCommand.name}`,
-				value: prefixCommand.options.length
-					? `${prefixCommand.description}\nInput: ${prefixCommand.options.join(', ')}`
-					: `${prefixCommand.description}`,
+					? `${prefixCommand.data.name} (${prefixCommand.data.aliases.join(', ')})`
+					: `${prefixCommand.data.name}`,
+				value: prefixCommand.data.options.length
+					? `${prefixCommand.data.description}\nInput: ${prefixCommand.data.options.join(', ')}`
+					: `${prefixCommand.data.description}`,
 			}))
 			.slice(0, 25);
 
