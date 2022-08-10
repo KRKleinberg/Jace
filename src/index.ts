@@ -60,7 +60,7 @@ export const slashCommands: Collection<string, any> = new Collection();
 const slashCommandArray: any[] = [];
 
 (async () => {
-	const slashCommandFiles = await globby('.commands/slash/**/*.js', { cwd: './dist/' });
+	const slashCommandFiles = await globby('./commands/slash/**/*.js', { cwd: './dist/' });
 
 	slashCommandFiles.forEach(async (value) => {
 		const { default: slashCommand } = await import(value);
