@@ -70,8 +70,6 @@ export const slashCommandArray: any[] = [];
 	});
 })();
 
-// export { slashCommandArray };
-
 // JaceDevBot Timeout
 if (process.env.HEROKU_BRANCH === 'dev') {
 	setTimeout(() => {

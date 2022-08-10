@@ -7,7 +7,7 @@ client.on('interactionCreate', async (interaction) => {
 
 		if (slashCommand) {
 			try {
-				await slashCommand.run(interaction);
+				await slashCommand.execute(interaction);
 			}
 			catch (error) {
 				console.error(error);
