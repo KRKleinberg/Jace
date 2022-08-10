@@ -57,7 +57,7 @@ export const prefixCommands: Collection<string, any> = new Collection();
 
 // Slash Commands
 export const slashCommands: Collection<string, any> = new Collection();
-export const slashCommandArray: any[] = [];
+const slashCommandArray: any[] = [];
 
 (async () => {
 	const slashCommandFiles = await globby('.commands/slash/**/*.js', { cwd: './dist/' });
@@ -69,6 +69,8 @@ export const slashCommandArray: any[] = [];
 		slashCommandArray.push(slashCommand.data.toJSON());
 	});
 })();
+
+export { slashCommandArray };
 
 // JaceDevBot Timeout
 if (process.env.HEROKU_BRANCH === 'dev') {
