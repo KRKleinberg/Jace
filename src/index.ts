@@ -40,18 +40,13 @@ export const prefixCommands: Collection<string, any> = new Collection();
 (async () => {
 	const prefixCommandFiles: string[] = await globby('./commands/prefix/**/*.js', { cwd: './dist/' });
 
-	console.log(prefixCommandFiles);
-
 	prefixCommandFiles.forEach(async (value) => {
 		const { default: prefixCommand } = await import(value);
 		const splitted = value.split('/');
 		const directory = splitted[splitted.length - 2];
+		const properties = { directory, ...prefixCommand };
 
-		if (prefixCommand.name) {
-			const properties = { directory, ...prefixCommand };
-
-			prefixCommands.set(prefixCommand.name, properties);
-		}
+		prefixCommands.set(prefixCommand.data.name, properties);
 	});
 })();
 
