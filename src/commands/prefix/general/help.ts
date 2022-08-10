@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message } from 'discord.js';
+import { EmbedBuilder, Message } from 'discord.js';
 import { prefixCommands } from '../../../index.js';
 
 export default {
@@ -6,15 +6,15 @@ export default {
 		name: 'help',
 		description: 'Displays a list of all prefix commands',
 	},
-	async execute(client: Client, message: Message) {
+	async execute(message: Message) {
 		const fields = prefixCommands
 			.map((prefixCommand) => ({
-				name: prefixCommand.data.aliases.length
-					? `${prefixCommand.name} (${prefixCommand.aliases.join(', ')})`
-					: `${prefixCommand.name}`,
-				value: prefixCommand.options.length
-					? `${prefixCommand.description}\nInput: ${prefixCommand.options.join(', ')}`
-					: `${prefixCommand.description}`,
+				name: prefixCommand.data.aliases?.length
+					? `${prefixCommand.data.name} (${prefixCommand.data.aliases.join(', ')})`
+					: `${prefixCommand.data.name}`,
+				value: prefixCommand.data.options?.length
+					? `${prefixCommand.data.description}\nInput: ${prefixCommand.data.options.join(', ')}`
+					: `${prefixCommand.data.description}`,
 			}))
 			.slice(0, 25);
 

@@ -1,11 +1,12 @@
-import { Client, Message } from 'discord.js';
+import { Message } from 'discord.js';
+import { client } from '../../../index.js';
 
 export default {
 	data: {
 		name: 'ping',
 		description: 'Returns websocket ping',
 	},
-	async execute(client: Client, message: Message) {
+	async execute(message: Message) {
 		await message.channel.send({ content: `📶 | \`${client.ws.ping}ms\`` });
 	},
 };

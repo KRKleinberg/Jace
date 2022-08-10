@@ -13,6 +13,6 @@ client.on('messageCreate', async (message: Message) => {
 			prefixCommands.get(input.toLowerCase()) ||
 			prefixCommands.find((c) => c.aliases?.includes(input.toLowerCase()));
 
-		if (prefixCommand) await prefixCommand.execute(client, message, args);
+		if (prefixCommand) await prefixCommand.execute(message, args);
 	}
 });
