@@ -61,7 +61,7 @@ export const slashCommandArray: string[] = [];
 		const { default: slashCommand } = await import(value);
 
 		slashCommands.set(slashCommand.data.name, slashCommand);
-		slashCommandArray.push(JSON.stringify(slashCommand.data));
+		slashCommandArray.push(JSON.parse(slashCommand.data));
 	});
 })();
 
