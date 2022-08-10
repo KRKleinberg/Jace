@@ -3,7 +3,6 @@ import { client, slashCommandArray } from '../index.js';
 
 client.once('ready', async () => {
 	const rest = new REST({ version: '10' }).setToken(process.env.DJS_TOKEN!);
-
 	await rest
 		.put(Routes.applicationCommands(process.env.APP_ID!), { body: slashCommandArray })
 		.then(() => console.log('Successfully registered application commands.'))

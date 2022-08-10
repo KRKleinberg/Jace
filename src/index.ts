@@ -28,16 +28,16 @@ export const client = new Client({
 export const player: Player = new Player(client);
 
 // Events
-async () => {
+(async () => {
 	const eventFiles: string[] = await globby('./events/**/*.js', { cwd: './dist/' });
-
+	console.log(eventFiles);
 	eventFiles.forEach((value) => import(value));
-};
+})();
 
 // Prefix Commands
 export const prefixCommands: Collection<string, any> = new Collection();
 
-async () => {
+(async () => {
 	const prefixCommandFiles: string[] = await globby('./commands/prefix/**/*.js', { cwd: './dist/' });
 
 	console.log(prefixCommandFiles);
@@ -53,13 +53,13 @@ async () => {
 			prefixCommands.set(prefixCommand.name, properties);
 		}
 	});
-};
+})();
 
 // Slash Commands
 export const slashCommands: Collection<string, any> = new Collection();
 export const slashCommandArray: any[] = [];
 
-async () => {
+(async () => {
 	const slashCommandFiles = await globby('.commands/slash/**/*.js', { cwd: './dist/' });
 
 	slashCommandFiles.forEach(async (value) => {
@@ -68,7 +68,7 @@ async () => {
 		slashCommands.set(slashCommand.data.name, slashCommand);
 		slashCommandArray.push(slashCommand.data.toJSON());
 	});
-};
+})();
 
 // JaceDevBot Timeout
 if (process.env.HEROKU_BRANCH === 'dev') {
