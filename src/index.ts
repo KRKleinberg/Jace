@@ -68,6 +68,7 @@ const slashCommandArray: any[] = [];
 		slashCommands.set(slashCommand.data.name, slashCommand);
 		slashCommandArray.push(slashCommand.data.toJSON());
 	});
+	console.log(slashCommandArray);
 })();
 
 export { slashCommandArray };
