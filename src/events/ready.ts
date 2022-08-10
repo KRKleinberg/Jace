@@ -1,5 +1,5 @@
 import { ActivityType } from "discord.js";
-import { client } from "..";
+import { client } from "../index.js";
 
 console.log("ready");
 client.once("ready", () => {

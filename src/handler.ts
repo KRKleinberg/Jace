@@ -1,5 +1,5 @@
 import { globby } from "globby";
-import { prefixCommands, slashCommands } from ".";
+import { prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler

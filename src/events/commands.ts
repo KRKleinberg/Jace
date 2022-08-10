@@ -1,4 +1,4 @@
-import { client, prefixCommands } from "..";
+import { client, prefixCommands } from "../index.js";
 
 client.on("messageCreate", async (message) => {
 	if (
