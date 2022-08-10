@@ -9,10 +9,10 @@ export default {
 	async execute(client: Client, interaction: ChatInputCommandInteraction) {
 		const fields = prefixCommands
 			.map((prefixCommand) => ({
-				name: prefixCommand.data.aliases
+				name: prefixCommand.data.aliases.length
 					? `${prefixCommand.name} (${prefixCommand.aliases.join(', ')})`
 					: `${prefixCommand.name}`,
-				value: prefixCommand.options
+				value: prefixCommand.options.length
 					? `${prefixCommand.description}\nInput: ${prefixCommand.options.join(', ')}`
 					: `${prefixCommand.description}`,
 			}))
