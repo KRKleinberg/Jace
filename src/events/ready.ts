@@ -2,7 +2,7 @@ import { ActivityType } from "discord.js";
 import { client } from "../index.js";
 
 client.once("ready", () => {
-	
+
 	client.user!.setPresence({
 		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
 		status: "online",

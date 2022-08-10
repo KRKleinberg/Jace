@@ -1,5 +1,5 @@
 import { globby } from "globby";
-import { prefixCommands, slashCommands } from "./index.js";
+import { client, prefixCommands, slashCommands } from "./index.js";
 
 export default async () => {
 	// Event handler
@@ -38,5 +38,9 @@ export default async () => {
 
 			slashCommandArray.push(slashCommand);
 		}
+	});
+
+	client.on("ready", async () => {
+		await client.application!.commands.set(slashCommandArray);
 	});
 };
