@@ -1,6 +1,6 @@
-import { client, prefixCommands } from "../../index.js";
+import { client, prefixCommands } from '../../index.js';
 
-client.on("messageCreate", async (message) => {
+client.on('messageCreate', async (message) => {
 	if (
 		!message.author.bot &&
 		message.guild &&

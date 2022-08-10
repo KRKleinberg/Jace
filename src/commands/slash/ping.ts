@@ -1,10 +1,10 @@
-import { ChatInputCommandInteraction } from "discord.js";
-import { client } from "../../index.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { client } from '../../index.js';
 
 export default {
-	name: "ping",
-	description: "Returns websocket ping",
-	run: async (interaction: ChatInputCommandInteraction) => {
+	data: new SlashCommandBuilder().setName('ping').setDescription('Returns websocket ping'),
+
+	async execute(interaction: ChatInputCommandInteraction) {
 		await interaction.reply(`📶 | \`${client.ws.ping}ms\``);
 	},
 };
