@@ -1,4 +1,4 @@
-import { CommandInteractionOption, CacheType } from "discord.js";
+import { CommandInteractionOption } from "discord.js";
 import { client, prefixCommands, slashCommands } from "../index.js";
 
 client.on("messageCreate", async (message) => {
@@ -26,7 +26,7 @@ client.on("interactionCreate", async (interaction) => {
 
 		if (slashCommand) {
 			const args: any[] = [];
-			const options: readonly CommandInteractionOption<CacheType>[] = interaction.options.data;
+			const options: readonly CommandInteractionOption[] = interaction.options.data;
 
 			options.forEach((option: any) => {
 				if (option.type === "SUB_COMMAND") {
