@@ -52,7 +52,7 @@ export const prefixCommands: Collection<string, any> = new Collection();
 
 // Slash Commands
 export const slashCommands: Collection<string, any> = new Collection();
-export const slashCommandArray: any[] = [];
+export const slashCommandArray: JSON[] = [];
 
 (async () => {
 	const slashCommandFiles: string[] = await globby('./commands/slash/**/*.js', { cwd: './dist/' });
@@ -61,7 +61,7 @@ export const slashCommandArray: any[] = [];
 		const { default: slashCommand } = await import(value);
 
 		slashCommands.set(slashCommand.data.name, slashCommand);
-		slashCommandArray.push(slashCommand.data.toJSON());
+		slashCommandArray.push(JSON.stringify(slashCommand.data));
 	});
 })();
 
