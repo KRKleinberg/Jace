@@ -20,8 +20,6 @@ client.on("messageCreate", async (message) => {
 client.on("interactionCreate", async (interaction) => {
 	// Slash Command Handling
 	if (interaction.isChatInputCommand()) {
-		await interaction.followUp({ ephemeral: false });
-
 		const slashCommand = slashCommands.get(interaction.commandName);
 
 		if (slashCommand) {
@@ -39,6 +37,10 @@ client.on("interactionCreate", async (interaction) => {
 			});
 
 			await slashCommand.run(client, interaction, args);
-		} else await interaction.followUp({ content: "An error has occured" });
+		} else
+			await interaction.reply({
+				content: "⚠️ | The command you requested doesn't exist",
+				ephemeral: true,
+			});
 	}
 });

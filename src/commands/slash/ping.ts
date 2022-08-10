@@ -4,6 +4,6 @@ export default {
 	name: "ping",
 	description: "Returns websocket ping",
 	run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-		await interaction.followUp(`📶 | \`${client.ws.ping}ms\``);
+		await interaction.reply(`📶 | \`${client.ws.ping}ms\``);
 	},
 };
