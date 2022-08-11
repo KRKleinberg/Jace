@@ -7,13 +7,13 @@ export default {
 	},
 	async execute(interaction: ChatInputCommandInteraction) {
 		if ((interaction.member as GuildMember).voice.channel) {
-			const voiceMembers = (interaction.member as any).voice.channel.members.filter(
-				(member: GuildMember) => !member.user.bot
+			const voiceMembers = (interaction.member as GuildMember).voice.channel!.members.filter(
+				(member) => !member.user.bot
 			);
 			const shuffled = voiceMembers
-				.map((value: any) => ({ value, sort: Math.random() }))
-				.sort((a: { sort: number }, b: { sort: number }) => a.sort - b.sort)
-				.map((value: any) => value);
+				.map((value) => ({ value, sort: Math.random() }))
+				.sort((a, b) => a.sort - b.sort)
+				.map((value) => value);
 			const half = Math.ceil(shuffled.length / 2);
 			const teamA = shuffled.slice(0, half);
 			const teamB = shuffled.slice(half);
