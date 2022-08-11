@@ -3,6 +3,7 @@ import { Player } from 'discord-player';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import pm2 from 'pm2';
 
+// Client
 export const client = new Client({
 	intents: [
 		GatewayIntentBits.DirectMessageReactions,
@@ -23,22 +24,6 @@ export const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.MessageContent,
 	],
-});
-
-export const player = new Player(client, {
-	ytdlOptions: {
-		requestOptions: {
-			headers: {
-				cookie: process.env.COOKIE,
-				'x-youtube-identity-token': process.env.ID_TOKEN,
-			},
-		},
-		quality: 'highestaudio',
-		filter: 'audioonly',
-		highWaterMark: 1 << 25,
-		dlChunkSize: 0,
-	},
-	connectionTimeout: 5000,
 });
 
 // Events
@@ -79,6 +64,23 @@ export const slashCommandArray: any[] = [];
 	});
 })();
 
+// Player
+export const player = new Player(client, {
+	ytdlOptions: {
+		requestOptions: {
+			headers: {
+				cookie: process.env.COOKIE,
+				'x-youtube-identity-token': process.env.ID_TOKEN,
+			},
+		},
+		quality: 'highestaudio',
+		filter: 'audioonly',
+		highWaterMark: 1 << 25,
+		dlChunkSize: 0,
+	},
+	connectionTimeout: 5000,
+});
+
 // JaceDevBot Timeout
 if (process.env.HEROKU_BRANCH === 'dev') {
 	setTimeout(() => {
@@ -88,4 +90,5 @@ if (process.env.HEROKU_BRANCH === 'dev') {
 	}, 300000);
 }
 
+// Start
 client.login(process.env.DJS_TOKEN);
