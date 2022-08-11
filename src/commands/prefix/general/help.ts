@@ -24,7 +24,7 @@ export default {
 			.setColor('#5864f1')
 			.addFields(fields);
 
-		message.channel.send({
+		await message.channel.send({
 			embeds: [embed],
 		});
 	},

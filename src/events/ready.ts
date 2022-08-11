@@ -2,7 +2,7 @@ import { ActivityType, REST, Routes } from 'discord.js';
 import { client, slashCommandArray } from '../index.js';
 
 client.once('ready', async () => {
-	const rest: REST = new REST({ version: '10' }).setToken(process.env.DJS_TOKEN!);
+	const rest = new REST({ version: '10' }).setToken(process.env.DJS_TOKEN!);
 
 	await rest
 		.put(Routes.applicationCommands(process.env.APP_ID!), { body: slashCommandArray })

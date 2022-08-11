@@ -24,7 +24,7 @@ export default {
 			.setColor('#5864f1')
 			.addFields(fields);
 
-		interaction.reply({
+		await interaction.reply({
 			embeds: [embed],
 		});
 	},
