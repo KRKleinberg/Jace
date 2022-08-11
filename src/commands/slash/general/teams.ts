@@ -6,14 +6,14 @@ export default {
 		description: 'Splits users in voice channel into two teams',
 	},
 	async execute(interaction: ChatInputCommandInteraction) {
-		if ((interaction.member as any).voice.channel) {
+		if ((interaction.member as GuildMember).voice.channel) {
 			const voiceMembers = (interaction.member as any).voice.channel.members.filter(
 				(member: GuildMember) => !member.user.bot
 			);
 			const shuffled = voiceMembers
-				.map((value: GuildMember) => ({ value, sort: Math.random() }))
+				.map((value: any) => ({ value, sort: Math.random() }))
 				.sort((a: { sort: number }, b: { sort: number }) => a.sort - b.sort)
-				.map((value: GuildMember) => value);
+				.map((value: any) => value);
 			const half = Math.ceil(shuffled.length / 2);
 			const teamA = shuffled.slice(0, half);
 			const teamB = shuffled.slice(half);
