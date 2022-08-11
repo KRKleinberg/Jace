@@ -25,7 +25,21 @@ export const client = new Client({
 	],
 });
 
-export const player = new Player(client);
+export const player = new Player(client, {
+	ytdlOptions: {
+		requestOptions: {
+			headers: {
+				cookie: process.env.COOKIE,
+				'x-youtube-identity-token': process.env.ID_TOKEN,
+			},
+		},
+		quality: 'highestaudio',
+		filter: 'audioonly',
+		highWaterMark: 1 << 25,
+		dlChunkSize: 0,
+	},
+	connectionTimeout: 5000,
+});
 
 // Events
 (async () => {
