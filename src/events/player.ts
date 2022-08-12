@@ -96,5 +96,8 @@ player.on('trackStart', async (queue: Queue<any>, track) => {
 		content: `🎶 | Playing: **${track.title}** in **${queue.connection.channel.name}**!`,
 	});
 
-	client.user!.setActivity(`${track.title}`, { type: ActivityType.Streaming });
+	client.user!.setActivity(`${track.title}`, {
+		type: ActivityType.Streaming,
+		url: track.url,
+	});
 });
