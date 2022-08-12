@@ -22,9 +22,11 @@ export default {
 			.slice(0, 10)
 			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
 
+		console.log(tracks);
+
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
-			.setDescription(tracks.join('\n'))
+			// .setDescription(tracks.join('\n'))
 			.setFields([
 				{ name: 'Now Playing', value: `🎶 | **${currentTrack.title}** ([link](${currentTrack.url}))` },
 			])
@@ -33,3 +35,4 @@ export default {
 		return message.channel.send({ embeds: [embed] });
 	},
 };
+

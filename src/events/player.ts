@@ -4,16 +4,10 @@ import str from '@supercharge/strings';
 import { client, player } from '../index.js';
 
 player.on('botDisconnect', async (queue: Queue<any>) => {
-	await queue.metadata.channel.send({
-		content: '❌ | Manually disconnected from the voice channel, clearing queue!',
-	});
-
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('channelEmpty', async (queue: Queue<any>) => {
-	await queue.metadata.channel.send({ content: '❌ | Nobody is in the voice channel, leaving...' });
-
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
