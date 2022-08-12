@@ -1,25 +1,33 @@
-import { ChatInputCommandInteraction, EmbedBuilder, GuildMember } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	GuildMember,
+	SlashCommandBuilder,
+} from 'discord.js';
 
 export default {
-	data: {
-		name: 'teams',
-		description: 'Splits users in voice channel into two teams',
-	},
+	data: new SlashCommandBuilder()
+		.setName('teams')
+		.setDescription('Splits users in voice channel into two teams'),
 	async execute(interaction: ChatInputCommandInteraction) {
-		if (!(interaction.member as GuildMember).voice.channel) {
-			return interaction.reply({ content: '❌ | Youre not in a voice channel!' });
-		}
+		const member = interaction.member as GuildMember;
 
-		const voiceMembers = (interaction.member as GuildMember).voice.channel!.members.filter(
-			(member) => !member.user.bot
-		);
+		if (!member.voice.channel)
+			return interaction.reply({ content: '❌ | Youre not in a voice channel!' });
+
+		const voiceMembers = member.voice.channel!.members.filter((m) => !m.user.bot);
+
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
+
 		const half = Math.ceil(shuffled.length / 2);
+
 		const teamA = shuffled.slice(0, half);
+
 		const teamB = shuffled.slice(half);
+
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
 		const embed = new EmbedBuilder()

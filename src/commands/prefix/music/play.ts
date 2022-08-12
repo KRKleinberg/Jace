@@ -6,15 +6,9 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'play',
+		aliases: ['p'],
 		description: 'Plays a song',
-		options: [
-			{
-				name: 'song',
-				type: 'STRING',
-				description: 'The song to play',
-				required: true,
-			},
-		],
+		options: ['\u0060song\u0060'],
 	},
 	async execute(message: Message, args: string[]) {
 		if (!message.member!.voice.channelId) {
@@ -22,9 +16,10 @@ export default {
 				content: '❌ | You are not in a voice channel!',
 			});
 		}
+
 		if (
 			message.guild?.members.me?.voice.channelId &&
-			message.member?.voice.channelId !== message.guild?.members.me?.voice.channelId
+			message.member!.voice.channelId !== message.guild.members.me.voice.channelId
 		) {
 			return message.channel.send({
 				content: '❌ | You are not in the same voice channel as the bot!',
@@ -32,6 +27,7 @@ export default {
 		}
 
 		const query = args.join(' ');
+
 		const queue = player.createQueue(message.guild!, {
 			autoSelfDeaf: true,
 			leaveOnEmpty: true,
@@ -60,8 +56,10 @@ export default {
 							cookie: process.env.COOKIE!,
 						},
 					});
+
 					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
 				}
+
 				return null;
 			},
 		});
@@ -81,8 +79,8 @@ export default {
 			searchEngine: QueryType.AUTO,
 		});
 
-		if (!searchResult.tracks.length && !searchResult) {
-			return message.channel.send({ content: `❌ | **${query} not found!` });
+		if (!searchResult) {
+			return message.channel.send({ content: `❌ | **${query}** not found!` });
 		}
 
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);

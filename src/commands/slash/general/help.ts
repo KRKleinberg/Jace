@@ -1,11 +1,10 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { prefixCommands } from '../../../index.js';
 
 export default {
-	data: {
-		name: 'help',
-		description: 'Displays a list of all prefix commands',
-	},
+	data: new SlashCommandBuilder()
+		.setName('help')
+		.setDescription('Displays a list of all prefix commands'),
 	async execute(interaction: ChatInputCommandInteraction) {
 		const fields = prefixCommands
 			.map((prefixCommand) => ({
@@ -24,8 +23,6 @@ export default {
 			.setColor('#5864f1')
 			.addFields(fields);
 
-		return interaction.reply({
-			embeds: [embed],
-		});
+		return interaction.reply({ embeds: [embed] });
 	},
 };

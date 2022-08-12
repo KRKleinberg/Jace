@@ -41,8 +41,11 @@ export const prefixCommands: Collection<string, any> = new Collection();
 
 	prefixCommandFiles.forEach(async (value) => {
 		const { default: prefixCommand } = await import(value);
+
 		const splitted = value.split('/');
+
 		const directory = splitted[splitted.length - 2];
+
 		const properties = { directory, ...prefixCommand };
 
 		prefixCommands.set(prefixCommand.data.name, properties);
@@ -51,6 +54,7 @@ export const prefixCommands: Collection<string, any> = new Collection();
 
 // Slash Commands
 export const slashCommands: Collection<string, any> = new Collection();
+
 export const slashCommandArray: any[] = [];
 
 (async () => {
@@ -60,6 +64,7 @@ export const slashCommandArray: any[] = [];
 		const { default: slashCommand } = await import(value);
 
 		slashCommands.set(slashCommand.data.name, slashCommand);
+		
 		slashCommandArray.push(slashCommand.data);
 	});
 })();

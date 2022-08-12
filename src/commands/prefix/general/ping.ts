@@ -6,7 +6,8 @@ export default {
 		name: 'ping',
 		description: 'Returns websocket ping',
 	},
+
 	async execute(message: Message) {
-		return message.channel.send({ content: `📶 | \`${client.ws.ping}ms\`` });
+		return message.channel.send(`📶 | \`${client.ws.ping}ms\``);
 	},
 };

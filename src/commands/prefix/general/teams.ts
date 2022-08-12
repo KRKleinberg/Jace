@@ -6,18 +6,22 @@ export default {
 		description: 'Splits users in voice channel into two teams',
 	},
 	async execute(message: Message) {
-		if (!message.member!.voice.channel) {
-			return message.channel.send({ content: '❌ | You are not in a voice channel!' });
-		}
+		if (!message.member!.voice.channel)
+			return message.channel.send({ content: '❌ | Youre not in a voice channel!' });
 
-		const voiceMembers = message.member!.voice.channel.members.filter((member) => !member.user.bot);
+		const voiceMembers = message.member!.voice.channel!.members.filter((member) => !member.user.bot);
+
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
+
 		const half = Math.ceil(shuffled.length / 2);
+
 		const teamA = shuffled.slice(0, half);
+
 		const teamB = shuffled.slice(half);
+
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
 
 		const embed = new EmbedBuilder()

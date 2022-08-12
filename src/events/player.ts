@@ -7,6 +7,7 @@ player.on('botDisconnect', async (queue: Queue<any>) => {
 	await queue.metadata.channel.send({
 		content: '❌ | Manually disconnected from the voice channel, clearing queue!',
 	});
+
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
@@ -57,6 +58,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
+		
 		await queue.metadata.channel.send({ embeds: [embed] });
 	} else if (track.url.includes('soundcloud')) {
 		const embed = new EmbedBuilder()
@@ -80,6 +82,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
+		
 		await queue.metadata.channel.send({ embeds: [embed] });
 	} else await queue.metadata.channel.send({ content: `✔️ | ${track.title} added to queue!` });
 });
@@ -88,5 +91,6 @@ player.on('trackStart', async (queue: Queue<any>, track) => {
 	await queue.metadata.channel.send({
 		content: `🎶 | Playing: **${track.title}** in **${queue.connection.channel.name}**!`,
 	});
+	
 	client.user!.setActivity(`${track.title}`, { type: ActivityType.Streaming });
 });

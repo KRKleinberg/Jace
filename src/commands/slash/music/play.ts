@@ -12,12 +12,14 @@ export default {
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
+
 		if (!member.voice.channelId) {
 			return interaction.reply({
 				content: '❌ | You are not in a voice channel!',
 				ephemeral: true,
 			});
 		}
+
 		if (
 			interaction.guild?.members.me?.voice.channelId &&
 			member.voice.channelId !== interaction.guild.members.me.voice.channelId
@@ -29,6 +31,7 @@ export default {
 		}
 
 		const query = interaction.options.getString('query');
+
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
 			leaveOnEmpty: true,
@@ -57,8 +60,10 @@ export default {
 							cookie: process.env.COOKIE!,
 						},
 					});
+
 					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
 				}
+
 				return null;
 			},
 		});
