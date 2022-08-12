@@ -74,9 +74,8 @@ export default {
 			return await interaction.followUp({ content: `❌ | **${query} not found!` });
 		}
 
-		searchResult.playlist
-			? queue.addTracks(searchResult.tracks)
-			: queue.addTrack(searchResult.tracks[0]);
+		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
+		else queue.addTrack(searchResult.tracks[0]);
 
 		if (!queue.playing) await queue.play();
 
