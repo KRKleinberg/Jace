@@ -27,17 +27,7 @@ export default {
 
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
-			.setDescription(
-				`${tracks.join('\n')}${
-					queue.tracks.length > tracks.length
-						? `\n...${
-								queue.tracks.length - tracks.length === 1
-									? `${queue.tracks.length - tracks.length} more track`
-									: `${queue.tracks.length - tracks.length} more tracks`
-						  }`
-						: null
-				}`
-			)
+			.setDescription(tracks.join('\n'))
 			.setFields([
 				{ name: 'Now Playing', value: `🎶 | **${currentTrack.title}** ([link](${currentTrack.url}))` },
 			])
