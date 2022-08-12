@@ -7,17 +7,13 @@ player.on('botDisconnect', async (queue: Queue<any>) => {
 	await queue.metadata.channel.send({
 		content: '❌ | Manually disconnected from the voice channel, clearing queue!',
 	});
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
+	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('channelEmpty', async (queue: Queue<any>) => {
 	await queue.metadata.channel.send({ content: '❌ | Nobody is in the voice channel, leaving...' });
 
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
+	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('connectionError', async (queue: Queue<any>, error) => {
@@ -25,23 +21,17 @@ player.on('connectionError', async (queue: Queue<any>, error) => {
 
 	await queue.metadata.channel.send({ content: `⚠️ | **Error!** ${error.message}` });
 
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
+	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('error', (queue: Queue<any>, error) => {
 	console.log(`[${queue.guild.name}] Player Error: ${error.message}`);
 
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
+	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('queueEnd', () => {
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
+	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('trackAdd', async (queue: Queue<any>, track) => {
@@ -98,8 +88,5 @@ player.on('trackStart', async (queue: Queue<any>, track) => {
 	await queue.metadata.channel.send({
 		content: `🎶 | Playing: **${track.title}** in **${queue.connection.channel.name}**!`,
 	});
-
-	client.user!.setPresence({
-		activities: [{ name: `${track.title}`, type: ActivityType.Streaming }],
-	});
+	client.user!.setActivity(`${track.title}`, { type: ActivityType.Streaming });
 });

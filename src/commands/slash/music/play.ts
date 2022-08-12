@@ -52,7 +52,11 @@ export default {
 			},
 			async onBeforeCreateStream(track, source): Promise<any> {
 				if (source === 'youtube') {
-					console.log('playdl');
+					play.setToken({
+						youtube: {
+							cookie: process.env.COOKIE!,
+						},
+					});
 					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
 				}
 			},
