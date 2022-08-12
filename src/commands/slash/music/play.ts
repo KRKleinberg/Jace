@@ -10,24 +10,7 @@ export default {
 			option.setName('song').setDescription('The song to play').setRequired(true)
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
-		const member = interaction.member as GuildMember;
-
-		if (!member.voice.channelId) {
-			return await interaction.reply({
-				content: '❌ | You are not in a voice channel!',
-				ephemeral: true,
-			});
-		}
-		if (
-			interaction.guild?.members.me?.voice.channelId &&
-			member.voice.channelId !== interaction.guild.members.me.voice.channelId
-		) {
-			return await interaction.reply({
-				content: '❌ | You are not in the same voice channel as the bot!',
-				ephemeral: true,
-			});
-		}
-
+		const member = (interaction.member as GuildMember);
 		const query = interaction.options.getString('song');
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
@@ -51,6 +34,26 @@ export default {
 				dlChunkSize: 0,
 			},
 		});
+		const searchResult = await player.search(query!, {
+			requestedBy: interaction.user,
+			searchEngine: QueryType.AUTO,
+		});
+
+		if (!member.voice.channelId) {
+			return await interaction.reply({
+				content: '❌ | You are not in a voice channel!',
+				ephemeral: true,
+			});
+		}
+		if (
+			interaction.guild?.members.me?.voice.channelId &&
+			member.voice.channelId !== interaction.guild.members.me.voice.channelId
+		) {
+			return await interaction.reply({
+				content: '❌ | You are not in the same voice channel as the bot!',
+				ephemeral: true,
+			});
+		}
 
 		try {
 			if (!queue.connection) await queue.connect(member.voice.channel!);
@@ -64,11 +67,6 @@ export default {
 		}
 
 		await interaction.deferReply();
-
-		const searchResult = await player.search(query!, {
-			requestedBy: interaction.user,
-			searchEngine: QueryType.AUTO,
-		});
 
 		if (!searchResult.tracks.length && !searchResult) {
 			return await interaction.followUp({ content: `❌ | **${query} not found!` });
