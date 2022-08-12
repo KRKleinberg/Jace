@@ -11,6 +11,22 @@ export default {
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
+		if (!member.voice.channelId) {
+			return await interaction.reply({
+				content: '❌ | You are not in a voice channel!',
+				ephemeral: true,
+			});
+		}
+		if (
+			interaction.guild?.members.me?.voice.channelId &&
+			member.voice.channelId !== interaction.guild.members.me.voice.channelId
+		) {
+			return await interaction.reply({
+				content: '❌ | You are not in the same voice channel as the bot!',
+				ephemeral: true,
+			});
+		}
+
 		const query = interaction.options.getString('query');
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
@@ -34,26 +50,6 @@ export default {
 				dlChunkSize: 0,
 			},
 		});
-		const searchResult = await player.search(query!, {
-			requestedBy: interaction.user,
-			searchEngine: QueryType.AUTO,
-		});
-
-		if (!member.voice.channelId) {
-			return await interaction.reply({
-				content: '❌ | You are not in a voice channel!',
-				ephemeral: true,
-			});
-		}
-		if (
-			interaction.guild?.members.me?.voice.channelId &&
-			member.voice.channelId !== interaction.guild.members.me.voice.channelId
-		) {
-			return await interaction.reply({
-				content: '❌ | You are not in the same voice channel as the bot!',
-				ephemeral: true,
-			});
-		}
 
 		try {
 			if (!queue.connection) await queue.connect(member.voice.channel!);
@@ -68,14 +64,20 @@ export default {
 
 		await interaction.deferReply();
 
+		const searchResult = await player.search(query!, {
+			requestedBy: interaction.user,
+			searchEngine: QueryType.AUTO,
+		});
+
 		if (!searchResult.tracks.length || !searchResult) {
 			return await interaction.followUp({ content: `❌ | **${query} not found!` });
 		}
 
-		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
-		else queue.addTrack(searchResult.tracks[0]);
+		searchResult.playlist
+			? queue.addTracks(searchResult.tracks)
+			: queue.addTrack(searchResult.tracks[0]);
 
-		if (!queue.playing) await queue.play();
+		if (!queue.playing) await queue.play(searchResult.tracks[0]);
 
 		return await interaction.followUp({
 			content: `⏱️ | Loading **${
