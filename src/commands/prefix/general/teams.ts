@@ -38,7 +38,7 @@ export default {
 					value: `${mapChoice.toString()}\u200B`,
 				},
 			])
-			.setColor('#5864f1');
+			.setColor(0x5864f1);
 
 		return await message.channel.send({ embeds: [embed] });
 	},

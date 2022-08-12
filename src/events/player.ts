@@ -73,7 +73,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
-		await queue.metadata.channel.send({ embed: [embed] });
+		await queue.metadata.channel.send({ embeds: [embed] });
 	} else if (track.url.includes('soundcloud')) {
 		const embed = new EmbedBuilder()
 			.setAuthor({
@@ -96,7 +96,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
-		await queue.metadata.channel.send({ embed: [embed] });
+		await queue.metadata.channel.send({ embeds: [embed] });
 	} else await queue.metadata.channel.send({ content: `✔️ | ${track.title} added to queue!` });
 });
 
