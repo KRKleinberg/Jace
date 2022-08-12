@@ -23,7 +23,7 @@ export default {
 
 		const tracks = queue.tracks
 			.slice(0, 10)
-			.map((m, i) => { return `${i + 1}. **${m.title}** ([link](${m.url}))` });
+			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
 
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
