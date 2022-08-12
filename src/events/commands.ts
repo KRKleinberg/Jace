@@ -28,7 +28,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 			} catch (error) {
 				console.error(error);
 				
-				await interaction.followUp({
+				await interaction.reply({
 					content: '⚠️ | There was an error while executing this command',
 					ephemeral: true,
 				});
