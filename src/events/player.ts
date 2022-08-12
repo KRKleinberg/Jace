@@ -57,7 +57,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 				name: 'Queued Track',
 				iconURL: track.requestedBy.displayAvatarURL(),
 			})
-			.setColor('#5864f1')
+			.setColor(0x5864f1)
 			.setFields([
 				{
 					name: 'Channel',
@@ -80,7 +80,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 				name: 'Queued Track',
 				iconURL: 'http://assets.stickpng.com/thumbs/58e9198ceb97430e819064fa.png',
 			})
-			.setColor('#5864f1')
+			.setColor(0x5864f1)
 			.setFields([
 				{
 					name: 'Channel',
