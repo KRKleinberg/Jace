@@ -70,14 +70,14 @@ export default {
 		}).then(x => x.tracks[0]);
 
 		if (!searchResult) {
-			return await interaction.followUp({ content: `❌ | **${query} not found!` });
+			return await interaction.followUp({ content: `❌ | **${query}** not found!` });
 		}
 
 		// searchResult.playlist
 		// 	? queue.addTracks(searchResult.tracks)
 		// 	: queue.addTrack(searchResult.tracks[0]);
 
-		if (!queue.playing) await queue.play(searchResult);
+		queue.play(searchResult);
 
 		return await interaction.followUp({
 			content: `⏱️ | Loading **${
