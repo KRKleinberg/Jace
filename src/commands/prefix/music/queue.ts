@@ -32,7 +32,7 @@ export default {
 									? `${queue.tracks.length - tracks.length} more track`
 									: `${queue.tracks.length - tracks.length} more tracks`
 						  }`
-						: ''
+						: null
 				}`
 			)
 			.setFields([

@@ -11,7 +11,7 @@ export default {
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
-		
+
 		if (!member.voice.channel)
 			return interaction.reply({ content: '❌ | You are not in a voice channel!' });
 
@@ -35,7 +35,7 @@ export default {
 									? `${queue.tracks.length - tracks.length} more track`
 									: `${queue.tracks.length - tracks.length} more tracks`
 						  }`
-						: ''
+						: null
 				}`
 			)
 			.setFields([
