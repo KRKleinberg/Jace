@@ -79,7 +79,7 @@ export default {
 			});
 		}
 
-		await interaction.deferReply();
+		await interaction.reply({ content: `🔍 | Searching for \`${query}\`...` });
 
 		const searchResult = await player.search(query!, {
 			requestedBy: interaction.user,

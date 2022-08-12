@@ -74,6 +74,8 @@ export default {
 			});
 		}
 
+		await message.channel.send({ content: `🔍 | Searching for \`${query}\`...`});
+		
 		const searchResult = await player.search(query!, {
 			requestedBy: message.author,
 			searchEngine: QueryType.AUTO,
