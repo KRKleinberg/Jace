@@ -64,10 +64,12 @@ export default {
 
 		await interaction.deferReply();
 
-		const searchResult = await player.search(query!, {
-			requestedBy: interaction.user,
-			searchEngine: QueryType.AUTO,
-		}).then(x => x.tracks[0]);
+		const searchResult = await player
+			.search(query!, {
+				requestedBy: interaction.user,
+				searchEngine: QueryType.AUTO,
+			})
+			.then((x) => x.tracks[0]);
 
 		if (!searchResult) {
 			return await interaction.followUp({ content: `❌ | **${query}** not found!` });
@@ -77,7 +79,8 @@ export default {
 		// 	? queue.addTracks(searchResult.tracks)
 		// 	: queue.addTrack(searchResult.tracks[0]);
 
-		queue.play(searchResult);
+		queue.addTrack(searchResult);
+		await queue.play();
 
 		return await interaction.followUp({
 			content: `⏱️ | Loading **${
