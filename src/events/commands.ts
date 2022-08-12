@@ -13,7 +13,16 @@ client.on('messageCreate', async (message: Message) => {
 			prefixCommands.get(input.toLowerCase()) ||
 			prefixCommands.find((c) => c.aliases?.includes(input.toLowerCase()));
 
-		if (prefixCommand) await prefixCommand.execute(message, args);
+		if (prefixCommand)
+			try {
+				await prefixCommand.execute(message, args);
+			} catch (error) {
+				console.error(error);
+
+				await message.channel.send({
+					content: '⚠️ | There was an error while executing this command',
+				});
+			}
 	}
 });
 
@@ -22,7 +31,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 	if (interaction.isChatInputCommand()) {
 		const slashCommand = slashCommands.get(interaction.commandName);
 
-		if (slashCommand) {
+		if (slashCommand)
 			try {
 				await slashCommand.execute(interaction);
 			} catch (error) {
@@ -33,6 +42,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 					ephemeral: true,
 				});
 			}
-		}
 	}
 });
+
+
