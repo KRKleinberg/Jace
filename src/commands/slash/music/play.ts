@@ -93,12 +93,8 @@ export default {
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
 		else queue.addTrack(searchResult.tracks[0]);
 
-		if (!queue.playing) await queue.play();
+		if (!queue.playing) queue.play();
 
-		return interaction.followUp({
-			content: `⏱️ | Loading **${
-				searchResult.playlist ? searchResult.playlist.title : searchResult.tracks[0].title
-			}**...`,
-		});
+		return null;
 	},
 };
