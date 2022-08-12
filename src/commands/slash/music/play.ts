@@ -1,6 +1,7 @@
 import { QueryType } from 'discord-player';
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
 import { player } from '../../../index.js';
+import play from 'play-dl';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -48,6 +49,11 @@ export default {
 				filter: 'audioonly',
 				highWaterMark: 1 << 25,
 				dlChunkSize: 0,
+			},
+			async onBeforeCreateStream(track, source): Promise<any> {
+				if (source === 'youtube') {
+					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
+				}
 			},
 		});
 
