@@ -1,7 +1,7 @@
 import { Queue } from 'discord-player';
 import { ActivityType, EmbedBuilder } from 'discord.js';
-import { client, player } from '../index.js';
 import str from '@supercharge/strings';
+import { client, player } from '../index.js';
 
 player.on('botDisconnect', async (queue: Queue<any>) => {
 	await queue.metadata.channel.send({

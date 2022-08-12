@@ -1,7 +1,7 @@
 import { QueryType } from 'discord-player';
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
-import { player } from '../../../index.js';
 import play from 'play-dl';
+import { player } from '../../../index.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ export default {
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
 		if (!member.voice.channelId) {
-			return await interaction.reply({
+			return interaction.reply({
 				content: '❌ | You are not in a voice channel!',
 				ephemeral: true,
 			});
@@ -22,7 +22,7 @@ export default {
 			interaction.guild?.members.me?.voice.channelId &&
 			member.voice.channelId !== interaction.guild.members.me.voice.channelId
 		) {
-			return await interaction.reply({
+			return interaction.reply({
 				content: '❌ | You are not in the same voice channel as the bot!',
 				ephemeral: true,
 			});
@@ -59,6 +59,7 @@ export default {
 					});
 					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
 				}
+				return null;
 			},
 		});
 
@@ -67,7 +68,7 @@ export default {
 		} catch {
 			queue.destroy();
 
-			return await interaction.reply({
+			return interaction.reply({
 				content: '❌ | Could not join your voice channel!',
 				ephemeral: true,
 			});
@@ -81,16 +82,15 @@ export default {
 		});
 
 		if (!searchResult) {
-			return await interaction.followUp({ content: `❌ | **${query}** not found!` });
+			return interaction.followUp({ content: `❌ | **${query}** not found!` });
 		}
 
-		searchResult.playlist
-			? queue.addTracks(searchResult.tracks)
-			: queue.addTrack(searchResult.tracks[0]);
+		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
+		else queue.addTrack(searchResult.tracks[0]);
 
 		if (!queue.playing) await queue.play();
 
-		return await interaction.followUp({
+		return interaction.followUp({
 			content: `⏱️ | Loading **${
 				searchResult.playlist ? searchResult.playlist.title : searchResult.tracks[0].title
 			}**...`,

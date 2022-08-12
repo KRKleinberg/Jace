@@ -7,7 +7,7 @@ export default {
 	},
 	async execute(message: Message) {
 		if (!message.member!.voice.channel) {
-			return await message.channel.send({ content: '❌ | You are not in a voice channel!' });
+			return message.channel.send({ content: '❌ | You are not in a voice channel!' });
 		}
 
 		const voiceMembers = message.member!.voice.channel.members.filter((member) => !member.user.bot);
@@ -40,6 +40,6 @@ export default {
 			])
 			.setColor(0x5864f1);
 
-		return await message.channel.send({ embeds: [embed] });
+		return message.channel.send({ embeds: [embed] });
 	},
 };

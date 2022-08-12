@@ -1,5 +1,6 @@
 import { QueryType } from 'discord-player';
 import { Message } from 'discord.js';
+import play from 'play-dl';
 import { player } from '../../../index.js';
 
 export default {
@@ -17,7 +18,7 @@ export default {
 	},
 	async execute(message: Message, args: string[]) {
 		if (!message.member!.voice.channelId) {
-			return await message.channel.send({
+			return message.channel.send({
 				content: '❌ | You are not in a voice channel!',
 			});
 		}
@@ -25,7 +26,7 @@ export default {
 			message.guild?.members.me?.voice.channelId &&
 			message.member?.voice.channelId !== message.guild?.members.me?.voice.channelId
 		) {
-			return await message.channel.send({
+			return message.channel.send({
 				content: '❌ | You are not in the same voice channel as the bot!',
 			});
 		}
@@ -52,6 +53,17 @@ export default {
 				highWaterMark: 1 << 25,
 				dlChunkSize: 0,
 			},
+			async onBeforeCreateStream(track, source): Promise<any> {
+				if (source === 'youtube') {
+					play.setToken({
+						youtube: {
+							cookie: process.env.COOKIE!,
+						},
+					});
+					return (await play.stream(track.url, { discordPlayerCompatibility: true })).stream;
+				}
+				return null;
+			},
 		});
 
 		try {
@@ -59,7 +71,7 @@ export default {
 		} catch {
 			queue.destroy();
 
-			return await message.channel.send({
+			return message.channel.send({
 				content: '❌ | Could not join your voice channel!',
 			});
 		}
@@ -70,16 +82,15 @@ export default {
 		});
 
 		if (!searchResult.tracks.length && !searchResult) {
-			return await message.channel.send({ content: `❌ | **${query} not found!` });
+			return message.channel.send({ content: `❌ | **${query} not found!` });
 		}
 
-		searchResult.playlist
-			? queue.addTracks(searchResult.tracks)
-			: queue.addTrack(searchResult.tracks[0]);
+		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
+		else queue.addTrack(searchResult.tracks[0]);
 
 		if (!queue.playing) await queue.play();
 
-		return await message.channel.send({
+		return message.channel.send({
 			content: `⏱️ | Loading **${
 				searchResult.playlist ? searchResult.playlist.title : searchResult.tracks[0].title
 			}**...`,

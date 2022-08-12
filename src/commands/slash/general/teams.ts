@@ -7,7 +7,7 @@ export default {
 	},
 	async execute(interaction: ChatInputCommandInteraction) {
 		if (!(interaction.member as GuildMember).voice.channel) {
-			return await interaction.reply({ content: '❌ | Youre not in a voice channel!' });
+			return interaction.reply({ content: '❌ | Youre not in a voice channel!' });
 		}
 
 		const voiceMembers = (interaction.member as GuildMember).voice.channel!.members.filter(
@@ -42,6 +42,6 @@ export default {
 			])
 			.setColor(0x5864f1);
 
-		return await interaction.reply({ embeds: [embed] });
+		return interaction.reply({ embeds: [embed] });
 	},
 };
