@@ -7,10 +7,10 @@ export default {
 		.setName('play')
 		.setDescription('Plays a song')
 		.addStringOption((option) =>
-			option.setName('song').setDescription('The song to play').setRequired(true)
+			option.setName('query').setDescription('The song or playlist to play').setRequired(true)
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
-		const member = (interaction.member as GuildMember);
+		const member = interaction.member as GuildMember;
 		const query = interaction.options.getString('song');
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
@@ -68,7 +68,7 @@ export default {
 
 		await interaction.deferReply();
 
-		if (!searchResult.tracks.length && !searchResult) {
+		if (!searchResult.tracks.length || !searchResult) {
 			return await interaction.followUp({ content: `❌ | **${query} not found!` });
 		}
 
