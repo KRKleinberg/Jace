@@ -64,27 +64,24 @@ export default {
 
 		await interaction.deferReply();
 
-		const searchResult = await player
-			.search(query!, {
-				requestedBy: interaction.user,
-				searchEngine: QueryType.AUTO,
-			})
-			.then((x) => x.tracks[0]);
+		const searchResult = await player.search(query!, {
+			requestedBy: interaction.user,
+			searchEngine: QueryType.AUTO,
+		});
 
 		if (!searchResult) {
 			return await interaction.followUp({ content: `❌ | **${query}** not found!` });
 		}
 
-		// searchResult.playlist
-		// 	? queue.addTracks(searchResult.tracks)
-		// 	: queue.addTrack(searchResult.tracks[0]);
+		searchResult.playlist
+			? queue.addTracks(searchResult.tracks)
+			: queue.addTrack(searchResult.tracks[0]);
 
-		queue.addTrack(searchResult);
-		await queue.play();
+		if (!queue.playing) await queue.play();
 
 		return await interaction.followUp({
 			content: `⏱️ | Loading **${
-				searchResult.playlist ? searchResult.playlist.title : searchResult.title
+				searchResult.playlist ? searchResult.playlist.title : searchResult.tracks[0].title
 			}**...`,
 		});
 	},

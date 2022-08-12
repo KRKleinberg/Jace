@@ -21,13 +21,7 @@ player.on('channelEmpty', async (queue: Queue<any>) => {
 });
 
 player.on('connectionError', async (queue: Queue<any>, error) => {
-	queue.metadata.channel.send({ content: '❌ | Nobody is in the voice channel, leaving...' });
-
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-	});
-
-	console.log(`[${queue.guild.name}] Error emitted from the connection: ${error.message}`);
+	console.log(`[${queue.guild.name}] YTDL Error: ${error.message}`);
 
 	await queue.metadata.channel.send({ content: `⚠️ | **Error!** ${error.message}` });
 
@@ -37,7 +31,7 @@ player.on('connectionError', async (queue: Queue<any>, error) => {
 });
 
 player.on('error', (queue: Queue<any>, error) => {
-	console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+	console.log(`[${queue.guild.name}] Player Error: ${error.message}`);
 
 	client.user!.setPresence({
 		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
