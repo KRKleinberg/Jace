@@ -30,11 +30,11 @@ player.on('queueEnd', () => {
 });
 
 player.on('trackAdd', async (queue: Queue<any>, track) => {
-	if (track.url.includes('youtube' || 'youtu.be')) {
+	if (track.source === 'youtube') {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: 'https://www.iconfinder.com/icons/1964418/download/png/48',
+				iconURL: track.requestedBy.displayAvatarURL(),
 			})
 			.setColor(0x5864f1)
 			.setFields([
@@ -50,19 +50,19 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 				},
 			])
 			.setFooter({
-				text: `Requested by ${track.requestedBy}`,
-				iconURL: track.requestedBy.displayAvatarURL(),
+				text: track.source,
+				iconURL: 'https://www.iconfinder.com/icons/1964418/download/png/48',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
 
 		await queue.metadata.channel.send({ embeds: [embed] });
-	} else if (track.url.includes('soundcloud')) {
+	} else if (track.source === 'soundcloud') {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: 'https://www.iconfinder.com/icons/4490639/download/png/48',
+				iconURL: track.requestedBy.displayAvatarURL(),
 			})
 			.setColor(0x5864f1)
 			.setFields([
@@ -78,8 +78,8 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 				},
 			])
 			.setFooter({
-				text: `Requested by ${track.requestedBy}`,
-				iconURL: track.requestedBy.displayAvatarURL(),
+				text: track.source,
+				iconURL: 'https://www.iconfinder.com/icons/4490639/download/png/48',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
