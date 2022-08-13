@@ -40,6 +40,8 @@ export default {
 			])
 			.setTitle('Queue');
 
+		if (tracks.length) embed.setDescription(description);
+
 		return message.channel.send({ embeds: [embed] });
 	},
 };

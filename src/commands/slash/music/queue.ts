@@ -37,11 +37,12 @@ export default {
 
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
-			.setDescription(tracks ? description : null)
 			.setFields([
 				{ name: 'Now Playing', value: `🎶 | **${currentTrack.title}** ([link](${currentTrack.url}))` },
 			])
 			.setTitle('Queue');
+
+		if (tracks.length) embed.setDescription(description);
 
 		return interaction.reply({ embeds: [embed] });
 	},
