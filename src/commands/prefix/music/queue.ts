@@ -18,10 +18,12 @@ export default {
 
 		const currentTrack = queue.current;
 
+		console.log(queue.tracks);
+
 		const tracks = queue.tracks
 			.slice(0, 10)
 			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
-
+		
 		console.log(tracks);
 
 		const embed = new EmbedBuilder()
@@ -35,4 +37,3 @@ export default {
 		return message.channel.send({ embeds: [embed] });
 	},
 };
-

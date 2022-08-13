@@ -21,6 +21,8 @@ export default {
 
 		const currentTrack = queue.current;
 
+		console.log(queue.tracks);
+
 		const tracks = queue.tracks
 			.slice(0, 10)
 			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
@@ -38,4 +40,3 @@ export default {
 		return interaction.reply({ embeds: [embed] });
 	},
 };
-
