@@ -50,10 +50,13 @@ export default {
 				dlChunkSize: 0,
 			},
 			async onBeforeCreateStream(track, source): Promise<any> {
-				if (source === 'youtube') {
+				if (source === 'youtube' || source === 'soundcloud') {
 					play.setToken({
 						youtube: {
 							cookie: process.env.COOKIE!,
+						},
+						soundcloud: {
+							client_id: await play.getFreeClientID(),
 						},
 					});
 
@@ -74,15 +77,15 @@ export default {
 			});
 		}
 
-		await message.channel.send({ content: `🔍 | Searching for \`${query}\`...`});
-		
+		await message.channel.send({ content: `🔍 | Searching for \`${query}\`...` });
+
 		const searchResult = await player.search(query!, {
 			requestedBy: message.author,
 			searchEngine: QueryType.AUTO,
 		});
 
 		if (!searchResult.tracks.length) {
-			return message.channel.send({ content: `❌ | **${query}** not found!` });
+			return message.channel.send({ content: '❌ | No results found!' });
 		}
 
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
