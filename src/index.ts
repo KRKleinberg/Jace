@@ -2,6 +2,7 @@ import { globby } from 'globby';
 import { Player } from 'discord-player';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import pm2 from 'pm2';
+import play from 'play-dl';
 
 // Client
 export const client = new Client({
@@ -64,7 +65,7 @@ export const slashCommandArray: any[] = [];
 		const { default: slashCommand } = await import(value);
 
 		slashCommands.set(slashCommand.data.name, slashCommand);
-		
+
 		slashCommandArray.push(slashCommand.data);
 	});
 })();
@@ -84,6 +85,15 @@ export const player = new Player(client, {
 		dlChunkSize: 0,
 	},
 	connectionTimeout: 5000,
+});
+
+play.setToken({
+	youtube: {
+		cookie: process.env.COOKIE!,
+	},
+	soundcloud: {
+		client_id: await play.getFreeClientID(),
+	},
 });
 
 // JaceDevBot Timeout
