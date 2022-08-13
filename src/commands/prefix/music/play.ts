@@ -1,5 +1,5 @@
 import { QueryType } from 'discord-player';
-import { Message } from 'discord.js';
+import { Message, inlineCode } from 'discord.js';
 import play from 'play-dl';
 import { player } from '../../../index.js';
 
@@ -7,8 +7,8 @@ export default {
 	data: {
 		name: 'play',
 		aliases: ['p'],
-		description: 'Plays a song',
-		options: ['\u0060song\u0060'],
+		description: 'Plays a song or playlist',
+		options: [`${inlineCode('query')}`],
 	},
 	async execute(message: Message, args: string[]) {
 		if (!message.member!.voice.channelId) {
@@ -68,7 +68,7 @@ export default {
 			});
 		}
 
-		await message.channel.send({ content: `🔍 | Searching for \`${query}\`...` });
+		await message.channel.send({ content: `🔍 | Searching for ${inlineCode(` ${query} `)}...` });
 
 		const searchResult = await player.search(query!, {
 			requestedBy: message.author,

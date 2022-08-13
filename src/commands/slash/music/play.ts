@@ -6,7 +6,7 @@ import { player } from '../../../index.js';
 export default {
 	data: new SlashCommandBuilder()
 		.setName('play')
-		.setDescription('Plays a song')
+		.setDescription('Plays a song or playlist')
 		.addStringOption((option) =>
 			option.setName('query').setDescription('The song or playlist to play').setRequired(true)
 		),
