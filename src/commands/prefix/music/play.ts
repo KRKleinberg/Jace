@@ -81,7 +81,7 @@ export default {
 			searchEngine: QueryType.AUTO,
 		});
 
-		if (!searchResult) {
+		if (!searchResult.tracks.length) {
 			return message.channel.send({ content: `❌ | **${query}** not found!` });
 		}
 

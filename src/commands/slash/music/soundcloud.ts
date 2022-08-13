@@ -79,15 +79,15 @@ export default {
 			});
 		}
 
-		await interaction.reply({ content: `🔍 | Searching for \`${query}\`...` });
+		await interaction.reply({ content: `🔍 | Searching for \`${query}\`` });
 
 		const searchResult = await player.search(query!, {
 			requestedBy: interaction.user,
 			searchEngine: QueryType.SOUNDCLOUD,
 		});
 
-		if (!searchResult) {
-			return interaction.followUp({ content: `❌ | **${query}** not found!` });
+		if (!searchResult.tracks.length) {
+			return interaction.followUp({ content: `❌ | \`${query}\` not found!` });
 		}
 
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);

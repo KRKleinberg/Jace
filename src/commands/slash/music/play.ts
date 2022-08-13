@@ -86,7 +86,7 @@ export default {
 			searchEngine: QueryType.AUTO,
 		});
 
-		if (!searchResult) {
+		if (!searchResult.tracks.length) {
 			return interaction.followUp({ content: `❌ | **${query}** not found!` });
 		}
 
