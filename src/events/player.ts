@@ -51,7 +51,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			])
 			.setFooter({
 				text: 'YouTube',
-				iconURL: 'https://www.iconfinder.com/icons/3225180/download/png/64',
+				iconURL: 'https://www.youtube.com/favicon.ico',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
@@ -79,7 +79,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			])
 			.setFooter({
 				text: 'SoundCloud',
-				iconURL: 'https://www.iconfinder.com/icons/393286/download/png/64',
+				iconURL: 'https://www.soundcloud.com/favicon.ico',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
