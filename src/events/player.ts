@@ -49,6 +49,11 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
+			.setFooter({
+				text: 'YouTube',
+				iconURL:
+					'https://static.wikia.nocookie.net/ipod/images/e/e7/YouTube_iOS_2019.png/revision/latest?cb=20200610180756',
+			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
@@ -73,6 +78,10 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
+			.setFooter({
+				text: 'Soundcloud',
+				iconURL: 'https://i.pinimg.com/originals/b8/8e/35/b88e35fbc9a5f44be955415e75c1130c.png',
+			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);

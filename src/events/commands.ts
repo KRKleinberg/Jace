@@ -36,7 +36,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 				await slashCommand.execute(interaction);
 			} catch (error) {
 				console.error(error);
-				
+
 				await interaction.reply({
 					content: '⚠️ | There was an error while executing this command',
 					ephemeral: true,
@@ -44,5 +44,3 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 			}
 	}
 });
-
-
