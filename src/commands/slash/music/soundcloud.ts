@@ -1,5 +1,5 @@
 import { QueryType } from 'discord-player';
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, inlineCode, SlashCommandBuilder } from 'discord.js';
 import play from 'play-dl';
 import { player } from '../../../index.js';
 
@@ -73,7 +73,7 @@ export default {
 			});
 		}
 
-		await interaction.reply({ content: `🔍 | Searching for \`${query}\`` });
+		await interaction.reply({ content: `🔍 | Searching for ${inlineCode(query!)}` });
 
 		const searchResult = await player.search(query!, {
 			requestedBy: interaction.user,
