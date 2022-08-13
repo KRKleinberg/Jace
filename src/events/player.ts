@@ -3,11 +3,11 @@ import { ActivityType, EmbedBuilder } from 'discord.js';
 import str from '@supercharge/strings';
 import { client, player } from '../index.js';
 
-player.on('botDisconnect', async (queue: Queue<any>) => {
+player.on('botDisconnect', async () => {
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
-player.on('channelEmpty', async (queue: Queue<any>) => {
+player.on('channelEmpty', async () => {
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
@@ -30,11 +30,11 @@ player.on('queueEnd', () => {
 });
 
 player.on('trackAdd', async (queue: Queue<any>, track) => {
-	if (track.url.includes('youtube' || 'youtu.be' || 'spotify')) {
+	if (track.url.includes('youtube' || 'youtu.be')) {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: track.requestedBy.displayAvatarURL(),
+				iconURL: 'https://www.iconfinder.com/icons/5296521/download/png/512',
 			})
 			.setColor(0x5864f1)
 			.setFields([
@@ -49,6 +49,10 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
+			.setFooter({
+				text: `Requested by ${track.requestedBy}`,
+				iconURL: track.requestedBy.displayAvatarURL(),
+			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
@@ -58,7 +62,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: 'http://assets.stickpng.com/thumbs/58e9198ceb97430e819064fa.png',
+				iconURL: 'https://www.iconfinder.com/icons/173910/download/png/512',
 			})
 			.setColor(0x5864f1)
 			.setFields([
@@ -73,6 +77,10 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
+			.setFooter({
+				text: `Requested by ${track.requestedBy}`,
+				iconURL: track.requestedBy.displayAvatarURL(),
+			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
