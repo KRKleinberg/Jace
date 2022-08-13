@@ -34,7 +34,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: 'https://www.iconfinder.com/icons/5296521/download/png/512',
+				iconURL: 'https://www.iconfinder.com/icons/1964418/download/png/48',
 			})
 			.setColor(0x5864f1)
 			.setFields([
@@ -62,7 +62,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: 'Queued Track',
-				iconURL: 'https://www.iconfinder.com/icons/173910/download/png/512',
+				iconURL: 'https://www.iconfinder.com/icons/4490639/download/png/48',
 			})
 			.setColor(0x5864f1)
 			.setFields([
