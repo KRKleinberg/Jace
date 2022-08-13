@@ -11,7 +11,7 @@ client.on('messageCreate', async (message: Message) => {
 
 		const prefixCommand =
 			prefixCommands.get(input.toLowerCase()) ||
-			prefixCommands.find((c) => c.aliases?.includes(input.toLowerCase()));
+			prefixCommands.find((c) => c.data.aliases?.includes(input.toLowerCase()));
 
 		if (prefixCommand)
 			try {

@@ -1,45 +1,43 @@
 import { QueryType } from 'discord-player';
-import { ChatInputCommandInteraction, GuildMember, inlineCode, SlashCommandBuilder } from 'discord.js';
+import { inlineCode, Message } from 'discord.js';
 import play from 'play-dl';
 import { player } from '../../../index.js';
 
 export default {
-	data: new SlashCommandBuilder()
-		.setName('soundcloud')
-		.setDescription('Plays a song or playlist from SoundCloud')
-		.addStringOption((option) =>
-			option.setName('query').setDescription('The song or playlist to play').setRequired(true)
-		),
-	async execute(interaction: ChatInputCommandInteraction) {
-		const member = interaction.member as GuildMember;
-
-		if (!member.voice.channelId) {
-			return interaction.reply({
+	data: {
+		name: 'soundcloud',
+		aliases: ['sc'],
+		description: 'Plays a song or playlist from SoundCloud',
+		options: [`${inlineCode('query')}`],
+	},
+	async execute(message: Message, args: string[]) {
+		if (!message.member!.voice.channelId) {
+			return message.channel.send({
 				content: '❌ | You are not in a voice channel!',
-				ephemeral: true,
 			});
 		}
 
 		if (
-			interaction.guild?.members.me?.voice.channelId &&
-			member.voice.channelId !== interaction.guild.members.me.voice.channelId
+			message.guild?.members.me?.voice.channelId &&
+			message.member!.voice.channelId !== message.guild.members.me.voice.channelId
 		) {
-			return interaction.reply({
+			return message.channel.send({
 				content: '❌ | You are not in the same voice channel as the bot!',
-				ephemeral: true,
 			});
 		}
 
-		const query = interaction.options.getString('query');
+		const query = args.join(' ');
 
-		const queue = player.createQueue(interaction.guild!, {
+		if (!query) return message.channel.send({ content: '❌ | You did not enter a search query!' });
+
+		const queue = player.createQueue(message.guild!, {
 			autoSelfDeaf: true,
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 5000,
 			leaveOnEnd: false,
 			leaveOnStop: false,
 			metadata: {
-				channel: interaction.channel,
+				channel: message.channel,
 			},
 			ytdlOptions: {
 				requestOptions: {
@@ -63,25 +61,24 @@ export default {
 		});
 
 		try {
-			if (!queue.connection) await queue.connect(member.voice.channel!);
+			if (!queue.connection) await queue.connect(message.member!.voice.channel!);
 		} catch {
 			queue.destroy();
 
-			return interaction.reply({
+			return message.channel.send({
 				content: '❌ | Could not join your voice channel!',
-				ephemeral: true,
 			});
 		}
 
-		await interaction.reply({ content: `🔍 | Searching for ${inlineCode(query!)}` });
+		await message.channel.send({ content: `🔍 | Searching for ${inlineCode(query!)}` });
 
 		const searchResult = await player.search(query!, {
-			requestedBy: interaction.user,
+			requestedBy: message.author,
 			searchEngine: QueryType.SOUNDCLOUD_SEARCH,
 		});
 
 		if (!searchResult.tracks.length) {
-			return interaction.followUp({ content: '❌ | No results found!' });
+			return message.channel.send({ content: '❌ | No results found!' });
 		}
 
 		if (searchResult.playlist) queue.addTracks(searchResult.tracks);
