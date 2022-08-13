@@ -28,6 +28,8 @@ export default {
 
 		const query = args.join(' ');
 
+		if (!query) return message.channel.send({ content: '❌ | You did not enter a search query!' });
+
 		const queue = player.createQueue(message.guild!, {
 			autoSelfDeaf: true,
 			leaveOnEmpty: true,
