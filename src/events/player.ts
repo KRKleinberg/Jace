@@ -32,58 +32,58 @@ player.on('queueEnd', () => {
 player.on('trackAdd', async (queue: Queue<any>, track) => {
 	if (track.source === 'youtube') {
 		const embed = new EmbedBuilder()
-	.setAuthor({
-		name: 'Queued Track',
-		iconURL: track.requestedBy.displayAvatarURL(),
-	})
-	.setColor(0x5864f1)
-	.setFields([
-		{
-			name: 'Channel',
-			value: track.author,
-			inline: true,
-		},
-		{
-			name: 'Duration',
-			value: track.duration,
-			inline: true,
-		},
-	])
-	.setFooter({
-		text: 'YouTube',
-		iconURL: 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
-	})
-	.setThumbnail(track.thumbnail)
-	.setURL(track.url)
-	.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
+			.setAuthor({
+				name: 'Queued Track',
+				iconURL: track.requestedBy.displayAvatarURL(),
+			})
+			.setColor(0x5864f1)
+			.setFields([
+				{
+					name: 'Channel',
+					value: track.author,
+					inline: true,
+				},
+				{
+					name: 'Duration',
+					value: track.duration,
+					inline: true,
+				},
+			])
+			.setFooter({
+				text: 'YouTube',
+				iconURL: 'https://www.iconfinder.com/icons/3225180/download/png/64',
+			})
+			.setThumbnail(track.thumbnail)
+			.setURL(track.url)
+			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
 
 		await queue.metadata.channel.send({ embeds: [embed] });
 	} else if (track.source === 'soundcloud') {
 		const embed = new EmbedBuilder()
-	.setAuthor({
-		name: 'Queued Track',
-		iconURL: track.requestedBy.displayAvatarURL(),
-	})
-	.setColor(0x5864f1)
-	.setFields([
-		{
-			name: 'Channel',
-			value: track.author,
-			inline: true,
-		},
-		{
-			name: 'Duration',
-			value: track.duration,
-			inline: true,
-		},
-	])
-	.setFooter({
-		text: 'Soundcloud',
-		iconURL: 'https://cdn2.iconfinder.com/data/icons/minimalism/512/soundcloud.png',
-	})
-	.setThumbnail(track.thumbnail)
-	.setURL(track.url)
-	.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
+			.setAuthor({
+				name: 'Queued Track',
+				iconURL: track.requestedBy.displayAvatarURL(),
+			})
+			.setColor(0x5864f1)
+			.setFields([
+				{
+					name: 'Channel',
+					value: track.author,
+					inline: true,
+				},
+				{
+					name: 'Duration',
+					value: track.duration,
+					inline: true,
+				},
+			])
+			.setFooter({
+				text: 'SoundCloud',
+				iconURL: 'https://www.iconfinder.com/icons/393286/download/png/64',
+			})
+			.setThumbnail(track.thumbnail)
+			.setURL(track.url)
+			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
 
 		await queue.metadata.channel.send({ embeds: [embed] });
 	} else await queue.metadata.channel.send({ content: `✔️ | ${track.title} added to queue!` });
