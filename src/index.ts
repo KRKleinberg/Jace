@@ -7,7 +7,7 @@ import play from 'play-dl';
 // Check environment variables
 if (!process.env.APP_ID) throw new Error('APP_ID environment variable is not set!');
 if (!process.env.COOKIE) throw new Error('COOKIE environment variable is not set!');
-if (!process.env.DISCORD_TOKEN) throw new Error('DJS_TOKEN environment variable is not set!');
+if (!process.env.DJS_TOKEN) throw new Error('DJS_TOKEN environment variable is not set!');
 if (!process.env.HEROKU_BRANCH) throw new Error('HEROKU_BRANCH environment variable is not set!');
 if (!process.env.ID_TOKEN) throw new Error('ID_TOKEN environment variable is not set!');
 if (!process.env.PREFIX) throw new Error('PREFIX environment variable is not set!');
@@ -116,3 +116,4 @@ if (process.env.HEROKU_BRANCH === 'dev') {
 
 // Start
 client.login(process.env.DJS_TOKEN);
+
