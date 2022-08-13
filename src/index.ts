@@ -87,6 +87,7 @@ export const player = new Player(client, {
 	connectionTimeout: 5000,
 });
 
+// Play-dl
 play.setToken({
 	youtube: {
 		cookie: process.env.COOKIE!,
