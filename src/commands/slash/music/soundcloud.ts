@@ -86,7 +86,7 @@ export default {
 
 		const searchResult = await player.search(query!, {
 			requestedBy: interaction.user,
-			searchEngine: QueryType.SOUNDCLOUD,
+			searchEngine: QueryType.SOUNDCLOUD_SEARCH,
 		});
 
 		if (!searchResult.tracks.length) {
