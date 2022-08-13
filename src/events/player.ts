@@ -12,7 +12,7 @@ player.on('channelEmpty', async () => {
 });
 
 player.on('connectionError', async (queue: Queue<any>, error) => {
-	console.log(`[${queue.guild.name}] YTDL Error: ${error.message}`);
+	console.log(`[${queue.guild.name}] Connection Error: ${error.message}`);
 
 	await queue.metadata.channel.send({ content: `⚠️ | **Error!** ${error.message}` });
 
