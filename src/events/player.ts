@@ -49,10 +49,6 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
-			.setFooter({
-				text: track.source,
-				iconURL: 'https://www.iconfinder.com/icons/1964418/download/png/48',
-			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
@@ -77,10 +73,6 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 					inline: true,
 				},
 			])
-			.setFooter({
-				text: track.source,
-				iconURL: 'https://www.iconfinder.com/icons/4490639/download/png/48',
-			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
 			.setTitle(`${str(`${track.title}`).limit(45, '...')}`);
