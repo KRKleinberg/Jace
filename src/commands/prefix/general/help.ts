@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message } from 'discord.js';
+import { bold, EmbedBuilder, Message } from 'discord.js';
 import { prefixCommands } from '../../../index.js';
 
 export default {
@@ -20,7 +20,7 @@ export default {
 
 		const embed = new EmbedBuilder()
 			.setTitle('Prefix Commands')
-			.setDescription(`Prefix: **${process.env.PREFIX}**`)
+			.setDescription(`Prefix: ${bold(process.env.PREFIX!)}`)
 			.setColor('#5864f1')
 			.addFields(fields);
 

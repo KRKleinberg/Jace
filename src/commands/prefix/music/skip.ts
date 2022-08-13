@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { bold, Message } from 'discord.js';
 import { player } from '../../../index.js';
 
 export default {
@@ -11,7 +11,7 @@ export default {
 	async execute(message: Message) {
 		const queue = player.getQueue(message.guild!);
 
-		const currentTrack = queue.current;
+		const currentTrack = queue.current.toString();
 
 		if (!message.member!.voice.channel)
 			return message.channel.send({ content: '❌ | You are not in a voice channel!' });
@@ -19,7 +19,7 @@ export default {
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
 		return message.channel.send({
-			content: queue.skip() ? `⏭️ | Skipped **${currentTrack}**!` : '❌ | Something went wrong!',
+			content: queue.skip() ? `⏭️ | Skipped ${bold(currentTrack)}!` : '❌ | Something went wrong!',
 		});
 	},
 };

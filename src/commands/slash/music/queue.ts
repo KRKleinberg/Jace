@@ -1,4 +1,5 @@
 import {
+	bold,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	GuildMember,
@@ -23,7 +24,7 @@ export default {
 
 		const tracks = queue.tracks
 			.slice(0, 10)
-			.map((m, i) => `${i + 1}. **${m.title}** ([link](${m.url}))`);
+			.map((m, i) => `${i + 1}. ${bold(m.title)} ([link](${m.url}))`);
 
 		const description = `${tracks.join('\n')}${
 			queue.tracks.length > tracks.length
@@ -38,7 +39,7 @@ export default {
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
 			.setFields([
-				{ name: 'Now Playing', value: `🎶 | **${currentTrack.title}** ([link](${currentTrack.url}))` },
+				{ name: 'Now Playing', value: `🎶 | ${bold(currentTrack.title)} ([link](${currentTrack.url}))` },
 			])
 			.setTitle('Queue');
 

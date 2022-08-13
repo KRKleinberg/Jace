@@ -1,5 +1,5 @@
 import { Queue } from 'discord-player';
-import { ActivityType, EmbedBuilder } from 'discord.js';
+import { ActivityType, bold, EmbedBuilder } from 'discord.js';
 import str from '@supercharge/strings';
 import { client, player } from '../index.js';
 
@@ -14,7 +14,7 @@ player.on('channelEmpty', async () => {
 player.on('connectionError', async (queue: Queue<any>, error) => {
 	console.log(`[${queue.guild.name}] Connection Error: ${error.message}`);
 
-	await queue.metadata.channel.send({ content: `⚠️ | **Error!** ${error.message}` });
+	await queue.metadata.channel.send({ content: `⚠️ | ${bold('Error!')} Could not play this song` });
 
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
@@ -95,7 +95,7 @@ player.on('trackEnd', async () => {
 
 player.on('trackStart', async (queue: Queue<any>, track) => {
 	await queue.metadata.channel.send({
-		content: `🎶 | Playing: **${track.title}** in **${queue.connection.channel.name}**!`,
+		content: `🎶 | Playing: ${bold(track.title)} in ${bold(queue.connection.channel.name)}!`,
 	});
 
 	client.user!.setActivity(`${track.title}`, {

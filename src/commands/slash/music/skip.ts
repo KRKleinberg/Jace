@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
+import { bold, ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
 import { player } from '../../../index.js';
 
 export default {
@@ -9,7 +9,7 @@ export default {
 
 		const queue = player.getQueue(interaction.guild!);
 
-		const currentTrack = queue.current;
+		const currentTrack = queue.current.toString();
 
 		if (!member.voice.channel)
 			return interaction.reply({ content: '❌ | You are not in a voice channel!' });
@@ -17,7 +17,7 @@ export default {
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
 		return interaction.reply({
-			content: queue.skip() ? `⏭️ | Skipped **${currentTrack}**!` : '❌ | Something went wrong!',
+			content: queue.skip() ? `⏭️ | Skipped ${bold(currentTrack)}!` : '❌ | Something went wrong!',
 		});
 	},
 };

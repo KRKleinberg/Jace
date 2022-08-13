@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { inlineCode, Message } from 'discord.js';
 import { client } from '../../../index.js';
 
 export default {
@@ -8,6 +8,6 @@ export default {
 	},
 
 	async execute(message: Message) {
-		return message.channel.send(`📶 | \`${client.ws.ping}ms\``);
+		return message.channel.send(`📶 | ${inlineCode(client.ws.ping.toString())}ms`);
 	},
 };
