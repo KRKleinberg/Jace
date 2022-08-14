@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'remove',
-		aliases: ['rm'],
+		aliases: ['del', 'delete', 'rm'],
 		description: 'Removes a track from the queue',
 		options: [`${inlineCode('track number')}`],
 	},

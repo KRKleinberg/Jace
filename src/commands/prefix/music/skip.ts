@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'skip',
-		aliases: ['fs'],
+		aliases: ['forceskip', 'fs', 'next'],
 		description: 'Skips the current song',
 	},
 

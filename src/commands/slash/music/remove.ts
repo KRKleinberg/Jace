@@ -28,8 +28,6 @@ export default {
 		const trackIndex = interaction.options.getNumber('track number')! - 1;
 		const trackName = queue.tracks[trackIndex].title;
 
-		queue.remove(trackIndex);
-
 		return interaction.reply(
 			queue.remove(trackIndex)
 				? { content: `🗑️ | Removed ${bold(trackName)}.` }

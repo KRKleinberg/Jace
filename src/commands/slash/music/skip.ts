@@ -14,10 +14,8 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		return interaction.reply(
-			queue.skip()
-				? { content: `⏭️ | Skipped ${bold(currentTrack)}!` }
-				: { content: '❌ | Something went wrong!', ephemeral: true }
-		);
+		queue.skip();
+
+		return interaction.reply({ content: `⏭️ | Skipped ${bold(currentTrack)}!` });
 	},
 };

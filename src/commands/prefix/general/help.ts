@@ -4,6 +4,7 @@ import { prefixCommands } from '../../../index.js';
 export default {
 	data: {
 		name: 'help',
+		aliases: ['h'],
 		description: 'Displays a list of all prefix commands',
 	},
 	async execute(message: Message) {
