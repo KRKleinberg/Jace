@@ -41,7 +41,7 @@ export default {
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 5000,
 			leaveOnEnd: false,
-			leaveOnStop: false,
+			leaveOnStop: true,
 			metadata: {
 				channel: interaction.channel,
 			},
