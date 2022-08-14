@@ -24,11 +24,11 @@ export default {
 
 		const trackIndex = interaction.options.getNumber('track')!;
 
-		if (!queue.tracks[trackIndex])
+		if (!queue.tracks[trackIndex - 1])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });
 
 		queue.remove(trackIndex);
 
-		return interaction.reply({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex].title)}.` });
+		return interaction.reply({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex - 1].title)}.` });
 	},
 };
