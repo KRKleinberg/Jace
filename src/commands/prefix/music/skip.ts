@@ -18,10 +18,9 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		return message.channel.send(
-			queue.skip()
-				? { content: `⏭️ | Skipped ${bold(currentTrack)}!` }
-				: { content: '❌ | Something went wrong!' }
-		);
+		queue.skip();
+
+		return message.channel.send({ content: `⏭️ | Skipped ${bold(currentTrack)}!` });
 	},
 };
+
