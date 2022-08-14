@@ -18,7 +18,7 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		queue.setPaused();
+		queue.setPaused(true);
 
 		return interaction.reply({ content: '⏸ | Paused!' });
 	},

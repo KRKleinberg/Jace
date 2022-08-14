@@ -18,7 +18,7 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		queue.setPaused();
+		queue.setPaused(true);
 
 		return message.channel.send({ content: '⏸ | Paused!' });
 	},
