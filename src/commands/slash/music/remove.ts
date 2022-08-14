@@ -7,7 +7,7 @@ export default {
 		.setDescription('Removes a track from the queue')
 		.addNumberOption((option) =>
 			option
-				.setName('trackNumber')
+				.setName('track')
 				.setDescription('The number of the track to remove from the queue')
 				.setRequired(true)
 		),
