@@ -2,7 +2,12 @@ import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'd
 import { player } from '../../../index.js';
 
 export default {
-	data: new SlashCommandBuilder().setName('back').setDescription('Plays previous track'),
+	data: new SlashCommandBuilder()
+		.setName('seek')
+		.setDescription('Seeks to the given time in seconds')
+		.addNumberOption((option) =>
+			option.setName('seconds').setDescription('The time to seek in seconds').setRequired(true)
+		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
@@ -18,11 +23,12 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		if (queue.previousTracks.length > 1)
-			return interaction.reply({ content: '❌ | There are no previous tracks!', ephemeral: true });
+		const ms = interaction.options.getNumber('seconds')! * 1000;
 
-		await queue.back();
-
-		return interaction.reply({ content: '⏮️ | Playing the previous track!' });
+		return interaction.reply(
+			(await queue.seek(ms))
+				? { content: `⏩ | Seeked to ${ms / 1000} seconds` }
+				: { content: '❌ | Please enter a valid time to seek!', ephemeral: true }
+		);
 	},
 };

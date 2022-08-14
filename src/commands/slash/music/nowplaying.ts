@@ -1,4 +1,5 @@
 import {
+	bold,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	GuildMember,
@@ -26,10 +27,9 @@ export default {
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
 		const progress = queue.createProgressBar();
-		const timestamp = queue.getPlayerTimestamp();
 		const embed = new EmbedBuilder()
 			.setColor(0x5864f1)
-			.setDescription(`🎶 | **${queue.current.title}** (\`${timestamp.progress}%\`)`)
+			.setDescription(`🎶 | ${bold(queue.current.title)})`)
 			.setFields([
 				{
 					name: '\u200b',

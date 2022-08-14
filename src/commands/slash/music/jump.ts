@@ -3,20 +3,22 @@ import { player } from '../../../index.js';
 
 export default {
 	data: new SlashCommandBuilder()
-		.setName('remove')
-		.setDescription('Removes a track from the queue')
+		.setName('jump')
+		.setDescription('Jumps to particular track, removing other tracks on the way')
 		.addNumberOption((option) =>
-			option.setName('track').setDescription('The number of the queued track to remove').setRequired(true)
+			option
+				.setName('track')
+				.setDescription('The number of the queued track to skip to')
+				.setRequired(true)
 		),
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
 
-		if (!member.voice.channel) {
+		if (!member.voice.channel)
 			return interaction.reply({
 				content: '❌ | You are not in a voice channel!',
 				ephemeral: true,
 			});
-		}
 
 		const queue = player.getQueue(interaction.guild!);
 
@@ -27,8 +29,8 @@ export default {
 		if (!queue.tracks[trackIndex])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });
 
-		queue.remove(trackIndex);
+		queue.skipTo(trackIndex);
 
-		return interaction.reply({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex].title)}.` });
+		return interaction.reply({ content: `↪️ | Jumped to ${bold(queue.tracks[trackIndex].title)}.` });
 	},
 };

@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'd
 import { player } from '../../../index.js';
 
 export default {
-	data: new SlashCommandBuilder().setName('back').setDescription('Plays previous track'),
+	data: new SlashCommandBuilder().setName('shuffle').setDescription('Shuffles the queue'),
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
@@ -18,11 +18,8 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		if (queue.previousTracks.length > 1)
-			return interaction.reply({ content: '❌ | There are no previous tracks!', ephemeral: true });
+		queue.shuffle();
 
-		await queue.back();
-
-		return interaction.reply({ content: '⏮️ | Playing the previous track!' });
+		return interaction.reply({ content: '🔀 | Queue has been shuffled!' });
 	},
 };

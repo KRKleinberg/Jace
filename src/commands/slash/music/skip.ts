@@ -2,7 +2,7 @@ import { bold, ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } f
 import { player } from '../../../index.js';
 
 export default {
-	data: new SlashCommandBuilder().setName('skip').setDescription('Skips the current song'),
+	data: new SlashCommandBuilder().setName('skip').setDescription('Skips current track'),
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;

@@ -3,8 +3,8 @@ import { player } from '../../../index.js';
 
 export default {
 	data: {
-		name: 'remove',
-		aliases: ['del', 'delete', 'rm'],
+		name: 'jump',
+		aliases: ['j', 'skipTo', 'st'],
 		description: 'Removes a track from the queue',
 		options: [`${inlineCode('track')}`],
 	},
@@ -27,8 +27,8 @@ export default {
 		if (!queue.tracks[trackIndex])
 			return message.channel.send({ content: '❌ | Please enter a valid track number!' });
 
-		queue.remove(trackIndex);
+		queue.skipTo(trackIndex);
 
-		return message.channel.send({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex].title)}.` });
+		return message.channel.send({ content: `↪️ | Jumped to ${bold(queue.tracks[trackIndex].title)}.` });
 	},
 };

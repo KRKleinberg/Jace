@@ -5,7 +5,7 @@ export default {
 	data: {
 		name: 'skip',
 		aliases: ['forceskip', 'fs', 'next'],
-		description: 'Skips the current song',
+		description: 'Skips current track',
 	},
 
 	async execute(message: Message) {

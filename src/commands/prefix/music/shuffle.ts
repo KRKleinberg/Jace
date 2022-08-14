@@ -3,9 +3,9 @@ import { player } from '../../../index.js';
 
 export default {
 	data: {
-		name: 'back',
-		aliases: ['previous'],
-		description: 'Plays previous track',
+		name: 'shuffle',
+		aliases: ['sh'],
+		description: 'Shuffles the queue',
 	},
 
 	async execute(message: Message) {
@@ -19,11 +19,8 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		if (queue.previousTracks.length > 1)
-			return message.channel.send({ content: '❌ | There are no previous tracks!' });
+		queue.shuffle();
 
-		await queue.back();
-
-		return message.channel.send({ content: '⏮️ | Playing the previous track!' });
+		return message.channel.send({ content: '🔀 | Queue has been shuffled!' });
 	},
 };
