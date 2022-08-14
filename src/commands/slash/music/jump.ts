@@ -29,8 +29,10 @@ export default {
 		if (!queue.tracks[trackIndex])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });
 
+		const trackName = queue.tracks[trackIndex].title;
+
 		queue.skipTo(trackIndex);
 
-		return interaction.reply({ content: `↪️ | Jumped to ${bold(queue.tracks[trackIndex].title)}.` });
+		return interaction.reply({ content: `↪️ | Jumped to ${bold(trackName)}.` });
 	},
 };

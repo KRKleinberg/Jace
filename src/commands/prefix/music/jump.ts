@@ -26,9 +26,11 @@ export default {
 
 		if (!queue.tracks[trackIndex])
 			return message.channel.send({ content: '❌ | Please enter a valid track number!' });
+		
+		const trackName = queue.tracks[trackIndex].title;
 
 		queue.skipTo(trackIndex);
 
-		return message.channel.send({ content: `↪️ | Jumped to ${bold(queue.tracks[trackIndex].title)}.` });
+		return message.channel.send({ content: `↪️ | Jumped to ${bold(trackName)}.` });
 	},
 };

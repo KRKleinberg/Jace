@@ -20,15 +20,17 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		const trackIndex = parseInt(args[0], 10);
+		const trackIndex = parseInt(args[0], 10) - 1;
 
 		if (!trackIndex) return message.channel.send({ content: '❌ | You did not enter a track number!' });
 
 		if (!queue.tracks[trackIndex])
 			return message.channel.send({ content: '❌ | Please enter a valid track number!' });
+		
+		const trackName = queue.tracks[trackIndex].title;
 
 		queue.remove(trackIndex);
 
-		return message.channel.send({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex].title)}.` });
+		return message.channel.send({ content: `🗑️ | Removed ${bold(trackName)}.` });
 	},
 };

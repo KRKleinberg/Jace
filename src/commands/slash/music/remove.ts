@@ -22,13 +22,15 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		const trackIndex = interaction.options.getNumber('track')!;
+		const trackIndex = interaction.options.getNumber('track')! - 1;
 
-		if (!queue.tracks[trackIndex - 1])
+		if (!queue.tracks[trackIndex])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });
+
+		const trackName = queue.tracks[trackIndex].title;
 
 		queue.remove(trackIndex);
 
-		return interaction.reply({ content: `🗑️ | Removed ${bold(queue.tracks[trackIndex - 1].title)}.` });
+		return interaction.reply({ content: `🗑️ | Removed ${bold(trackName)}.` });
 	},
 };
