@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'jump',
-		aliases: ['j', 'skipTo', 'st'],
+		aliases: ['j', 'skipto'],
 		description: 'Removes a track from the queue',
 		options: [`${inlineCode('track')}`],
 	},

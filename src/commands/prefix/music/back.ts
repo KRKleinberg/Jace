@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'back',
-		aliases: ['previous'],
+		aliases: ['previous', 'prev'],
 		description: 'Plays previous track',
 	},
 

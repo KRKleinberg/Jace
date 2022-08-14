@@ -22,7 +22,7 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		const trackIndex = interaction.options.getNumber('track')! - 1;
+		const trackIndex = interaction.options.getNumber('track')!;
 
 		if (!queue.tracks[trackIndex])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });

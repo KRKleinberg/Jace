@@ -22,7 +22,7 @@ export default {
 		const progress = queue.createProgressBar();
 		const embed = new EmbedBuilder()
 			.setColor(0x5864f1)
-			.setDescription(`🎶 | ${bold(queue.current.title)})`)
+			.setDescription(`🎶 | ${bold(queue.current.title)}`)
 			.setFields([
 				{
 					name: '\u200b',

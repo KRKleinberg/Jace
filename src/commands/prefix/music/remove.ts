@@ -20,7 +20,7 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		const trackIndex = parseInt(args[0], 10) - 1;
+		const trackIndex = parseInt(args[0], 10);
 
 		if (!trackIndex) return message.channel.send({ content: '❌ | You did not enter a track number!' });
 
