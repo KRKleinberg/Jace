@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'resume',
-		aliases: ['r'],
+		aliases: ['r', 'res'],
 		description: 'Resumes the player',
 	},
 
@@ -19,7 +19,7 @@ export default {
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		queue.setPaused(true);
+		queue.setPaused(false);
 
 		return message.channel.send({ content: '▶ | Resumed!' });
 	},
