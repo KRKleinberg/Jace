@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'pause',
-		description: 'Clears the queue',
+		description: 'Pauses the player',
 	},
 
 	async execute(message: Message) {

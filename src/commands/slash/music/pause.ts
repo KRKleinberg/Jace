@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'd
 import { player } from '../../../index.js';
 
 export default {
-	data: new SlashCommandBuilder().setName('clear').setDescription('Clears the queue'),
+	data: new SlashCommandBuilder().setName('pause').setDescription('Pauses the player'),
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
