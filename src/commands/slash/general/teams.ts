@@ -16,20 +16,15 @@ export default {
 			return interaction.reply({ content: '❌ | Youre not in a voice channel!' });
 
 		const voiceMembers = member.voice.channel!.members.filter((m) => !m.user.bot);
-
 		const shuffled = voiceMembers
 			.map((value) => ({ value, sort: Math.random() }))
 			.sort((a, b) => a.sort - b.sort)
 			.map(({ value }) => value);
 
 		const half = Math.ceil(shuffled.length / 2);
-
 		const teamA = shuffled.slice(0, half);
-
 		const teamB = shuffled.slice(half);
-
 		const mapChoice = shuffled[Math.floor(Math.random() * shuffled.length)];
-
 		const embed = new EmbedBuilder()
 			.setTitle('Teams')
 			.addFields([

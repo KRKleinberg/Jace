@@ -11,15 +11,17 @@ export default {
 	async execute(message: Message) {
 		const queue = player.getQueue(message.guild!);
 
-		const currentTrack = queue.current.toString();
+		const currentTrack = queue.current.title;
 
 		if (!message.member!.voice.channel)
 			return message.channel.send({ content: '❌ | You are not in a voice channel!' });
 
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
-		return message.channel.send({
-			content: queue.skip() ? `⏭️ | Skipped ${bold(currentTrack)}!` : '❌ | Something went wrong!',
-		});
+		return message.channel.send(
+			queue.skip()
+				? { content: `⏭️ | Skipped ${bold(currentTrack)}!` }
+				: { content: '❌ | Something went wrong!' }
+		);
 	},
 };

@@ -1,5 +1,10 @@
 import { QueryType } from 'discord-player';
-import { ChatInputCommandInteraction, GuildMember, inlineCode, SlashCommandBuilder } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	GuildMember,
+	inlineCode,
+	SlashCommandBuilder,
+} from 'discord.js';
 import play from 'play-dl';
 import { player } from '../../../index.js';
 
@@ -31,7 +36,6 @@ export default {
 		}
 
 		const query = interaction.options.getString('query');
-
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
 			leaveOnEmpty: true,

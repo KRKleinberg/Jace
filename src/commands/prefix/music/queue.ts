@@ -17,7 +17,6 @@ export default {
 		if (!queue || !queue.playing) return message.channel.send({ content: '❌ | No music is playing!' });
 
 		const currentTrack = queue.current;
-
 		const tracks = queue.tracks
 			.slice(0, 10)
 			.map((m, i) => `${i + 1}. ${bold(m.title)} ([link](${m.url}))`);

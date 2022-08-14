@@ -6,18 +6,18 @@ export default {
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
-
 		const queue = player.getQueue(interaction.guild!);
-
-		const currentTrack = queue.current.toString();
+		const currentTrack = queue.current.title;
 
 		if (!member.voice.channel)
 			return interaction.reply({ content: '❌ | You are not in a voice channel!' });
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		return interaction.reply({
-			content: queue.skip() ? `⏭️ | Skipped ${bold(currentTrack)}!` : '❌ | Something went wrong!',
-		});
+		return interaction.reply(
+			queue.skip()
+				? { content: `⏭️ | Skipped ${bold(currentTrack)}!` }
+				: { content: '❌ | Something went wrong!', ephemeral: true }
+		);
 	},
 };
