@@ -1,5 +1,5 @@
 import { QueueRepeatMode } from 'discord-player';
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
+import { bold, ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
 import { player } from '../../../index.js';
 
 export default {
@@ -36,15 +36,32 @@ export default {
 		const input = parseInt(interaction.options.getString('mode')!, 10);
 
 		const repeatModes = [
-			QueueRepeatMode.OFF,
-			QueueRepeatMode.TRACK,
-			QueueRepeatMode.QUEUE,
-			QueueRepeatMode.AUTOPLAY,
-
+			{
+				name: 'Off',
+				icon: '➰',
+				value: QueueRepeatMode.OFF,
+			},
+			{
+				name: 'Track',
+				icon: '🔂',
+				value: QueueRepeatMode.TRACK,
+			},
+			{
+				name: 'Queue',
+				icon: '🔁',
+				value: QueueRepeatMode.QUEUE,
+			},
+			{
+				name: 'Autoplay',
+				icon: '♾️',
+				value: QueueRepeatMode.AUTOPLAY,
+			},
 		];
 
-		queue.setRepeatMode(repeatModes[input]);
+		queue.setRepeatMode(repeatModes[input].value);
 
-		return interaction.reply({ content: '🧼 | Queue cleared.' });
+		return interaction.reply({
+			content: `${repeatModes[input].icon} | Loop mode set to ${bold(repeatModes[input].name)}`,
+		});
 	},
 };
