@@ -38,7 +38,7 @@ export default {
 		const repeatModes = [
 			{
 				name: 'Off',
-				icon: '➰',
+				icon: '❎',
 				value: QueueRepeatMode.OFF,
 			},
 			{

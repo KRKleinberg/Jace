@@ -23,7 +23,7 @@ export default {
 		const repeatModes = [
 			{
 				name: 'Off',
-				icon: '➰',
+				icon: '❎',
 				value: QueueRepeatMode.OFF,
 			},
 			{
@@ -56,8 +56,8 @@ export default {
 		let mode = 1;
 
 		if (args[0] === 'off') mode = 0;
-		if (args[0] === 'track') mode = 1;
-		if (args[0] === 'queue') mode = 2;
+		if (args[0] === 'track' || args[0] === 't') mode = 1;
+		if (args[0] === 'queue' || args[0] === 'q') mode = 2;
 		if (args[0] === 'autoplay' || args[0] === 'auto') mode = 3;
 
 		queue.setRepeatMode(repeatModes[mode].value);
