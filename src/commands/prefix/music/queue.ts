@@ -33,7 +33,6 @@ export default {
 
 		const embed = new EmbedBuilder()
 			.setColor('#5864f1')
-			.setDescription(tracks ? description : null)
 			.setFields([
 				{ name: 'Now Playing', value: `🎶 | ${bold(currentTrack.title)} ([link](${currentTrack.url}))` },
 			])
