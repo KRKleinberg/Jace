@@ -1,5 +1,10 @@
 import { QueryType } from 'discord-player';
-import { ChatInputCommandInteraction, GuildMember, inlineCode, SlashCommandBuilder } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	GuildMember,
+	inlineCode,
+	SlashCommandBuilder,
+} from 'discord.js';
 import play from 'play-dl';
 import { player } from '../../../index.js';
 
@@ -76,7 +81,11 @@ export default {
 
 		const searchResult = await player.search(query!, {
 			requestedBy: interaction.user,
-			searchEngine: QueryType.SOUNDCLOUD_SEARCH,
+			searchEngine:
+				QueryType.SOUNDCLOUD |
+				QueryType.SOUNDCLOUD_PLAYLIST |
+				QueryType.SOUNDCLOUD_SEARCH |
+				QueryType.SOUNDCLOUD_TRACK,
 		});
 
 		if (!searchResult.tracks.length) {
