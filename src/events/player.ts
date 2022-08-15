@@ -52,7 +52,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			.setFooter({
 				text: 'YouTube',
 				iconURL:
-					'https://icon-library.com/images/youtube-app-icon-transparent/youtube-app-icon-transparent-25.jpg',
+					'https://static.wikia.nocookie.net/ipod/images/e/e7/YouTube_iOS_2019.png/revision/latest?cb=20200610180756',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
@@ -80,7 +80,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			])
 			.setFooter({
 				text: 'SoundCloud',
-				iconURL: 'https://www.iconfinder.com/icons/341108/download/png/128',
+				iconURL: 'https://i.pinimg.com/originals/47/6b/c8/476bc8fd4f4a353fbf431bf1ad2c70e1.jpg',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
