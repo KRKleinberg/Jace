@@ -51,7 +51,8 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 			])
 			.setFooter({
 				text: 'YouTube',
-				iconURL: 'https://icon-library.com/icon/youtube-app-icon-transparent-25.html.html',
+				iconURL:
+					'https://icon-library.com/images/youtube-app-icon-transparent/youtube-app-icon-transparent-25.jpg',
 			})
 			.setThumbnail(track.thumbnail)
 			.setURL(track.url)
