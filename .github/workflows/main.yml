@@ -13,9 +13,3 @@ jobs:
       - uses: actions/checkout@v2
       - name: Tag
         uses: neverendingqs/gh-action-tag-on-npm-version@master
-      - name: Release
-        uses: justincy/github-action-npm-release@v1.2.0
-        id: release
-      - name: Print release output
-        if: ${{ steps.release.outputs.released == 'true' }}
-        run: echo Release ID ${{ steps.release.outputs.release_id }}
