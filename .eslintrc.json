@@ -4,6 +4,9 @@
 		"node": true
 	},
 	"extends": ["airbnb-base", "prettier"],
+	"globals": {
+		"NodeJS": true
+	},
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": "latest",
@@ -11,20 +14,19 @@
 	},
 	"plugins": ["@typescript-eslint"],
 	"rules": {
-        "import/extensions": [
-            "error",
-            "ignorePackages",
-            {
-                "js": "always",
-                "jsx": "always",
-                "ts": "always",
-                "tsx": "always"
-            }
-        ],
-        "import/no-unresolved": "off",
+		"import/extensions": [
+			"error",
+			"ignorePackages",
+			{
+				"js": "always",
+				"jsx": "always",
+				"ts": "always",
+				"tsx": "always"
+			}
+		],
+		"import/no-unresolved": "off",
 		"no-bitwise": "off",
 		"no-console": "off",
 		"quotes": ["error", "single"]
 	}
 }
-

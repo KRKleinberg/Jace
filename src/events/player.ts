@@ -3,6 +3,18 @@ import { ActivityType, bold, EmbedBuilder } from 'discord.js';
 import str from '@supercharge/strings';
 import { client, player } from '../index.js';
 
+let timeDisconnect: NodeJS.Timeout;
+
+function setInactive(queue: Queue<any>) {
+	timeDisconnect = setTimeout(() => {
+		queue.destroy();
+	}, 300000);
+}
+
+function setActive() {
+	clearTimeout(timeDisconnect);
+}
+
 player.on('botDisconnect', async () => {
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
@@ -25,11 +37,15 @@ player.on('error', (queue: Queue<any>, error) => {
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
-player.on('queueEnd', () => {
+player.on('queueEnd', (queue: Queue<any>) => {
+	setInactive(queue);
+
 	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('trackAdd', async (queue: Queue<any>, track) => {
+	setActive();
+
 	if (track.source === 'youtube') {
 		const embed = new EmbedBuilder()
 			.setAuthor({
@@ -95,6 +111,8 @@ player.on('trackEnd', async () => {
 });
 
 player.on('trackStart', async (queue: Queue<any>, track) => {
+	setActive();
+
 	await queue.metadata.channel.send({
 		content: `🎶 | Playing: ${bold(track.title)} in ${bold(queue.connection.channel.name)}!`,
 	});

@@ -32,6 +32,7 @@ export default {
 
 		const queue = player.createQueue(message.guild!, {
 			autoSelfDeaf: true,
+			disableVolume: true,
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 5000,
 			leaveOnEnd: false,

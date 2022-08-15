@@ -39,6 +39,7 @@ export default {
 		const query = interaction.options.getString('query');
 		const queue = player.createQueue(interaction.guild!, {
 			autoSelfDeaf: true,
+			disableVolume: true,
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 5000,
 			leaveOnEnd: false,
