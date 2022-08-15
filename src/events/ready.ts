@@ -8,10 +8,8 @@ client.once('ready', async () => {
 		.put(Routes.applicationCommands(process.env.APP_ID!), { body: slashCommandArray })
 		.catch(console.error);
 
-	client.user!.setPresence({
-		activities: [{ name: `Frogger | ${process.env.PREFIX}help`, type: ActivityType.Playing }],
-		status: 'online',
-	});
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setStatus('online');
 
 	console.log(`${client.user!.tag} is online! Prefix set as "${process.env.PREFIX}"`);
 });

@@ -16,11 +16,11 @@ function setActive() {
 }
 
 player.on('botDisconnect', async () => {
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('channelEmpty', async () => {
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('connectionError', async (queue: Queue<any>, error) => {
@@ -28,19 +28,19 @@ player.on('connectionError', async (queue: Queue<any>, error) => {
 
 	await queue.metadata.channel.send({ content: `⚠️ | ${bold('Error:')} Could not play this song` });
 
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('error', (queue: Queue<any>, error) => {
 	console.log(`[${queue.guild.name}] Player Error: ${error.message}`);
 
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('queueEnd', (queue: Queue<any>) => {
 	setInactive(queue);
 
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('trackAdd', async (queue: Queue<any>, track) => {
@@ -107,7 +107,7 @@ player.on('trackAdd', async (queue: Queue<any>, track) => {
 });
 
 player.on('trackEnd', async () => {
-	client.user!.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
+	client.user?.setActivity(`Frogger | ${process.env.PREFIX}help`, { type: ActivityType.Playing });
 });
 
 player.on('trackStart', async (queue: Queue<any>, track) => {
@@ -117,7 +117,7 @@ player.on('trackStart', async (queue: Queue<any>, track) => {
 		content: `🎶 | Playing: ${bold(track.title)} in ${bold(queue.connection.channel.name)}!`,
 	});
 
-	client.user!.setActivity(`${track.title}`, {
+	client.user?.setActivity(`${track.title}`, {
 		type: ActivityType.Streaming,
 		url: track.url,
 	});

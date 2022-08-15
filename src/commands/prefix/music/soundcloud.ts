@@ -75,7 +75,11 @@ export default {
 
 		const searchResult = await player.search(query!, {
 			requestedBy: message.author,
-			searchEngine: QueryType.SOUNDCLOUD_SEARCH,
+			searchEngine:
+				QueryType.SOUNDCLOUD |
+				QueryType.SOUNDCLOUD_PLAYLIST |
+				QueryType.SOUNDCLOUD_SEARCH |
+				QueryType.SOUNDCLOUD_TRACK,
 		});
 
 		if (!searchResult.tracks.length) {
