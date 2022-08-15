@@ -5,7 +5,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName('jump')
 		.setDescription('Jumps to particular track, removing other tracks on the way')
-		.addNumberOption((option) =>
+		.addIntegerOption((option) =>
 			option
 				.setName('track')
 				.setDescription('The number of the queued track to skip to')
