@@ -5,7 +5,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName('seek')
 		.setDescription('Seeks to the given time in seconds')
-		.addNumberOption((option) =>
+		.addIntegerOption((option) =>
 			option.setName('seconds').setDescription('The time to seek in seconds').setRequired(true)
 		),
 
