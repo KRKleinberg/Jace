@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'resume',
-		aliases: ['r', 'res'],
+		aliases: ['res'],
 		description: 'Resumes the player',
 	},
 

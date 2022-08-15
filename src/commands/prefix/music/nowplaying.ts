@@ -4,7 +4,7 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'nowplaying',
-		aliases: ['np', 'current', 'currentsong', 'currentsonginfo'],
+		aliases: ['np', 'current', 'currentsong', 'songinfo'],
 		description: 'Displays currently playing song',
 	},
 

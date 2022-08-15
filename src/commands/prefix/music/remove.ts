@@ -6,7 +6,7 @@ export default {
 		name: 'remove',
 		aliases: ['del', 'delete', 'rm'],
 		description: 'Removes a track from the queue',
-		options: [`${inlineCode('track')}`],
+		options: [`${inlineCode('number')}`],
 	},
 
 	async execute(message: Message, args: string[]) {

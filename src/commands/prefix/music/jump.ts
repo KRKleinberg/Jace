@@ -4,9 +4,9 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'jump',
-		aliases: ['j', 'skipto'],
+		aliases: ['skipto'],
 		description: 'Removes a track from the queue',
-		options: [`${inlineCode('track')}`],
+		options: [`${inlineCode('number')}`],
 	},
 
 	async execute(message: Message, args: string[]) {

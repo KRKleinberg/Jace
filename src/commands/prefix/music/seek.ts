@@ -4,7 +4,6 @@ import { player } from '../../../index.js';
 export default {
 	data: {
 		name: 'seek',
-		aliases: ['s'],
 		description: 'Seeks to the given time in seconds',
 		options: [`${inlineCode('seconds')}`],
 	},
