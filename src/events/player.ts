@@ -114,7 +114,9 @@ player.on('trackStart', async (queue: Queue<any>, track) => {
 	setActive();
 
 	await queue.metadata.channel.send({
-		content: `🎶 | Playing: ${bold(track.title)} in ${bold(queue.connection.channel.name)}!`,
+		content: `🎶 | Playing: ${bold(track.title)} by ${bold(track.author)} in ${bold(
+			queue.connection.channel.name
+		)}!`,
 	});
 
 	client.user?.setActivity(`${track.title}`, {
