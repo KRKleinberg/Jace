@@ -10,8 +10,8 @@ client.on('messageCreate', async (message: Message) => {
 		const [input, ...args] = message.content.slice(process.env.PREFIX!.length).trim().split(/ +/g);
 
 		const prefixCommand =
-			prefixCommands.get(input.toLowerCase()) ||
-			prefixCommands.find((c) => c.data.aliases?.includes(input.toLowerCase()));
+			prefixCommands.get(input?.toLowerCase()) ||
+			prefixCommands.find((c) => c.data.aliases?.includes(input?.toLowerCase()));
 
 		if (prefixCommand)
 			try {

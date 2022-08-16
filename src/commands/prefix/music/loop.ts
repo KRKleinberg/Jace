@@ -43,7 +43,7 @@ export default {
 			},
 		];
 
-		const input = args[0].toLowerCase();
+		const input = args[0]?.toLowerCase();
 
 		let mode = 1;
 
