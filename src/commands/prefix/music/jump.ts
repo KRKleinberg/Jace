@@ -22,7 +22,7 @@ export default {
 
 		const trackIndex = parseInt(args[0], 10) - 1;
 
-		if (trackIndex >= 0) return message.channel.send({ content: '❌ | You did not enter a track number!' });
+		if (trackIndex <= 0) return message.channel.send({ content: '❌ | You did not enter a track number!' });
 
 		if (!queue.tracks[trackIndex])
 			return message.channel.send({ content: '❌ | Please enter a valid track number!' });
