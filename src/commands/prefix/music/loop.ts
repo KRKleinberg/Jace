@@ -6,7 +6,7 @@ export default {
 	data: {
 		name: 'loop',
 		description: 'Sets loop mode',
-		options: [`${italic('Off')}`, `${italic('Track')}`, `${italic('Queue')}`, `${italic('Autoplay')}`],
+		options: [`"${italic('Off')}"`, `"${italic('Track')}"`, `"${italic('Queue')}"`, `"${italic('Autoplay')}"`],
 	},
 
 	async execute(message: Message, args: string[]) {

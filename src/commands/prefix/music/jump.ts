@@ -6,7 +6,7 @@ export default {
 		name: 'jump',
 		aliases: ['skipto'],
 		description: 'Removes a track from the queue',
-		options: [`${inlineCode('number')}`],
+		options: [`${inlineCode('integer')}`],
 	},
 
 	async execute(message: Message, args: string[]) {

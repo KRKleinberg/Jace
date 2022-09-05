@@ -5,7 +5,7 @@ export default {
 	data: {
 		name: 'seek',
 		description: 'Seeks to the given time in seconds',
-		options: [`${inlineCode('seconds')}`],
+		options: [`${inlineCode('integer')}`],
 	},
 
 	async execute(message: Message, args: string[]) {
