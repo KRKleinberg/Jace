@@ -23,7 +23,7 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		const ms = interaction.options.getNumber('seconds')! * 1000;
+		const ms = interaction.options.getInteger('seconds')! * 1000;
 
 		return interaction.reply(
 			(await queue.seek(ms))

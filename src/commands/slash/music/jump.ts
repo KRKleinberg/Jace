@@ -5,7 +5,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName('jump')
 		.setDescription('Jumps to particular track, removing other tracks on the way')
-		.addNumberOption((option) =>
+		.addIntegerOption((option) =>
 			option
 				.setName('track')
 				.setDescription('The number of the queued track to skip to')
@@ -24,7 +24,7 @@ export default {
 
 		if (!queue || !queue.playing) return interaction.reply({ content: '❌ | No music is playing!' });
 
-		const trackIndex = interaction.options.getNumber('track')! - 1;
+		const trackIndex = interaction.options.getInteger('track')! - 1;
 
 		if (!queue.tracks[trackIndex])
 			return interaction.reply({ content: '❌ | Please enter a valid track number!', ephemeral: true });
