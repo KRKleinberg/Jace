@@ -29,6 +29,6 @@ export default {
 
 		queue.remove(trackIndex);
 
-		return message.channel.send({ content: `🗑️ | Removed ${bold(trackName)}.` });
+		return message.channel.send({ content: `🗑️ | Removed ${bold(trackName)}` });
 	},
 };

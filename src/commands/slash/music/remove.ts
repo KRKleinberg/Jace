@@ -31,6 +31,6 @@ export default {
 
 		queue.remove(trackIndex);
 
-		return interaction.reply({ content: `🗑️ | Removed ${bold(trackName)}.` });
+		return interaction.reply({ content: `🗑️ | Removed ${bold(trackName)}` });
 	},
 };

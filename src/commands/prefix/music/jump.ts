@@ -29,6 +29,6 @@ export default {
 
 		queue.skipTo(trackIndex);
 
-		return message.channel.send({ content: `↪️ | Jumped to ${bold(trackName)}.` });
+		return message.channel.send({ content: `↪️ | Jumped to ${bold(trackName)}` });
 	},
 };

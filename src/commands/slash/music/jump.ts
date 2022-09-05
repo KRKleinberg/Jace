@@ -33,6 +33,6 @@ export default {
 
 		queue.skipTo(trackIndex);
 
-		return interaction.reply({ content: `↪️ | Jumped to ${bold(trackName)}.` });
+		return interaction.reply({ content: `↪️ | Jumped to ${bold(trackName)}` });
 	},
 };
