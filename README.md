@@ -1,2 +1,2 @@
 # JaceBot
-A multipurpose Discord music bot
+A multipurpose Discord music bot for Heroku
