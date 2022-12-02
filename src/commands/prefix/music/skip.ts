@@ -11,7 +11,7 @@ export default {
 	async execute(message: Message) {
 		const queue = player.getQueue(message.guild!);
 
-		const currentTrack = queue.current.title;
+		const currentTrack = queue!.current.title;
 
 		if (!message.member!.voice.channel)
 			return message.channel.send({ content: '❌ | You are not in a voice channel!' });

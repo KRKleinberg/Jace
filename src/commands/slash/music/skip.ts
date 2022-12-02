@@ -7,7 +7,7 @@ export default {
 	async execute(interaction: ChatInputCommandInteraction) {
 		const member = interaction.member as GuildMember;
 		const queue = player.getQueue(interaction.guild!);
-		const currentTrack = queue.current.title;
+		const currentTrack = queue!.current.title;
 
 		if (!member.voice.channel)
 			return interaction.reply({ content: '❌ | You are not in a voice channel!' });
