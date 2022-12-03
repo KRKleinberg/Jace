@@ -2,7 +2,6 @@ import { globby } from 'globby';
 import { Player } from 'discord-player';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import * as dotenv from 'dotenv';
-// import pm2 from 'pm2';
 import play from 'play-dl';
 
 dotenv.config();
@@ -11,7 +10,6 @@ dotenv.config();
 if (!process.env.APP_ID) throw new Error('APP_ID environment variable is not set!');
 if (!process.env.COOKIE) throw new Error('COOKIE environment variable is not set!');
 if (!process.env.DJS_TOKEN) throw new Error('DJS_TOKEN environment variable is not set!');
-// if (!process.env.HEROKU_BRANCH) throw new Error('HEROKU_BRANCH environment variable is not set!');
 if (!process.env.ID_TOKEN) throw new Error('ID_TOKEN environment variable is not set!');
 if (!process.env.PREFIX) throw new Error('PREFIX environment variable is not set!');
 
@@ -108,15 +106,5 @@ play.setToken({
 	},
 });
 
-// JaceDevBot Timeout
-/* if (process.env.HEROKU_BRANCH === 'dev') {
-	setTimeout(() => {
-		pm2.stop('jace-bot', (err) => {
-			if (err) throw err;
-		});
-	}, 300000);
-} */
-
 // Start
 client.login(process.env.DJS_TOKEN);
-
