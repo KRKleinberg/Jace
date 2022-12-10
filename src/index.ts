@@ -8,9 +8,9 @@ dotenv.config();
 
 // Check environment variables
 if (!process.env.APP_ID) throw new Error('APP_ID environment variable is not set!');
-if (!process.env.COOKIE) throw new Error('COOKIE environment variable is not set!');
-if (!process.env.DJS_TOKEN) throw new Error('DJS_TOKEN environment variable is not set!');
-if (!process.env.ID_TOKEN) throw new Error('ID_TOKEN environment variable is not set!');
+if (!process.env.YT_COOKIE) throw new Error('YT_COOKIE environment variable is not set!');
+if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN environment variable is not set!');
+if (!process.env.YT_ID_TOKEN) throw new Error('YT_ID_TOKEN environment variable is not set!');
 if (!process.env.PREFIX) throw new Error('PREFIX environment variable is not set!');
 
 // Client
@@ -84,8 +84,8 @@ export const player = new Player(client, {
 	ytdlOptions: {
 		requestOptions: {
 			headers: {
-				cookie: process.env.COOKIE,
-				'x-youtube-identity-token': process.env.ID_TOKEN,
+				cookie: process.env.YT_COOKIE,
+				'x-youtube-identity-token': process.env.YT_ID_TOKEN,
 			},
 		},
 		quality: 'highestaudio',
@@ -99,7 +99,7 @@ export const player = new Player(client, {
 // Play-dl
 play.setToken({
 	youtube: {
-		cookie: process.env.COOKIE!,
+		cookie: process.env.YT_COOKIE!,
 	},
 	soundcloud: {
 		client_id: await play.getFreeClientID(),
@@ -107,4 +107,4 @@ play.setToken({
 });
 
 // Start
-client.login(process.env.DJS_TOKEN);
+client.login(process.env.BOT_TOKEN);
