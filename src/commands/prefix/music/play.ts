@@ -43,8 +43,8 @@ export default {
 			ytdlOptions: {
 				requestOptions: {
 					headers: {
-						cookie: process.env.COOKIE,
-						'x-youtube-identity-token': process.env.ID_TOKEN,
+						cookie: process.env.YT_COOKIE,
+						'x-youtube-identity-token': process.env.YT_ID_TOKEN,
 					},
 				},
 				quality: 'highestaudio',
