@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "pm2-runtime start ecosystem.config.cjs",
+		"dev": "node dist/index.js",
 		"build": "tsc",
 		"postinstall": "npm run build"
 	},
