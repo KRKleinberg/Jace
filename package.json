@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "v4.0.0",
+	"version": "v4.1.0",
 	"description": "A multipurpose Discord music bot",
 	"main": "index.js",
 	"type": "module",
