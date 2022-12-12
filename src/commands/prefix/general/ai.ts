@@ -30,7 +30,7 @@ export default {
 
 		const embed = new EmbedBuilder()
 			.setAuthor({
-				name: message.author.id,
+				name: message.author.tag,
 				iconURL: message.author.avatarURL()!,
 			})
 			.setTitle(`"${input}"`)
