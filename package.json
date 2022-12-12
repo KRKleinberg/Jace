@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "v4.1.0",
+	"version": "v4.2.0",
 	"description": "A multipurpose Discord music bot",
 	"main": "index.js",
 	"type": "module",
@@ -39,6 +39,7 @@
 		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
 		"globby": "^13.1.2",
+		"openai": "^3.1.0",
 		"play-dl": "^1.9.6",
 		"pm2": "^5.2.2"
 	}
