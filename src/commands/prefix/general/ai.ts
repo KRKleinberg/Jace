@@ -1,4 +1,4 @@
-import { Message, inlineCode } from 'discord.js';
+import { EmbedBuilder, Message, inlineCode } from 'discord.js';
 import { Configuration, OpenAIApi } from 'openai';
 
 export default {
@@ -28,6 +28,14 @@ export default {
 			return response.data.choices[0].text;
 		}
 
-		return message.channel.send((await ask(input)) || '❌ | No response from AI');
+		const embed = new EmbedBuilder()
+			.setAuthor({
+				name: message.author.id,
+				iconURL: message.author.avatarURL()!,
+			})
+			.setTitle(`"${input}"`)
+			.setDescription(`\`\`\`${await ask(input)}\`\`\``);
+
+		return message.channel.send({ embeds: [embed] });
 	},
 };
