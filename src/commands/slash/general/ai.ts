@@ -1,5 +1,10 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { Configuration, OpenAIApi } from 'openai';
+import {
+	ChatInputCommandInteraction,
+	codeBlock,
+	EmbedBuilder,
+	SlashCommandBuilder,
+} from 'discord.js';
+import { openai } from '../../../index.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -10,7 +15,7 @@ export default {
 		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_KEY }));
+		const input = interaction.options.getString('prompt');
 
 		async function ask(prompt: string) {
 			const response = await openai.createCompletion({
@@ -26,8 +31,16 @@ export default {
 			return response.data.choices[0].text;
 		}
 
-		return interaction.reply(
-			(await ask(interaction.options.getString('prompt')!)) || '❌ | No response from AI'
-		);
+		interaction.deferReply();
+
+		const embed = new EmbedBuilder()
+			.setAuthor({
+				name: `"${input}"`,
+				iconURL: interaction.user.avatarURL() || interaction.user.defaultAvatarURL,
+			})
+			.setColor(0x5864f1)
+			.setDescription(codeBlock((await ask(input!)) || 'No response'));
+
+		return interaction.editReply({ embeds: [embed] });
 	},
 };
