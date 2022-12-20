@@ -3,6 +3,7 @@ import { Player } from 'discord-player';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import * as dotenv from 'dotenv';
 import play from 'play-dl';
+import { Configuration, OpenAIApi } from 'openai';
 
 dotenv.config();
 
@@ -78,6 +79,9 @@ export const slashCommandArray: any[] = [];
 		slashCommandArray.push(slashCommand.data);
 	});
 })();
+
+// OpenAI
+export const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_KEY }));
 
 // Player
 export const player = new Player(client, {
