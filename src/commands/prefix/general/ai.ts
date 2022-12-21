@@ -26,7 +26,7 @@ export default {
 			return response.data.choices[0].text;
 		}
 
-		return message.channel.send(inlineCode(`${client.user!.username} is thinking...`)).then(async (msg) => {
+		return message.channel.send(`●●● ${client.user!.username} is thinking...`).then(async (msg) => {
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: `"${input}"`,
