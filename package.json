@@ -1,15 +1,15 @@
 {
 	"name": "jace-bot",
-	"version": "v4.2.3",
-	"description": "A multipurpose Discord music bot",
-	"main": "index.js",
-	"type": "module",
+	"version": "5.0.0",
+	"description": "A multipurpose Discord bot",
+	"main": "dist/index.js",
 	"scripts": {
 		"start": "pm2-runtime start ecosystem.config.cjs",
-		"dev": "node dist/index.js",
+		"test": "node dist/index.js",
 		"build": "tsc",
 		"postinstall": "npm run build"
 	},
+	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/KRKleinberg/JaceBot.git"
@@ -21,26 +21,26 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
 	"devDependencies": {
-		"@types/node": "^18.11.10",
-		"@typescript-eslint/eslint-plugin": "^5.45.0",
-		"@typescript-eslint/parser": "^5.45.0",
-		"eslint": "^8.29.0",
-		"eslint-config-airbnb-base": "^15.0.0",
-		"eslint-config-prettier": "^8.5.0",
-		"eslint-plugin-import": "^2.26.0",
-		"prettier": "^2.8.0",
-		"typescript": "^4.9.3"
+		"@types/node": "^18.16.2",
+		"@typescript-eslint/eslint-plugin": "^5.59.1",
+		"eslint": "^8.39.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-config-standard-with-typescript": "^34.0.1",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-n": "^15.7.0",
+		"eslint-plugin-promise": "^6.1.1",
+		"prettier": "^2.8.8",
+		"typescript": "^5.0.4"
 	},
 	"dependencies": {
-		"@discordjs/opus": "^0.8.0",
-		"@supercharge/strings": "^1.29.1",
-		"discord-player": "^5.3.2",
-		"discord.js": "^14.7.1",
+		"@supercharge/strings": "^2.0.0",
+		"discord-player": "^6.2.1",
+		"discord.js": "^14.9.0",
 		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
-		"globby": "^13.1.2",
-		"openai": "^3.1.0",
+		"globby": "^13.1.4",
+		"opusscript": "^0.1.0",
 		"play-dl": "^1.9.6",
-		"pm2": "^5.2.2"
+		"pm2": "^5.3.0"
 	}
 }
