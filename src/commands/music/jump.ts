@@ -14,7 +14,7 @@ export default {
 		.setDescription('Jumps to a track in the queue')
 		.addIntegerOption((option) =>
 			option
-				.setName('trackNumber')
+				.setName('track')
 				.setDescription('The position in the queue of the track you want to jump to')
 				.setRequired(true)
 		),
@@ -22,7 +22,7 @@ export default {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
-		const trackNumber = isInteraction ? command.options.getInteger('trackNumber', true) - 1 : parseInt(args[0]) - 1;
+		const trackNumber = isInteraction ? command.options.getInteger('track', true) - 1 : parseInt(args[0]) - 1;
 		const track = queue?.tracks.toArray()[trackNumber];
 
 		if (!member.voice.channel) {
