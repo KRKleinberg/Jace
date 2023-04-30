@@ -40,7 +40,12 @@ export default {
 						value: queue.node.createProgressBar() || currentTrack.author,
 					},
 				]);
+
+			const response = { embeds: [embed] };
+			return isInteraction ? command.editReply(response) : command.channel.send(response);
 		} catch (error) {
+			console.error(error);
+
 			const response = `🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
 			return isInteraction ? command.editReply(response) : command.channel.send(response);
 		}
