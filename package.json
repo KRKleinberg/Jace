@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "5.0.1",
+	"version": "5.0.2",
 	"description": "A multipurpose Discord bot",
 	"main": "dist/index.js",
 	"scripts": {
