@@ -34,7 +34,11 @@ export default {
 			: input.includes(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
-		const query = input.replace(' apple music', '').replace(' soundcloud', '').replace(' spotify', '').replace(' youtube', '');
+		const query = input
+			.replace(' apple music', '')
+			.replace(' soundcloud', '')
+			.replace(' spotify', '')
+			.replace(' youtube', '');
 
 		if (query) {
 			const searchResults = await player.search(query, {
@@ -69,7 +73,7 @@ export default {
 	},
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
-		const input = isInteraction ? command.options.getString('query', true) : args.join(' ');
+		const input = isInteraction ? command.options.getString('query', true).toLowerCase() : args.join(' ').toLowerCase();
 		const searchEngine = input.includes(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
 			: input.includes(' soundcloud')
@@ -79,7 +83,11 @@ export default {
 			: input.includes(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
-		const query = input.replace(' apple music', '').replace(' soundcloud', '').replace(' spotify', '').replace(' youtube', '');
+		const query = input
+			.replace(' apple music', '')
+			.replace(' soundcloud', '')
+			.replace(' spotify', '')
+			.replace(' youtube', '');
 		const searchResults = await player.search(query, {
 			searchEngine: searchEngine,
 			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,

@@ -62,7 +62,7 @@ export default {
 	},
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
-		const input = isInteraction ? command.options.getString('query', true) : args.join(' ');
+		const input = isInteraction ? command.options.getString('query', true).toLowerCase() : args.join(' ').toLowerCase();
 		const searchEngine = input.includes(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
 			: input.includes(' soundcloud')
