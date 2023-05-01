@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['clr'],
 	data: new SlashCommandBuilder().setDescription('Clears the queue'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

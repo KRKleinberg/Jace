@@ -16,7 +16,7 @@ const player = useMasterPlayer();
 if (!player) throw new Error('Player has not been initialized!');
 
 export default {
-	aliases: ['p'],
+	aliases: ['pn'],
 	data: new SlashCommandBuilder()
 		.setDescription('Plays a song or playlist')
 		.addStringOption((option) =>

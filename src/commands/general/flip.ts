@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['coin'],
 	data: new SlashCommandBuilder().setDescription('Flips a coin'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

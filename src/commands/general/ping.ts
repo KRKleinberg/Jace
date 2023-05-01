@@ -9,7 +9,6 @@ import {
 import { client } from '../../index.js';
 
 export default {
-	aliases: [''],
 	data: new SlashCommandBuilder().setDescription('Displays bot latency'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

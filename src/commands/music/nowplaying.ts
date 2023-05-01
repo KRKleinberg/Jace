@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['np'],
 	data: new SlashCommandBuilder().setDescription('Displays the currently playing song info'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

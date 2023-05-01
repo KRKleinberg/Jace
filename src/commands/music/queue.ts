@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['q'],
 	data: new SlashCommandBuilder().setDescription('Displays the queue'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

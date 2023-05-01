@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['skipto'],
 	data: new SlashCommandBuilder()
 		.setDescription('Jumps to a track in the queue')
 		.addIntegerOption((option) =>

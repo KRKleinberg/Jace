@@ -11,7 +11,6 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
 	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

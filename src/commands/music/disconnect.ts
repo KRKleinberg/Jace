@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: ['dc'],
+	aliases: ['dc', 'stop'],
 	data: new SlashCommandBuilder().setDescription('Disconnects from the voice channel'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

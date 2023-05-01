@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
+	aliases: ['rm'],
 	data: new SlashCommandBuilder()
 		.setDescription('Removes a track from the queue')
 		.addIntegerOption((option) =>

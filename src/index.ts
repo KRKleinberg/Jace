@@ -1,6 +1,5 @@
 import { Player } from 'discord-player';
 import {
-	APIInteractionGuildMember,
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
@@ -9,7 +8,7 @@ import {
 	Guild,
 	GuildMember,
 	Message,
-	SlashCommandBuilder,
+	SlashCommandBuilder
 } from 'discord.js';
 import * as dotenv from 'dotenv';
 import { globby } from 'globby';

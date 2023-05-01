@@ -9,7 +9,6 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
 	data: new SlashCommandBuilder().setDescription('Plays the previous track'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;

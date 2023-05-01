@@ -9,7 +9,6 @@ import {
 } from 'discord.js';
 
 export default {
-	aliases: [''],
 	data: new SlashCommandBuilder()
 		.setDescription('Sets loop mode')
 		.addStringOption((option) =>

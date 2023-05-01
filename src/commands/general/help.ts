@@ -10,7 +10,7 @@ import {
 import { commands } from '../../index.js';
 
 export default {
-	aliases: [''],
+	aliases: ['h'],
 	data: new SlashCommandBuilder().setDescription('Displays a list of commands'),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
