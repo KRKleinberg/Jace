@@ -13,10 +13,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setDescription('Jumps to a track in the queue')
 		.addIntegerOption((option) =>
-			option
-				.setName('track')
-				.setDescription('The position in the queue of the track you want to jump to')
-				.setRequired(true)
+			option.setName('track').setDescription('The position in the queue of the track you want to jump to').setRequired(true)
 		),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
@@ -51,7 +48,7 @@ export default {
 			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
 		}
 
-		const response = `⏭️ | Jumped to **${track.title}**`;
+		const response = `⏭️ | Jumped to **${track.title}** by **${track.author}**`;
 		return isInteraction ? command.editReply(response) : command.channel.send(response);
 	},
 };

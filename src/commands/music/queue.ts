@@ -28,7 +28,7 @@ export default {
 				${Str(
 				`**Now Playing:**\n[**${queue.currentTrack.title}**](${queue.currentTrack.url}) by **${
 					queue.currentTrack.author
-				}**\n${queue.tracks
+				}**\n\n${queue.tracks
 					.map((track, index) => `**${index + 1}.** [**${track.title}**](${track.url}) by **${track.author}**`)
 					.join('\n')}`
 			).limit(4093, '...')}`);

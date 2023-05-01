@@ -2,6 +2,7 @@ import { useQueue } from 'discord-player';
 import {
 	ChatInputCommandInteraction,
 	EmbedBuilder,
+	EmbedFooterOptions,
 	Guild,
 	GuildMember,
 	InteractionType,
@@ -31,17 +32,56 @@ export default {
 		}
 
 		try {
+			const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+				{
+					name: 'apple_music',
+					footerOptions: {
+						text: `Apple Music | ${currentTrack.author}`,
+						iconURL: 'attachment://apple_music.png',
+					},
+					filePath: './icons/apple_music.png',
+				},
+				{
+					name: 'soundcloud',
+					footerOptions: {
+						text: `SoundCloud | ${currentTrack.author}`,
+						iconURL: 'attachment://soundcloud.png',
+					},
+					filePath: './icons/soundcloud.png',
+				},
+				{
+					name: 'spotify',
+					footerOptions: {
+						text: `Spotify | ${currentTrack.author}`,
+						iconURL: 'attachment://spotify.png',
+					},
+					filePath: './icons/spotify.png',
+				},
+				{
+					name: 'youtube',
+					footerOptions: {
+						text: `YouTube | ${currentTrack.author}`,
+						iconURL: 'attachment://youtube.png',
+					},
+					filePath: './icons/youtube.png',
+				},
+			];
 			const embed = new EmbedBuilder()
 				.setColor(0x5864f1)
-				.setTitle('Now Playing')
-				.setFields([
-					{
-						name: currentTrack.title,
-						value: queue.node.createProgressBar() || currentTrack.author,
-					},
-				]);
+				.setAuthor({ name: 'Now Playing' })
+				.setTitle(currentTrack.title)
+				.setDescription(queue.node.createProgressBar())
+				.setThumbnail(currentTrack.thumbnail)
+				.setURL(currentTrack.url)
+				.setFooter(
+					sources.find((source) => source.name === currentTrack.source)?.footerOptions || { text: `${currentTrack.author}` } ||
+						null
+				);
 
-			const response = { embeds: [embed] };
+			const response = {
+				embeds: [embed],
+				files: [`${sources.find((source) => source.name === currentTrack.source)?.filePath}`],
+			};
 			return isInteraction ? command.editReply(response) : command.channel.send(response);
 		} catch (error) {
 			console.error(error);

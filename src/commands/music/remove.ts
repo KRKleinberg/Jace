@@ -13,10 +13,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setDescription('Removes a track from the queue')
 		.addIntegerOption((option) =>
-			option
-				.setName('track')
-				.setDescription('The position in the queue of the track you want to remove')
-				.setRequired(true)
+			option.setName('track').setDescription('The position in the queue of the track you want to remove').setRequired(true)
 		),
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
@@ -51,7 +48,7 @@ export default {
 			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
 		}
 
-		const response = `⏭️ | Removed **${track.title}**`;
+		const response = `⏭️ | Removed **${track.title}** by **${track.author}**`;
 		return isInteraction ? command.editReply(response) : command.channel.send(response);
 	},
 };

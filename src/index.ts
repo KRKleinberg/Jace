@@ -80,6 +80,8 @@ export const player = new Player(client, {
 	},
 });
 
+await player.extractors.loadDefault();
+
 // Commands
 export const commands: Collection<
 	string,
