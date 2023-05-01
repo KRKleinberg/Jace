@@ -24,21 +24,21 @@ export default {
 		),
 
 	async autocomplete(interaction: AutocompleteInteraction) {
-		const input = interaction.options.getString('query', true).toLowerCase();
-		const searchEngine = input.includes(' apple music')
+		const input = interaction.options.getString('query', true);
+		const searchEngine = input.toLowerCase().includes(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
-			: input.includes(' soundcloud')
+			: input.toLowerCase().includes(' soundcloud')
 			? QueryType.SOUNDCLOUD_SEARCH
-			: input.includes(' spotify')
+			: input.toLowerCase().includes(' spotify')
 			? QueryType.SPOTIFY_SEARCH
-			: input.includes(' youtube')
+			: input.toLowerCase().includes(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
 		const query = input
-			.replace(' apple music', '')
-			.replace(' soundcloud', '')
-			.replace(' spotify', '')
-			.replace(' youtube', '');
+			.replace(/ apple music/gi, '')
+			.replace(/ soundcloud/gi, '')
+			.replace(/ spotify/gi, '')
+			.replace(/ youtube/gi, '');
 
 		if (query) {
 			const searchResults = await player.search(query, {
@@ -62,21 +62,21 @@ export default {
 	},
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
-		const input = isInteraction ? command.options.getString('query', true).toLowerCase() : args.join(' ').toLowerCase();
-		const searchEngine = input.includes(' apple music')
+		const input = isInteraction ? command.options.getString('query', true) : args.join(' ');
+		const searchEngine = input.toLowerCase().includes(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
-			: input.includes(' soundcloud')
+			: input.toLowerCase().includes(' soundcloud')
 			? QueryType.SOUNDCLOUD_SEARCH
-			: input.includes(' spotify')
+			: input.toLowerCase().includes(' spotify')
 			? QueryType.SPOTIFY_SEARCH
-			: input.includes(' youtube')
+			: input.toLowerCase().includes(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
 		const query = input
-			.replace(' apple music', '')
-			.replace(' soundcloud', '')
-			.replace(' spotify', '')
-			.replace(' youtube', '');
+			.replace(/ apple music/gi, '')
+			.replace(/ soundcloud/gi, '')
+			.replace(/ spotify/gi, '')
+			.replace(/ youtube/gi, '');
 		const searchResults = await player.search(query, {
 			searchEngine: searchEngine,
 			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,
