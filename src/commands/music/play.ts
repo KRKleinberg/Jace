@@ -206,7 +206,7 @@ export default {
 						).limit(4093, '...')}`
 					)
 					.setThumbnail(playlist.thumbnail || null)
-					.setURL(track.url || null)
+					.setURL(playlist.url || null)
 					.setFooter(
 						sources.find((source) => source.name === playlist.source)?.footerOptions || {
 							text: `${playlist.author.name}`,
