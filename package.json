@@ -37,7 +37,7 @@
 		"@supercharge/strings": "^2.0.0",
 		"discord-player": "^6.3.0",
 		"discord.js": "^14.11.0",
-		"dotenv": "^16.0.3",
+		"dotenv": "^16.1.1",
 		"globby": "^13.1.4",
 		"opusscript": "^0.0.8",
 		"play-dl": "^1.9.6",
