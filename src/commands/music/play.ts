@@ -1,5 +1,5 @@
 import { Str } from '@supercharge/strings';
-import { QueryType, useMasterPlayer } from 'discord-player';
+import { QueryType, useMainPlayer } from 'discord-player';
 import {
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
@@ -12,7 +12,7 @@ import {
 	SlashCommandBuilder,
 } from 'discord.js';
 
-const player = useMasterPlayer();
+const player = useMainPlayer();
 if (!player) throw new Error('Player has not been initialized!');
 
 export default {

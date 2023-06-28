@@ -1,8 +1,7 @@
-import { useMasterPlayer } from 'discord-player';
+import { useMainPlayer } from 'discord-player';
 import { ChatInputCommandInteraction, Message } from 'discord.js';
-import { client } from '../index.js';
 
-const player = useMasterPlayer();
+const player = useMainPlayer();
 if (!player) throw new Error('Player has not been initialized!');
 
 player.events.on('error', (queue, error) => {
