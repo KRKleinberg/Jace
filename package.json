@@ -21,7 +21,7 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
 	"devDependencies": {
-		"@types/node": "^20.3.2",
+		"@types/node": "^20.3.3",
 		"@typescript-eslint/eslint-plugin": "^5.60.1",
 		"eslint": "^8.43.0",
 		"eslint-config-prettier": "^8.8.0",
