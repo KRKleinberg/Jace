@@ -35,7 +35,7 @@
 	"dependencies": {
 		"@discord-player/extractor": "^4.4.1",
 		"@supercharge/strings": "^2.0.0",
-		"discord-player": "^6.6.1",
+		"discord-player": "^6.6.2",
 		"discord.js": "^14.11.0",
 		"dotenv": "^16.3.1",
 		"globby": "^13.2.2",
