@@ -94,40 +94,6 @@ export default {
 		});
 		const track = searchResults.tracks[0];
 		const playlist = searchResults.playlist;
-		const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
-			{
-				name: 'apple_music',
-				footerOptions: {
-					text: `Apple Music | ${playlist?.author.name || track.author}`,
-					iconURL: 'attachment://apple_music.png',
-				},
-				filePath: './icons/apple_music.png',
-			},
-			{
-				name: 'soundcloud',
-				footerOptions: {
-					text: `SoundCloud | ${playlist?.author.name || track.author}`,
-					iconURL: 'attachment://soundcloud.png',
-				},
-				filePath: './icons/soundcloud.png',
-			},
-			{
-				name: 'spotify',
-				footerOptions: {
-					text: `Spotify | ${playlist?.author.name || track.author}`,
-					iconURL: 'attachment://spotify.png',
-				},
-				filePath: './icons/spotify.png',
-			},
-			{
-				name: 'youtube',
-				footerOptions: {
-					text: `YouTube | ${playlist?.author.name || track.author}`,
-					iconURL: 'attachment://youtube.png',
-				},
-				filePath: './icons/youtube.png',
-			},
-		];
 		const queue = player.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
@@ -191,6 +157,40 @@ export default {
 
 		try {
 			if (playlist) {
+				const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+					{
+						name: 'apple_music',
+						footerOptions: {
+							text: `Apple Music | ${playlist.author.name}`,
+							iconURL: 'attachment://apple_music.png',
+						},
+						filePath: './icons/apple_music.png',
+					},
+					{
+						name: 'soundcloud',
+						footerOptions: {
+							text: `SoundCloud | ${playlist.author.name}`,
+							iconURL: 'attachment://soundcloud.png',
+						},
+						filePath: './icons/soundcloud.png',
+					},
+					{
+						name: 'spotify',
+						footerOptions: {
+							text: `Spotify | ${playlist.author.name}`,
+							iconURL: 'attachment://spotify.png',
+						},
+						filePath: './icons/spotify.png',
+					},
+					{
+						name: 'youtube',
+						footerOptions: {
+							text: `YouTube | ${playlist.author.name}`,
+							iconURL: 'attachment://youtube.png',
+						},
+						filePath: './icons/youtube.png',
+					},
+				];
 				const embed = new EmbedBuilder()
 					.setAuthor({
 						name: 'Queued Tracks',
@@ -227,6 +227,40 @@ export default {
 		}
 
 		try {
+			const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+				{
+					name: 'apple_music',
+					footerOptions: {
+						text: `Apple Music | ${track.author}`,
+						iconURL: 'attachment://apple_music.png',
+					},
+					filePath: './icons/apple_music.png',
+				},
+				{
+					name: 'soundcloud',
+					footerOptions: {
+						text: `SoundCloud | ${track.author}`,
+						iconURL: 'attachment://soundcloud.png',
+					},
+					filePath: './icons/soundcloud.png',
+				},
+				{
+					name: 'spotify',
+					footerOptions: {
+						text: `Spotify | ${track.author}`,
+						iconURL: 'attachment://spotify.png',
+					},
+					filePath: './icons/spotify.png',
+				},
+				{
+					name: 'youtube',
+					footerOptions: {
+						text: `YouTube | ${track.author}`,
+						iconURL: 'attachment://youtube.png',
+					},
+					filePath: './icons/youtube.png',
+				},
+			];
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: 'Queued Track',

@@ -1,15 +1,15 @@
 import { Str } from '@supercharge/strings';
 import { QueryType, useMainPlayer } from 'discord-player';
 import {
-    AutocompleteInteraction,
-    ChatInputCommandInteraction,
-    EmbedBuilder,
-    EmbedFooterOptions,
-    Guild,
-    GuildMember,
-    InteractionType,
-    Message,
-    SlashCommandBuilder,
+	AutocompleteInteraction,
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	EmbedFooterOptions,
+	Guild,
+	GuildMember,
+	InteractionType,
+	Message,
+	SlashCommandBuilder,
 } from 'discord.js';
 
 const player = useMainPlayer();
@@ -82,40 +82,6 @@ export default {
 			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,
 		});
 		const track = searchResults.tracks[0];
-		const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
-			{
-				name: 'apple_music',
-				footerOptions: {
-					text: `Apple Music | ${track.author}`,
-					iconURL: 'attachment://apple_music.png',
-				},
-				filePath: './icons/apple_music.png',
-			},
-			{
-				name: 'soundcloud',
-				footerOptions: {
-					text: `SoundCloud | ${track.author}`,
-					iconURL: 'attachment://soundcloud.png',
-				},
-				filePath: './icons/soundcloud.png',
-			},
-			{
-				name: 'spotify',
-				footerOptions: {
-					text: `Spotify | ${track.author}`,
-					iconURL: 'attachment://spotify.png',
-				},
-				filePath: './icons/spotify.png',
-			},
-			{
-				name: 'youtube',
-				footerOptions: {
-					text: `YouTube | ${track.author}`,
-					iconURL: 'attachment://youtube.png',
-				},
-				filePath: './icons/youtube.png',
-			},
-		];
 		const queue = player.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
@@ -178,6 +144,40 @@ export default {
 		}
 
 		try {
+			const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+				{
+					name: 'apple_music',
+					footerOptions: {
+						text: `Apple Music | ${track.author}`,
+						iconURL: 'attachment://apple_music.png',
+					},
+					filePath: './icons/apple_music.png',
+				},
+				{
+					name: 'soundcloud',
+					footerOptions: {
+						text: `SoundCloud | ${track.author}`,
+						iconURL: 'attachment://soundcloud.png',
+					},
+					filePath: './icons/soundcloud.png',
+				},
+				{
+					name: 'spotify',
+					footerOptions: {
+						text: `Spotify | ${track.author}`,
+						iconURL: 'attachment://spotify.png',
+					},
+					filePath: './icons/spotify.png',
+				},
+				{
+					name: 'youtube',
+					footerOptions: {
+						text: `YouTube | ${track.author}`,
+						iconURL: 'attachment://youtube.png',
+					},
+					filePath: './icons/youtube.png',
+				},
+			];
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: 'Queued Track',
