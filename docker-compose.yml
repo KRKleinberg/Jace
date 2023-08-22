@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  main:
+    build: .
+    container_name: JaceBot
+    environment:
+      - DISCORD_APP_ID
+      - DISCORD_BOT_TOKEN
+      - PREFIX
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
+      - SPOTIFY_REFRESH_TOKEN
+      - YOUTUBE_COOKIE
+      - YOUTUBE_ID_TOKEN
