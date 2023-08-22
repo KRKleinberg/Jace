@@ -1,0 +1,28 @@
+name: Docker Runner
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  run:
+    runs-on: self-hosted
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Container
+        run: docker compose up -d --build --restart unless-stopped
+        env:
+          DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          PREFIX: ${{ secrets.PREFIX }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }} 
+          YOUTUBE_ID_TOKEN: ${{ secrets.YOUTUBE_ID_TOKEN }}
+
+      - name: Cleanup Unused Images
+        run: docker image prune -f

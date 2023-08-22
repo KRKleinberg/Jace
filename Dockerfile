@@ -1,25 +1,18 @@
 FROM node:latest
 
+COPY package.json /app/
 
-
-# Create the bot's directory
-
-RUN mkdir -p /usr/src/JaceBot
-
-WORKDIR /usr/src/JaceBot
-
-
-
-COPY package.json /usr/src/JaceBot
+WORKDIR /app/
 
 RUN npm install
 
+COPY . .
 
+RUN npm run build
 
-COPY . /usr/src/JaceBot
-
+RUN apt-get update && apt-get install -y ffmpeg
 
 
 # Start the bot.
 
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
