@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-RUN sudo apt-get update && apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
 
 # Start the bot.
