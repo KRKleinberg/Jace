@@ -26,3 +26,6 @@ jobs:
 
       - name: Cleanup Unused Images
         run: docker image prune -f
+
+      - name: Cleanup Build Cache
+        run: docker builder prune -f --keep-storage 1000
