@@ -1,4 +1,4 @@
-import { useHistory } from 'discord-player';
+import { useHistory, useQueue } from 'discord-player';
 import {
 	ChatInputCommandInteraction,
 	Guild,
@@ -13,6 +13,7 @@ export default {
 	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const history = useHistory(guild);
+		const queue = useQueue(guild);
 
 		if (!member.voice.channel) {
 			const response = '❌ | You are not in a voice channel';
@@ -23,8 +24,22 @@ export default {
 			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
 		}
 
+		if (history.isEmpty()) {
+			try {
+				await queue?.node.seek(0);
+			} catch (error) {
+				console.error(error);
+
+				const response = '❌ | Could not go back a track';
+				return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			}
+
+			const response = '⏮️ | Restarting track';
+			return isInteraction ? command.editReply(response) : command.channel.send(response);
+		}
+
 		try {
-			await history.previous();
+			await history.previous(true);
 		} catch (error) {
 			console.error(error);
 
