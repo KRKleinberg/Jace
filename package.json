@@ -31,7 +31,7 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^4.4.1",
+		"@discord-player/extractor": "^4.4.2",
 		"@supercharge/strings": "^2.0.0",
 		"discord-player": "^6.6.2",
 		"discord.js": "^14.13.0",
