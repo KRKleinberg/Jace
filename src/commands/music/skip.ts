@@ -1,32 +1,31 @@
 import { useQueue } from 'discord-player';
-import {
-	ChatInputCommandInteraction,
-	Guild,
-	GuildMember,
-	InteractionType,
-	Message,
-	SlashCommandBuilder,
-} from 'discord.js';
+import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
 
 export default {
 	aliases: ['fs'],
 	data: new SlashCommandBuilder().setDescription('Skips the current track'),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command, guild, member }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
 
-		if (!member.voice.channel) {
+		if (member.voice.channel == null) {
 			const response = '❌ | You are not in a voice channel';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (!currentTrack) {
+		if (currentTrack == null) {
 			const response = '❌ | There are no tracks in the queue';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (member.voice.channel !== queue.channel) {
+		if (member.voice.channel !== queue?.channel) {
 			const response = '❌ | You are not in the same voice channel as the bot';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		try {
@@ -35,10 +34,12 @@ export default {
 			console.error(error);
 
 			const response = '❌ | Could not skip the track';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		const response = `⏭️ | Skipped **${currentTrack.title}** by **${currentTrack.author}**`;
-		return isInteraction ? command.editReply(response) : command.channel.send(response);
+		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-};
+} satisfies Client['command'];

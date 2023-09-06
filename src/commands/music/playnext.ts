@@ -1,19 +1,9 @@
 import { Str } from '@supercharge/strings';
 import { QueryType, useMainPlayer } from 'discord-player';
-import {
-	AutocompleteInteraction,
-	ChatInputCommandInteraction,
-	EmbedBuilder,
-	EmbedFooterOptions,
-	Guild,
-	GuildMember,
-	InteractionType,
-	Message,
-	SlashCommandBuilder,
-} from 'discord.js';
+import { EmbedBuilder, InteractionType, SlashCommandBuilder, type Client, type EmbedFooterOptions } from 'discord.js';
 
 const player = useMainPlayer();
-if (!player) throw new Error('Player has not been initialized!');
+if (player == null) throw new Error('Player has not been initialized!');
 
 export default {
 	aliases: ['pn'],
@@ -23,15 +13,15 @@ export default {
 			option.setName('query').setDescription('The song or playlist to play').setAutocomplete(true).setRequired(true)
 		),
 
-	async autocomplete(interaction: AutocompleteInteraction) {
-		const input = interaction.options.getString('query', true);
-		const searchEngine = input.toLowerCase().includes(' apple music')
+	async autocomplete(interaction, userPrefs) {
+		const input = interaction.options.getString('query', true).trim();
+		const searchEngine = input.toLowerCase().endsWith(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
-			: input.toLowerCase().includes(' soundcloud')
+			: input.toLowerCase().endsWith(' soundcloud')
 			? QueryType.SOUNDCLOUD_SEARCH
-			: input.toLowerCase().includes(' spotify')
+			: input.toLowerCase().endsWith(' spotify')
 			? QueryType.SPOTIFY_SEARCH
-			: input.toLowerCase().includes(' youtube')
+			: input.toLowerCase().endsWith(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
 		const query = input
@@ -40,36 +30,37 @@ export default {
 			.replace(/ spotify/gi, '')
 			.replace(/ youtube/gi, '');
 
-		if (query) {
+		if (query.length > 0) {
 			const searchResults = await player.search(query, {
-				searchEngine: searchEngine,
+				searchEngine: userPrefs?.searchEngine ?? searchEngine,
 				fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,
 			});
 
-			return interaction.respond(
-				searchResults.tracks.slice(0, 5).map((searchResult) => ({
-					name: `${Str(`${searchResult.title} — ${searchResult.author}`).limit(97, '...')}`,
+			await interaction.respond(
+				searchResults.tracks.slice(0, 10).map((searchResult) => ({
+					name: Str(`${searchResult.title} — ${searchResult.author}`).limit(97, '...').toString(),
 					value: `${
 						Str(`${searchResult.url}`).length() <= 100
 							? searchResult.url
-							: `${Str(`${searchResult.title} — ${searchResult.author}`).limit(97, '...')}`
+							: Str(`${searchResult.title} — ${searchResult.author}`).limit(97, '...').toString()
 					}`,
 				}))
 			);
+			return;
 		}
 
-		return interaction.respond([]);
+		await interaction.respond([]);
 	},
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command, guild, member, args, defaultPrefs, guildPrefs, userPrefs }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
-		const input = isInteraction ? command.options.getString('query', true) : args.join(' ');
-		const searchEngine = input.toLowerCase().includes(' apple music')
+		const input = isInteraction ? command.options.getString('query', true).trim() : args.join(' ').trim();
+		const searchEngine = input.toLowerCase().endsWith(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
-			: input.toLowerCase().includes(' soundcloud')
+			: input.toLowerCase().endsWith(' soundcloud')
 			? QueryType.SOUNDCLOUD_SEARCH
-			: input.toLowerCase().includes(' spotify')
+			: input.toLowerCase().endsWith(' spotify')
 			? QueryType.SPOTIFY_SEARCH
-			: input.toLowerCase().includes(' youtube')
+			: input.toLowerCase().endsWith(' youtube')
 			? QueryType.YOUTUBE_SEARCH
 			: QueryType.AUTO;
 		const query = input
@@ -78,7 +69,7 @@ export default {
 			.replace(/ spotify/gi, '')
 			.replace(/ youtube/gi, '');
 		const searchResults = await player.search(query, {
-			searchEngine: searchEngine,
+			searchEngine: userPrefs?.searchEngine ?? searchEngine,
 			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,
 		});
 		const track = searchResults.tracks[0];
@@ -91,34 +82,44 @@ export default {
 			leaveOnEndCooldown: 300000,
 		});
 
-		if (!member.voice.channel) {
+		if (member.voice.channel == null) {
 			const response = '❌ | You are not in a voice channel';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (queue.connection && member.voice.channel !== queue.channel) {
+		if (queue.connection != null && member.voice.channel !== queue.channel) {
 			const response = '❌ | You are not in the same voice channel as the bot';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (!query) {
+		if (query.length === 0) {
 			const response = '❌ | You did not enter a search query';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 		if (searchResults.isEmpty()) {
 			const response = '❌ | No results found';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		await queue.tasksQueue.acquire().getTask();
 
 		try {
-			if (!queue.connection) await queue.connect(member.voice.channel);
+			if (queue.connection == null) await queue.connect(member.voice.channel);
 		} catch (error) {
 			console.error(error);
 
 			queue.tasksQueue.release();
 
 			const response = '❌ | Could not join your voice channel';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		try {
@@ -129,7 +130,9 @@ export default {
 			queue.tasksQueue.release();
 
 			const response = '❌ | Could not add that track';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		try {
@@ -138,13 +141,15 @@ export default {
 			console.error(error);
 
 			const response = '❌ | Could not play this track';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		} finally {
 			queue.tasksQueue.release();
 		}
 
 		try {
-			const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+			const sources: Array<{ name: string; footerOptions: EmbedFooterOptions; filePath: string }> = [
 				{
 					name: 'apple_music',
 					footerOptions: {
@@ -181,9 +186,9 @@ export default {
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: 'Queued Track',
-					iconURL: member.user.avatarURL() || undefined,
+					iconURL: member.user.avatarURL() ?? undefined,
 				})
-				.setColor(0x5864f1)
+				.setColor(guildPrefs?.color ?? defaultPrefs.color)
 				.setFields([
 					{
 						name: 'Position',
@@ -196,23 +201,21 @@ export default {
 						inline: true,
 					},
 				])
-				.setThumbnail(track.thumbnail || null)
-				.setTitle(track.title || null)
-				.setURL(track.url || null)
-				.setFooter(
-					sources.find((source) => source.name === track.source)?.footerOptions || { text: `${track.author}` } || null
-				);
+				.setThumbnail(track.thumbnail)
+				.setTitle(track.title)
+				.setURL(track.url)
+				.setFooter(sources.find((source) => source.name === track.source)?.footerOptions ?? { text: `${track.author}` });
 
 			const response = {
 				embeds: [embed],
 				files: [`${sources.find((source) => source.name === track.source)?.filePath}`],
 			};
-			return isInteraction ? command.editReply(response) : command.channel.send(response);
+			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		} catch (error) {
 			console.error(error);
 
 			const response = `⏳ | Loading your track`;
-			return isInteraction ? command.editReply(response) : command.channel.send(response);
+			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 	},
-};
+} satisfies Client['command'];
