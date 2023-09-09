@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "5.2.2",
+	"version": "6.0.0",
 	"description": "A multipurpose Discord bot",
 	"main": "dist/index.js",
 	"scripts": {
@@ -19,8 +19,8 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
 	"devDependencies": {
-		"@types/node": "^20.5.7",
-		"@typescript-eslint/eslint-plugin": "^6.5.0",
+		"@types/node": "^20.5.9",
+		"@typescript-eslint/eslint-plugin": "^6.6.0",
 		"eslint": "^8.48.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-config-standard-with-typescript": "^39.0.0",
@@ -31,13 +31,15 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^4.4.1",
+		"@aws-sdk/client-dynamodb": "^3.405.0",
+		"@aws-sdk/lib-dynamodb": "^3.405.0",
+		"@discord-player/extractor": "^4.4.2",
 		"@supercharge/strings": "^2.0.0",
-		"discord-player": "^6.6.2",
+		"discord-player": "^6.6.3",
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
 		"globby": "^13.2.2",
-		"opusscript": "^0.0.8",
-		"play-dl": "^1.9.6"
+		"mediaplex": "^0.0.6",
+		"youtube-ext": "^1.1.10"
 	}
 }

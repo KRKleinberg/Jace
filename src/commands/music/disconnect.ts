@@ -1,17 +1,16 @@
 import { useQueue } from 'discord-player';
 import {
-	ChatInputCommandInteraction,
-	Guild,
-	GuildMember,
 	InteractionType,
-	Message,
 	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
 } from 'discord.js';
 
 export default {
 	aliases: ['dc', 'stop'],
 	data: new SlashCommandBuilder().setDescription('Disconnects from the voice channel'),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command, guild }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
 
@@ -20,11 +19,13 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not disconnect';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not disconnect';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
-		const response = `🔌 | Disconnected`;
-		return isInteraction ? command.editReply(response) : command.channel.send(response);
+		const response: string | MessagePayload | MessageCreateOptions = `🔌 | Disconnected`;
+		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-};
+} satisfies Command;

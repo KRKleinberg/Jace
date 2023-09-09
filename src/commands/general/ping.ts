@@ -1,19 +1,22 @@
 import {
-	ChatInputCommandInteraction,
-	Guild,
-	GuildMember,
 	InteractionType,
-	Message,
 	SlashCommandBuilder,
+	type Command,
+	type InteractionEditReplyOptions,
+	type MessageCreateOptions,
+	type MessagePayload,
 } from 'discord.js';
-import { client } from '../../index.js';
 
 export default {
 	data: new SlashCommandBuilder().setDescription('Displays bot latency'),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
-		const response = `📶 | **${client.ws.ping.toString()}** ms`;
-		return isInteraction ? command.editReply(response) : command.channel.send(response);
+		const response:
+			| string
+			| MessagePayload
+			| InteractionEditReplyOptions
+			| MessageCreateOptions = `📶 | **${command.client.ws.ping.toString()}** ms`;
+		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-};
+} satisfies Command;

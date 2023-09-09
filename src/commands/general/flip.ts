@@ -1,19 +1,20 @@
 import {
-	ChatInputCommandInteraction,
-	Guild,
-	GuildMember,
 	InteractionType,
-	Message,
 	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
 } from 'discord.js';
 
 export default {
 	aliases: ['coin'],
 	data: new SlashCommandBuilder().setDescription('Flips a coin'),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
-		const response = `🪙 | **${Math.round(Math.random()) ? 'Heads' : 'Tails'}**`;
-		return isInteraction ? command.editReply(response) : command.channel.send(response);
+		const response: string | MessagePayload | MessageCreateOptions = `🪙 | **${
+			Math.round(Math.random()) !== 0 ? 'Heads' : 'Tails'
+		}**`;
+		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-};
+} satisfies Command;

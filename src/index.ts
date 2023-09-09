@@ -1,37 +1,74 @@
-import { Player } from 'discord-player';
 import {
-	AutocompleteInteraction,
-	ChatInputCommandInteraction,
-	Client,
-	Collection,
-	GatewayIntentBits,
-	Guild,
-	GuildMember,
-	Message,
-	SlashCommandBuilder
-} from 'discord.js';
+	DynamoDBClient,
+	type DynamoDBDefaultPrefsTable,
+	type DynamoDBGuildPrefsTable,
+	type DynamoDBUserPrefsTable,
+} from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { Player, type QueryType } from 'discord-player';
+import { Client, Collection, GatewayIntentBits, type ColorResolvable, type SlashCommandBuilder } from 'discord.js';
 import * as dotenv from 'dotenv';
+import type EventEmitter from 'events';
 import { globby } from 'globby';
 import path from 'path';
-import play, { getFreeClientID } from 'play-dl';
+
+declare module '@aws-sdk/client-dynamodb' {
+	export interface DynamoDBDefaultPrefsTable {
+		prefix: string;
+		env: 'main' | 'dev';
+		color: ColorResolvable;
+	}
+	export interface DynamoDBGuildPrefsTable {
+		prefix?: string;
+		env: 'main' | 'dev';
+		color?: ColorResolvable;
+	}
+	export interface DynamoDBUserPrefsTable {
+		searchEngine?: (typeof QueryType)[keyof typeof QueryType];
+	}
+}
+declare module 'discord.js' {
+	export interface Client {
+		commands: Collection<string, Command>;
+		dynamoDBClient: DynamoDBClient;
+		dynamoDBDocumentClient: DynamoDBDocumentClient;
+	}
+	export interface Command {
+		aliases?: string[];
+		data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+		autocomplete?: (interaction: AutocompleteInteraction, userPrefs?: DynamoDBUserPrefsTable) => Promise<void>;
+		execute: (options: {
+			command: ChatInputCommandInteraction | Message;
+			guild: Guild;
+			member: GuildMember;
+			args: string[];
+			defaultPrefs: DynamoDBDefaultPrefsTable;
+			guildPrefs?: DynamoDBGuildPrefsTable;
+			userPrefs?: DynamoDBUserPrefsTable;
+		}) => Promise<Message | EventEmitter>;
+	}
+	export interface Event {
+		execute: (client: Client) => Promise<void>;
+	}
+}
 
 dotenv.config();
 
 // Check environment variables
-if (!process.env.DISCORD_APP_ID) throw new Error('DISCORD_APP_ID is not set!');
-if (!process.env.DISCORD_BOT_TOKEN) throw new Error('DISCORD_BOT_TOKEN is not set!');
-if (!process.env.PREFIX) throw new Error('PREFIX is not set!');
-if (!process.env.SPOTIFY_CLIENT_ID) throw new Error('SPOTIFY_CLIENT_ID is not set!');
-if (!process.env.SPOTIFY_CLIENT_SECRET) throw new Error('SPOTIFY_CLIENT_SECRET is not set!');
-if (!process.env.SPOTIFY_REFRESH_TOKEN) throw new Error('SPOTIFY_REFRESH_TOKEN is not set!');
-if (!process.env.YOUTUBE_COOKIE) throw new Error('YOUTUBE_COOKIE is not set!');
-if (!process.env.YOUTUBE_ID_TOKEN) throw new Error('YOUTUBE_ID_TOKEN is not set!');
+if (process.env.AWS_ACCESS_KEY_ID == null) throw new Error('AWS_ACCESS_KEY_ID is not set!');
+if (process.env.AWS_SECRET_ACCESS_KEY == null) throw new Error('AWS_SECRET_ACCESS_KEY is not set!');
+if (process.env.AWS_REGION == null) throw new Error('AWS_REGION is not set!');
+if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
+if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
+if (process.env.DYNAMODDB_DEFAULT_PREFS == null) throw new Error('DYNAMODB_DEFAULT_PREFS is not set!');
+if (process.env.ENV == null) throw new Error('ENV is not set!');
+if (process.env.YOUTUBE_COOKIE == null) throw new Error('YOUTUBE_COOKIE is not set!');
 
 // Client
-export const client = new Client({
+const client = new Client({
 	intents: [
 		// GatewayIntentBits.AutoModerationConfiguration,
-		// GatewayIntentBits.AutoModerationExecution,
+		GatewayIntentBits.AutoModerationExecution,
 		// GatewayIntentBits.DirectMessageReactions,
 		// GatewayIntentBits.DirectMessageTyping,
 		// GatewayIntentBits.DirectMessages,
@@ -52,24 +89,12 @@ export const client = new Client({
 	],
 });
 
-// Play-dl
-await play.setToken({
-	soundcloud: {
-		client_id: await getFreeClientID(),
-	},
-	spotify: {
-		client_id: process.env.SPOTIFY_CLIENT_ID,
-		client_secret: process.env.SPOTIFY_CLIENT_SECRET,
-		refresh_token: process.env.SPOTIFY_REFRESH_TOKEN,
-		market: 'US',
-	},
-	youtube: {
-		cookie: process.env.YOUTUBE_COOKIE,
-	},
-});
+// DynamoDB
+client.dynamoDBClient = new DynamoDBClient();
+client.dynamoDBDocumentClient = DynamoDBDocumentClient.from(client.dynamoDBClient);
 
 // Player
-export const player = new Player(client, {
+const player = new Player(client, {
 	ytdlOptions: {
 		requestOptions: {
 			headers: {
@@ -82,35 +107,25 @@ export const player = new Player(client, {
 await player.extractors.loadDefault();
 
 // Commands
-export const commands: Collection<
-	string,
-	{
-		aliases?: string[];
-		data: SlashCommandBuilder;
-		autocomplete(interaction: AutocompleteInteraction): Promise<void>;
-		execute(
-			command: ChatInputCommandInteraction | Message,
-			guild: Guild,
-			member: GuildMember,
-			args?: string[]
-		): Promise<Message<boolean>>;
-	}
-> = new Collection();
-export const commandData: SlashCommandBuilder[] = [];
-
 const commandFiles = await globby('./commands/**/*.js', { cwd: './dist/' });
-commandFiles.forEach(async (value) => {
-	const { default: command } = await import(value);
-	command.data.name = path.basename(value, '.js').toLowerCase();
+client.commands = new Collection();
 
-	commands.set(command.data.name, command);
+for (const commandFile of commandFiles) {
+	const { default: command } = await import(commandFile);
 
-	commandData.push(command.data);
-});
+	command.data.name = path.basename(commandFile, '.js').toLowerCase();
+
+	client.commands.set(command.data.name, command);
+}
 
 // Events
 const eventFiles = await globby('./events/**/*.js', { cwd: './dist/' });
-eventFiles.forEach((value) => import(value));
+
+for (const eventFile of eventFiles) {
+	const { default: event } = await import(eventFile);
+
+	event.execute(client);
+}
 
 // Start
-client.login(process.env.DISCORD_BOT_TOKEN);
+await client.login(process.env.DISCORD_BOT_TOKEN);

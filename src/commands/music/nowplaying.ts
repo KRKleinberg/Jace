@@ -1,38 +1,44 @@
 import { useQueue } from 'discord-player';
 import {
-	ChatInputCommandInteraction,
 	EmbedBuilder,
-	EmbedFooterOptions,
-	Guild,
-	GuildMember,
 	InteractionType,
-	Message,
 	SlashCommandBuilder,
+	type Command,
+	type EmbedFooterOptions,
+	type MessageCreateOptions,
+	type MessagePayload,
 } from 'discord.js';
 
 export default {
 	aliases: ['np'],
 	data: new SlashCommandBuilder().setDescription('Displays the currently playing song info'),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command, guild, member, defaultPrefs, guildPrefs }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
 
-		if (!member.voice.channel) {
-			const response = '❌ | You are not in a voice channel';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (member.voice.channel == null) {
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (!currentTrack) {
-			const response = '❌ | There are no tracks in the queue';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (currentTrack == null) {
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (member.voice.channel !== queue.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (member.voice.channel !== queue?.channel) {
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		try {
-			const sources: { name: string; footerOptions: EmbedFooterOptions; filePath: string }[] = [
+			const sources: Array<{ name: string; footerOptions: EmbedFooterOptions; filePath: string }> = [
 				{
 					name: 'apple_music',
 					footerOptions: {
@@ -67,27 +73,29 @@ export default {
 				},
 			];
 			const embed = new EmbedBuilder()
-				.setColor(0x5864f1)
+				.setColor(guildPrefs?.color ?? defaultPrefs.color)
 				.setAuthor({ name: 'Now Playing' })
 				.setTitle(currentTrack.title)
 				.setDescription(queue.node.createProgressBar())
 				.setThumbnail(currentTrack.thumbnail)
 				.setURL(currentTrack.url)
 				.setFooter(
-					sources.find((source) => source.name === currentTrack.source)?.footerOptions || { text: `${currentTrack.author}` } ||
-						null
+					sources.find((source) => source.name === currentTrack.source)?.footerOptions ?? { text: `${currentTrack.author}` }
 				);
 
-			const response = {
+			const response: string | MessagePayload | MessageCreateOptions = {
 				embeds: [embed],
 				files: [`${sources.find((source) => source.name === currentTrack.source)?.filePath}`],
 			};
-			return isInteraction ? command.editReply(response) : command.channel.send(response);
+			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		} catch (error) {
 			console.error(error);
 
-			const response = `🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
-			return isInteraction ? command.editReply(response) : command.channel.send(response);
+			const response:
+				| string
+				| MessagePayload
+				| MessageCreateOptions = `🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
+			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 	},
-};
+} satisfies Command;

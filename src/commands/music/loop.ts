@@ -1,11 +1,10 @@
 import { QueueRepeatMode, useQueue } from 'discord-player';
 import {
-	ChatInputCommandInteraction,
-	Guild,
-	GuildMember,
 	InteractionType,
-	Message,
 	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
 } from 'discord.js';
 
 export default {
@@ -23,7 +22,7 @@ export default {
 					{ name: 'Autoplay', value: 'autoplay' }
 				)
 		),
-	async execute(command: ChatInputCommandInteraction | Message, guild: Guild, member: GuildMember, args: string[]) {
+	async execute({ command, guild, member, args }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const input = isInteraction ? command.options.getString('mode', true) : args[0].toLowerCase();
 		const queue = useQueue(guild);
@@ -31,7 +30,7 @@ export default {
 		const repeatModes = [
 			{
 				name: 'Off',
-				icon: 'W',
+				icon: '❎',
 			},
 			{
 				name: 'Track',
@@ -47,21 +46,30 @@ export default {
 			},
 		];
 
-		if (!member.voice.channel) {
-			const response = '❌ | You are not in a voice channel';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (member.voice.channel == null) {
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (!currentTrack) {
-			const response = '❌ | There are no tracks in the queue';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (currentTrack == null) {
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
-		if (member.voice.channel !== queue.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+		if (member.voice.channel !== queue?.channel) {
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 		if (!queue.isPlaying()) {
-			const response = '❌ | There are no tracks playing';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks playing';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
 		try {
@@ -88,11 +96,15 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not set loop mode';
-			return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not set loop mode';
+			return isInteraction
+				? await command.followUp({ content: response, ephemeral: true })
+				: await command.channel.send(response);
 		}
 
-		const response = `${repeatModes[queue.repeatMode].icon} | ${repeatModes[queue.repeatMode].name}`;
-		return isInteraction ? command.editReply(response) : command.channel.send(response);
+		const response: string | MessagePayload | MessageCreateOptions = `${repeatModes[queue.repeatMode].icon} | ${
+			repeatModes[queue.repeatMode].name
+		}`;
+		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-};
+} satisfies Command;
