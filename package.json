@@ -1,6 +1,6 @@
 {
 	"name": "jace-bot",
-	"version": "6.0.1",
+	"version": "6.0.2",
 	"description": "A multipurpose Discord bot",
 	"main": "dist/index.js",
 	"scripts": {
@@ -40,6 +40,7 @@
 		"dotenv": "^16.3.1",
 		"globby": "^13.2.2",
 		"mediaplex": "^0.0.6",
+		"mediaplex-linux-arm64-gnu": "^0.0.1",
 		"youtube-ext": "^1.1.12"
 	}
 }
