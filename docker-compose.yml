@@ -4,11 +4,13 @@ services:
     build: .
     container_name: JaceBot
     environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
       - DISCORD_APP_ID
       - DISCORD_BOT_TOKEN
-      - PREFIX
-      - SPOTIFY_CLIENT_ID
-      - SPOTIFY_CLIENT_SECRET
-      - SPOTIFY_REFRESH_TOKEN
+      - DYNAMODB_DEFAULT_PREFS
+      - DYNAMODB_GUILD_PREFS
+      - DYNAMODB_USER_PREFS
+      - ENV
       - YOUTUBE_COOKIE
-      - YOUTUBE_ID_TOKEN
