@@ -51,7 +51,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not display teams';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not display teams';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

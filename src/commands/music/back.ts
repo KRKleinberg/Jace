@@ -35,7 +35,7 @@ export default {
 			} catch (error) {
 				console.error(error);
 
-				const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
+				const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not go back a track';
 				return isInteraction
 					? await command.followUp({ content: response, ephemeral: true })
 					: await command.channel.send(response);
@@ -51,7 +51,7 @@ export default {
 			} catch (error) {
 				console.error(error);
 
-				const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
+				const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not go back a track';
 				return isInteraction
 					? await command.followUp({ content: response, ephemeral: true })
 					: await command.channel.send(response);
@@ -66,7 +66,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not go back a track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

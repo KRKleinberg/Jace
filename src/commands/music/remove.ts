@@ -52,7 +52,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not remove that track';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not remove that track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

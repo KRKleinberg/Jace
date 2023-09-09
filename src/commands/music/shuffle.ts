@@ -41,7 +41,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not shuffle the queue';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not shuffle the queue';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

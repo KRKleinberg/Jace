@@ -57,7 +57,7 @@ export default {
 								}`,
 							},
 					  ]
-					: searchResults.tracks.slice(0, 10).map((searchResult) => ({
+					: searchResults.tracks.slice(0, 5).map((searchResult) => ({
 							name: Str(`${searchResult.title} — ${searchResult.author}`).limit(97, '...').toString(),
 							value: `${
 								Str(`${searchResult.url}`).length() <= 100
@@ -138,7 +138,7 @@ export default {
 
 			queue.tasksQueue.release();
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not join your voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not join your voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -151,7 +151,7 @@ export default {
 
 			queue.tasksQueue.release();
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not add that track';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not add that track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -162,7 +162,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not play this track';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not play this track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

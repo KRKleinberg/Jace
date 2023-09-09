@@ -96,7 +96,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not set loop mode';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not set loop mode';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);

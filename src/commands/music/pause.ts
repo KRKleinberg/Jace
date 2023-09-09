@@ -45,7 +45,7 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not pause the player';
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not pause the player';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
