@@ -1,5 +1,11 @@
 import { useQueue } from 'discord-player';
-import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	aliases: ['dc', 'stop'],
@@ -13,13 +19,13 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not disconnect';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not disconnect';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 
-		const response = `🔌 | Disconnected`;
+		const response: string | MessagePayload | MessageCreateOptions = `🔌 | Disconnected`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;

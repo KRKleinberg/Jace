@@ -1,5 +1,11 @@
 import { useQueue } from 'discord-player';
-import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	aliases: ['rm'],
@@ -16,25 +22,26 @@ export default {
 		const track = queue?.tracks.toArray()[trackNumber];
 
 		if (member.voice.channel == null) {
-			const response = '❌ | You are not in a voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (currentTrack == null) {
-			const response = '❌ | There are no tracks in the queue';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (member.voice.channel !== queue?.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (track == null) {
-			const response = '❌ | Please enter a valid track number';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Please enter a valid track number';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -45,13 +52,16 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not remove that track';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not remove that track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 
-		const response = `⏭️ | Removed **${track.title}** by **${track.author}**`;
+		const response:
+			| string
+			| MessagePayload
+			| MessageCreateOptions = `⏭️ | Removed **${track.title}** by **${track.author}**`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;

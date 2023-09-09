@@ -1,4 +1,11 @@
-import { EmbedBuilder, InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	EmbedBuilder,
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	aliases: ['h'],
@@ -21,7 +28,7 @@ export default {
 			.setDescription(`Prefix: **${guildPrefs?.prefix ?? defaultPrefs?.prefix}**`)
 			.addFields(fields);
 
-		const response = { embeds: [embed] };
+		const response: string | MessagePayload | MessageCreateOptions = { embeds: [embed] };
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;

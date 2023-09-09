@@ -1,5 +1,12 @@
 import { useHistory, useQueue } from 'discord-player';
-import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type InteractionEditReplyOptions,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	data: new SlashCommandBuilder().setDescription('Plays the previous track'),
@@ -9,13 +16,14 @@ export default {
 		const queue = useQueue(guild);
 
 		if (member.voice.channel == null) {
-			const response = '❌ | You are not in a voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (member.voice.channel !== history?.queue.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -27,13 +35,13 @@ export default {
 			} catch (error) {
 				console.error(error);
 
-				const response = '❌ | Could not go back a track';
+				const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
 				return isInteraction
 					? await command.followUp({ content: response, ephemeral: true })
 					: await command.channel.send(response);
 			}
 
-			const response = '⏮️ | Restarting track';
+			const response: string | MessagePayload | MessageCreateOptions = '⏮️ | Restarting track';
 			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 
@@ -43,12 +51,14 @@ export default {
 			} catch (error) {
 				console.error(error);
 
-				const response = '❌ | Could not go back a track';
-				return isInteraction ? command.followUp({ content: response, ephemeral: true }) : command.channel.send(response);
+				const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
+				return isInteraction
+					? await command.followUp({ content: response, ephemeral: true })
+					: await command.channel.send(response);
 			}
 
-			const response = '⏮️ | Restarting track';
-			return isInteraction ? command.editReply(response) : command.channel.send(response);
+			const response: string | MessagePayload | MessageCreateOptions = '⏮️ | Restarting track';
+			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 
 		try {
@@ -56,13 +66,17 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not go back a track';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not go back a track';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 
-		const response = `⏮️ | Playing previous track`;
+		const response:
+			| string
+			| MessagePayload
+			| InteractionEditReplyOptions
+			| MessageCreateOptions = `⏮️ | Playing previous track`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;

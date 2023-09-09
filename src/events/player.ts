@@ -1,5 +1,11 @@
 import { useMainPlayer } from 'discord-player';
-import { type ChatInputCommandInteraction, type Client, type Message } from 'discord.js';
+import {
+	type ChatInputCommandInteraction,
+	type Event,
+	type Message,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	async execute() {
@@ -11,8 +17,8 @@ export default {
 
 			console.error(error);
 
-			const response = '⚠️ | The bot encountered an error';
-			return await command.channel?.send(response);
+			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | The bot encountered an error';
+			await command.channel?.send(response);
 		});
 
 		player.events.on('playerError', async (queue, error, track) => {
@@ -26,15 +32,21 @@ export default {
 				console.error(error);
 			}
 
-			const response = `⚠️ | There was an error playing **${track.title}** by **${track.author}**`;
-			return await command.channel?.send(response);
+			const response:
+				| string
+				| MessagePayload
+				| MessageCreateOptions = `⚠️ | There was an error playing **${track.title}** by **${track.author}**`;
+			await command.channel?.send(response);
 		});
 
 		player.events.on('playerStart', async (queue, track) => {
 			const command = queue.metadata as ChatInputCommandInteraction | Message;
 
-			const response = `🎵 | Playing **${track.title}** by **${track.author}**`;
-			return await command.channel?.send(response);
+			const response:
+				| string
+				| MessagePayload
+				| MessageCreateOptions = `🎵 | Playing **${track.title}** by **${track.author}**`;
+			await command.channel?.send(response);
 		});
 	},
-} satisfies Client['event'];
+} satisfies Event;

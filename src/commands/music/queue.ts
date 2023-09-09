@@ -1,6 +1,13 @@
 import { Str } from '@supercharge/strings';
 import { useQueue } from 'discord-player';
-import { EmbedBuilder, InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	EmbedBuilder,
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	aliases: ['q'],
@@ -11,19 +18,20 @@ export default {
 		const currentTrack = queue?.currentTrack;
 
 		if (member.voice.channel == null) {
-			const response = '❌ | You are not in a voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (currentTrack == null) {
-			const response = '❌ | There are no tracks in the queue';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (member.voice.channel !== queue?.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -42,15 +50,15 @@ export default {
 						.limit(4093, '...')
 						.toString()
 				);
-			const response = { embeds: [embed] };
+			const response: string | MessagePayload | MessageCreateOptions = { embeds: [embed] };
 			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not display the queue';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not display the queue';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 	},
-} satisfies Client['command'];
+} satisfies Command;

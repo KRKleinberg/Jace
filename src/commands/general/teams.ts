@@ -1,4 +1,11 @@
-import { EmbedBuilder, InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	EmbedBuilder,
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
@@ -6,7 +13,7 @@ export default {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
 		if (member.voice.channel == null) {
-			const response = '❌ | You are not in a voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -39,15 +46,15 @@ export default {
 				])
 				.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
-			const response = { embeds: [embed] };
+			const response: string | MessagePayload | MessageCreateOptions = { embeds: [embed] };
 			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not display teams';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not display teams';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 	},
-} satisfies Client['command'];
+} satisfies Command;

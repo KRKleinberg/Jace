@@ -1,14 +1,19 @@
+import {
+	type DynamoDBDefaultPrefsTable,
+	type DynamoDBGuildPrefsTable,
+	type DynamoDBUserPrefsTable,
+} from '@aws-sdk/client-dynamodb';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { Events, type Client, type GuildMember } from 'discord.js';
+import { Events, type Event, type GuildMember } from 'discord.js';
 
 export default {
 	async execute(client) {
 		// Prefix Commands
 		client.on(Events.MessageCreate, async (message) => {
 			if (!message.author.bot && message.guild != null && message.member != null) {
-				const defaultPrefs = await (async (): Promise<Client['dynamoDBTableDefaultPrefs']> => {
+				const defaultPrefs = await (async (): Promise<DynamoDBDefaultPrefsTable> => {
 					const getCommand = new GetCommand({
-						TableName: process.env.DYNAMODB_TABLE_DEFAULTS,
+						TableName: process.env.DYNAMODB_DEFAULT_PREFS,
 						Key: {
 							env: process.env.ENV,
 						},
@@ -17,10 +22,10 @@ export default {
 					const response = await client.dynamoDBDocumentClient.send(getCommand);
 					return Object(response.Item);
 				})();
-				const guildPrefs = await (async (): Promise<Client['dynamoDBTableGuildPrefs']> => {
+				const guildPrefs = await (async (): Promise<DynamoDBGuildPrefsTable | undefined> => {
 					try {
 						const getCommand = new GetCommand({
-							TableName: process.env.DYNAMODB_TABLE_GUILDPREFS,
+							TableName: process.env.DYNAMODB_GUILD_PREFS,
 							Key: {
 								guildId: message.guild?.id,
 								env: process.env.ENV,
@@ -30,13 +35,13 @@ export default {
 						const response = await client.dynamoDBDocumentClient.send(getCommand);
 						return Object(response.Item);
 					} catch (error) {
-						return null;
+						return undefined;
 					}
 				})();
-				const userPrefs = await (async (): Promise<Client['dynamoDBTableUserPrefs']> => {
+				const userPrefs = await (async (): Promise<DynamoDBUserPrefsTable | undefined> => {
 					try {
 						const getCommand = new GetCommand({
-							TableName: process.env.DYNAMODB_TABLE_USERPREFS,
+							TableName: process.env.DYNAMODB_USER_PREFS,
 							Key: {
 								userId: message.author.id,
 								env: process.env.ENV,
@@ -46,7 +51,7 @@ export default {
 						const response = await message.client.dynamoDBDocumentClient.send(getCommand);
 						return Object(response.Item);
 					} catch (error) {
-						return null;
+						return undefined;
 					}
 				})();
 
@@ -85,9 +90,9 @@ export default {
 
 		// Slash Commands
 		client.on(Events.InteractionCreate, async (interaction) => {
-			const defaultPrefs = await (async (): Promise<Client['dynamoDBTableDefaultPrefs']> => {
+			const defaultPrefs = await (async (): Promise<DynamoDBDefaultPrefsTable> => {
 				const getCommand = new GetCommand({
-					TableName: process.env.DYNAMODB_TABLE_DEFAULTS,
+					TableName: process.env.DYNAMODB_DEFAULT_PREFS,
 					Key: {
 						env: process.env.ENV,
 					},
@@ -96,10 +101,10 @@ export default {
 				const response = await client.dynamoDBDocumentClient.send(getCommand);
 				return Object(response.Item);
 			})();
-			const guildPrefs = await (async (): Promise<Client['dynamoDBTableGuildPrefs']> => {
+			const guildPrefs = await (async (): Promise<DynamoDBGuildPrefsTable | undefined> => {
 				try {
 					const getCommand = new GetCommand({
-						TableName: process.env.DYNAMODB_TABLE_GUILDPREFS,
+						TableName: process.env.DYNAMODB_GUILD_PREFS,
 						Key: {
 							guildId: interaction.guild?.id,
 							env: process.env.ENV,
@@ -109,13 +114,13 @@ export default {
 					const response = await client.dynamoDBDocumentClient.send(getCommand);
 					return Object(response.Item);
 				} catch (error) {
-					return null;
+					return undefined;
 				}
 			})();
-			const userPrefs = await (async (): Promise<Client['dynamoDBTableUserPrefs']> => {
+			const userPrefs = await (async (): Promise<DynamoDBUserPrefsTable | undefined> => {
 				try {
 					const getCommand = new GetCommand({
-						TableName: process.env.DYNAMODB_TABLE_USERPREFS,
+						TableName: process.env.DYNAMODB_USER_PREFS,
 						Key: {
 							userId: interaction.user.id,
 							env: process.env.ENV,
@@ -125,7 +130,7 @@ export default {
 					const response = await interaction.client.dynamoDBDocumentClient.send(getCommand);
 					return Object(response.Item);
 				} catch (error) {
-					return null;
+					return undefined;
 				}
 			})();
 
@@ -171,4 +176,4 @@ export default {
 			}
 		});
 	},
-} satisfies Client['event'];
+} satisfies Event;

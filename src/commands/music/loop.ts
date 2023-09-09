@@ -1,5 +1,11 @@
 import { QueueRepeatMode, useQueue } from 'discord-player';
-import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	data: new SlashCommandBuilder()
@@ -24,7 +30,7 @@ export default {
 		const repeatModes = [
 			{
 				name: 'Off',
-				icon: 'W',
+				icon: '❎',
 			},
 			{
 				name: 'Track',
@@ -41,25 +47,26 @@ export default {
 		];
 
 		if (member.voice.channel == null) {
-			const response = '❌ | You are not in a voice channel';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (currentTrack == null) {
-			const response = '❌ | There are no tracks in the queue';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (member.voice.channel !== queue?.channel) {
-			const response = '❌ | You are not in the same voice channel as the bot';
+			const response: string | MessagePayload | MessageCreateOptions =
+				'❌ | You are not in the same voice channel as the bot';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 		if (!queue.isPlaying()) {
-			const response = '❌ | There are no tracks playing';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks playing';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
@@ -89,13 +96,15 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response = '❌ | Could not set loop mode';
+			const response: string | MessagePayload | MessageCreateOptions = '❌ | Could not set loop mode';
 			return isInteraction
 				? await command.followUp({ content: response, ephemeral: true })
 				: await command.channel.send(response);
 		}
 
-		const response = `${repeatModes[queue.repeatMode].icon} | ${repeatModes[queue.repeatMode].name}`;
+		const response: string | MessagePayload | MessageCreateOptions = `${repeatModes[queue.repeatMode].icon} | ${
+			repeatModes[queue.repeatMode].name
+		}`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;

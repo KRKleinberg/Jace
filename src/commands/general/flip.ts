@@ -1,4 +1,10 @@
-import { InteractionType, SlashCommandBuilder, type Client } from 'discord.js';
+import {
+	InteractionType,
+	SlashCommandBuilder,
+	type Command,
+	type MessageCreateOptions,
+	type MessagePayload,
+} from 'discord.js';
 
 export default {
 	aliases: ['coin'],
@@ -6,7 +12,9 @@ export default {
 	async execute({ command }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
-		const response = `🪙 | **${Math.round(Math.random()) !== 0 ? 'Heads' : 'Tails'}**`;
+		const response: string | MessagePayload | MessageCreateOptions = `🪙 | **${
+			Math.round(Math.random()) !== 0 ? 'Heads' : 'Tails'
+		}**`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Client['command'];
+} satisfies Command;
