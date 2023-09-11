@@ -40,6 +40,6 @@
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
 		"globby": "^13.2.2",
-		"youtube-ext": "^1.1.12"
+		"youtube-ext": "^1.1.14"
 	}
 }
