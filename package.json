@@ -32,7 +32,7 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "^3.409.0",
-		"@aws-sdk/lib-dynamodb": "^3.409.0",
+		"@aws-sdk/lib-dynamodb": "^3.410.0",
 		"@discord-player/extractor": "^4.4.3",
 		"@evan/opus": "^1.0.2",
 		"@supercharge/strings": "^2.0.0",
