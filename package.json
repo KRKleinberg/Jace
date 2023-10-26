@@ -31,7 +31,7 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.435.0",
+		"@aws-sdk/client-dynamodb": "^3.436.0",
 		"@aws-sdk/lib-dynamodb": "^3.436.0",
 		"@discord-player/extractor": "^4.4.4",
 		"@evan/opus": "^1.0.2",
