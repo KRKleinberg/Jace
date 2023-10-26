@@ -36,7 +36,7 @@
 		"@discord-player/extractor": "^4.4.4",
 		"@evan/opus": "^1.0.2",
 		"@supercharge/strings": "^2.0.0",
-		"discord-player": "^6.6.4",
+		"discord-player": "^6.6.5",
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
 		"globby": "^13.2.2",
