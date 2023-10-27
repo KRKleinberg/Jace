@@ -98,7 +98,7 @@ const player = new Player(client, {
 	ytdlOptions: {
 		requestOptions: {
 			headers: {
-				cookie: [{ name: '0', value: process.env.YOUTUBE_COOKIE }],
+				cookie: process.env.YOUTUBE_COOKIE,
 			},
 		},
 	},
