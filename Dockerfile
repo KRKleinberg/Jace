@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:lts-bookworm-slim
 
 COPY package.json /app/
 
