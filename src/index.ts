@@ -5,6 +5,7 @@ import {
 	type DynamoDBUserPrefsTable,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { BridgeProvider, BridgeSource } from '@discord-player/extractor';
 import { Player, type QueryType } from 'discord-player';
 import { Client, Collection, GatewayIntentBits, type ColorResolvable, type SlashCommandBuilder } from 'discord.js';
 import * as dotenv from 'dotenv';
@@ -94,7 +95,10 @@ client.dynamoDBClient = new DynamoDBClient();
 client.dynamoDBDocumentClient = DynamoDBDocumentClient.from(client.dynamoDBClient);
 
 // Player
+const bridgeProvider = new BridgeProvider(BridgeSource.SoundCloud);
+
 const player = new Player(client, {
+	bridgeProvider,
 	ytdlOptions: {
 		requestOptions: {
 			headers: {
