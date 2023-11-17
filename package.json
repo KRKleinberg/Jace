@@ -34,7 +34,7 @@
 		"@aws-sdk/client-dynamodb": "^3.451.0",
 		"@aws-sdk/lib-dynamodb": "^3.451.0",
 		"@discord-player/extractor": "^4.4.5",
-		"@distube/ytdl-core": "^4.13.2",
+		"@distube/ytdl-core": "^4.13.3",
 		"@evan/opus": "^1.0.2",
 		"@supercharge/strings": "^2.0.0",
 		"discord-player": "^6.6.6",
