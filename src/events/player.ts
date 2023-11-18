@@ -13,12 +13,7 @@ export default {
 		if (player == null) throw new Error('Player has not been initialized!');
 
 		player.events.on('error', async (queue, error) => {
-			const command = queue.metadata as ChatInputCommandInteraction | Message;
-
 			console.error(error);
-
-			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | The bot encountered an error';
-			await command.channel?.send(response);
 		});
 
 		player.events.on('playerError', async (queue, error, track) => {
