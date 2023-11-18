@@ -19,7 +19,7 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/JaceBot#readme",
 	"devDependencies": {
-		"@types/node": "^20.9.0",
+		"@types/node": "^20.9.1",
 		"@typescript-eslint/eslint-plugin": "^6.11.0",
 		"eslint": "^8.53.0",
 		"eslint-config-prettier": "^9.0.0",
@@ -31,10 +31,10 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.450.0",
-		"@aws-sdk/lib-dynamodb": "^3.450.0",
+		"@aws-sdk/client-dynamodb": "^3.451.0",
+		"@aws-sdk/lib-dynamodb": "^3.451.0",
 		"@discord-player/extractor": "^4.4.5",
-		"@distube/ytdl-core": "^4.13.2",
+		"@distube/ytdl-core": "^4.13.3",
 		"@evan/opus": "^1.0.2",
 		"@supercharge/strings": "^2.0.0",
 		"discord-player": "^6.6.6",
