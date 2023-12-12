@@ -12,7 +12,7 @@ COPY . .
 
 RUN npm run build
 
-RUN apt-get update && apt-get install -y ffmpeg
+RUN yum update && yum install -y ffmpeg
 
 
 # Start the bot.
