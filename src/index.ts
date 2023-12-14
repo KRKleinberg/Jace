@@ -6,7 +6,14 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { Player, type QueryType } from 'discord-player';
-import { Client, Collection, GatewayIntentBits, type ColorResolvable, type SlashCommandBuilder } from 'discord.js';
+import {
+	Client,
+	Collection,
+	GatewayIntentBits,
+	type ColorResolvable,
+	type Command,
+	type SlashCommandBuilder,
+} from 'discord.js';
 import * as dotenv from 'dotenv';
 import type EventEmitter from 'events';
 import { globby } from 'globby';
@@ -115,7 +122,7 @@ for (const commandFile of commandFiles) {
 
 	command.data.name = path.basename(commandFile, '.js').toLowerCase();
 
-	client.commands.set(command.data.name, command);
+	client.commands.set(command.data.name as string, command as Command);
 }
 
 // Events
