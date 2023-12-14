@@ -14,4 +14,4 @@ services:
       - DYNAMODB_USER_PREFS
       - ENV
       - YOUTUBE_COOKIE
-    restart: on-failure
+    restart: always
