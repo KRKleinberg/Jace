@@ -1,14 +1,14 @@
 FROM node:lts-bookworm-slim
 
+COPY package.json /app/
+
+WORKDIR /app/
+
 RUN apt-get update
 
 RUN apt-get install -y ffmpeg
 
 RUN apt-get install -y python3
-
-COPY package.json /app/
-
-WORKDIR /app/
 
 RUN npm cache clean -f
 
