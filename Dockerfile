@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y ffmpeg && apt-get install -y python3
 
 RUN npm cache clean -f
 
+RUN npm install -g node-gyp
+
 RUN npm install
 
 COPY . .
