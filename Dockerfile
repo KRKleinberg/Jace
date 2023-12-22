@@ -4,13 +4,11 @@ COPY package.json /app/
 
 WORKDIR /app/
 
-RUN apt-get update -y
-
-RUN apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg && apt-get install -y python3
 
 RUN npm cache clean -f
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
