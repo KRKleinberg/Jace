@@ -8,8 +8,6 @@ RUN apt-get update
 
 RUN apt-get install -y ffmpeg
 
-RUN apt-get install -y python3
-
 RUN npm cache clean -f
 
 RUN npm ci
