@@ -4,9 +4,12 @@ COPY package.json /app/
 
 WORKDIR /app/
 
-RUN apt-get update && apt-get install -y build-essential && apt-get install -y ffmpeg
+RUN \
+  apt-get update && \
+  apt-get install -y build-essential && \
+  apt-get install -y ffmpeg
 
-RUN npm cache clean -f
+RUN npm cache clean
 
 RUN npm install
 
