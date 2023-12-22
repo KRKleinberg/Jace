@@ -27,7 +27,7 @@ jobs:
           YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }} 
 
       - name: Cleanup Unused Images
-        run: docker image prune -f
+        run: docker image prune
 
       - name: Cleanup Build Cache
-        run: docker builder prune -f --keep-storage 1000
+        run: docker builder prune --keep-storage 2GB
