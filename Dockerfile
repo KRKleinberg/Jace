@@ -4,7 +4,7 @@ COPY package.json /app/
 
 WORKDIR /app/
 
-RUN apt-get update
+RUN apt-get update -y
 
 RUN apt-get install -y ffmpeg
 
