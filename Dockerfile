@@ -4,7 +4,7 @@ COPY package.json /app/
 
 WORKDIR /app/
 
-RUN apt-get update && apt-get install -y ffmpeg && apt-get install -y python3
+RUN apt-get update && apt-get install -y ffmpeg && apt-get install -y python2
 
 RUN npm cache clean -f
 
