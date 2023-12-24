@@ -8,10 +8,14 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['np'],
-	data: new SlashCommandBuilder().setDescription('Displays the currently playing song info'),
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Displays the currently playing song info'),
 	async execute({ command, guild, member, defaultPrefs, guildPrefs }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
@@ -91,11 +95,9 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response:
-				| string
-				| MessagePayload
-				| MessageCreateOptions = `🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
+			const response: string | MessagePayload | MessageCreateOptions =
+				`🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
 			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 	},
-} satisfies Command;
+};

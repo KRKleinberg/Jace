@@ -6,10 +6,14 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['clr'],
-	data: new SlashCommandBuilder().setDescription('Clears the queue'),
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Clears the queue'),
 	async execute({ command, guild, member }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
@@ -49,4 +53,4 @@ export default {
 		const response: string | MessagePayload | MessageCreateOptions = `🧹 | Cleared`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

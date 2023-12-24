@@ -1,7 +1,7 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { ActivityType, REST, Routes, type Client, type Event } from 'discord.js';
 
-export default {
+export const event: Event = {
 	async execute(client: Client) {
 		client.once('ready', async () => {
 			if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
@@ -41,4 +41,4 @@ export default {
 			console.log(`${client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
 		});
 	},
-} satisfies Event;
+};

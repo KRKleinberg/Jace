@@ -12,22 +12,22 @@ import {
 	GatewayIntentBits,
 	type ColorResolvable,
 	type Command,
+	type Event,
 	type SlashCommandBuilder,
 } from 'discord.js';
 import * as dotenv from 'dotenv';
 import type EventEmitter from 'events';
 import { globby } from 'globby';
-import path from 'path';
 
 declare module '@aws-sdk/client-dynamodb' {
 	export interface DynamoDBDefaultPrefsTable {
 		prefix: string;
-		env: 'main' | 'dev';
+		env: 'main' | 'dev' | 'wip';
 		color: ColorResolvable;
 	}
 	export interface DynamoDBGuildPrefsTable {
 		prefix?: string;
-		env: 'main' | 'dev';
+		env: 'main' | 'dev' | 'wip';
 		color?: ColorResolvable;
 	}
 	export interface DynamoDBUserPrefsTable {
@@ -118,20 +118,18 @@ const commandFiles = await globby('./commands/**/*.js', { cwd: './dist/' });
 client.commands = new Collection();
 
 for (const commandFile of commandFiles) {
-	const { default: command } = await import(commandFile);
+	const command = (await import(commandFile)).command as Command;
 
-	command.data.name = path.basename(commandFile, '.js').toLowerCase();
-
-	client.commands.set(command.data.name as string, command as Command);
+	client.commands.set(command.data.name, command);
 }
 
 // Events
 const eventFiles = await globby('./events/**/*.js', { cwd: './dist/' });
 
 for (const eventFile of eventFiles) {
-	const { default: event } = await import(eventFile);
+	const event = (await import(eventFile)).event as Event;
 
-	event.execute(client);
+	await event.execute(client);
 }
 
 // Start

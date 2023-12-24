@@ -10,12 +10,16 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
+
 const player = useMainPlayer();
 if (player == null) throw new Error('Player has not been initialized!');
 
-export default {
+export const command: Command = {
 	aliases: ['pn'],
 	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Plays a song or playlist')
 		.addStringOption((option) =>
 			option.setName('query').setDescription('The song or playlist to play').setAutocomplete(true).setRequired(true)
@@ -26,12 +30,12 @@ export default {
 		const searchEngine = input.toLowerCase().endsWith(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
 			: input.toLowerCase().endsWith(' soundcloud')
-			? QueryType.SOUNDCLOUD_SEARCH
-			: input.toLowerCase().endsWith(' spotify')
-			? QueryType.SPOTIFY_SEARCH
-			: input.toLowerCase().endsWith(' youtube')
-			? QueryType.YOUTUBE_SEARCH
-			: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
+				? QueryType.SOUNDCLOUD_SEARCH
+				: input.toLowerCase().endsWith(' spotify')
+					? QueryType.SPOTIFY_SEARCH
+					: input.toLowerCase().endsWith(' youtube')
+						? QueryType.YOUTUBE_SEARCH
+						: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
 		const query = input
 			.replace(/ apple music/gi, '')
 			.replace(/ soundcloud/gi, '')
@@ -65,12 +69,12 @@ export default {
 		const searchEngine = input.toLowerCase().endsWith(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
 			: input.toLowerCase().endsWith(' soundcloud')
-			? QueryType.SOUNDCLOUD_SEARCH
-			: input.toLowerCase().endsWith(' spotify')
-			? QueryType.SPOTIFY_SEARCH
-			: input.toLowerCase().endsWith(' youtube')
-			? QueryType.YOUTUBE_SEARCH
-			: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
+				? QueryType.SOUNDCLOUD_SEARCH
+				: input.toLowerCase().endsWith(' spotify')
+					? QueryType.SPOTIFY_SEARCH
+					: input.toLowerCase().endsWith(' youtube')
+						? QueryType.YOUTUBE_SEARCH
+						: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
 		const query = input
 			.replace(/ apple music/gi, '')
 			.replace(/ soundcloud/gi, '')
@@ -223,12 +227,9 @@ export default {
 		} catch (error) {
 			console.error(error);
 
-			const response:
-				| string
-				| MessagePayload
-				| InteractionEditReplyOptions
-				| MessageCreateOptions = `⏳ | Loading your track`;
+			const response: string | MessagePayload | InteractionEditReplyOptions | MessageCreateOptions =
+				`⏳ | Loading your track`;
 			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 		}
 	},
-} satisfies Command;
+};

@@ -6,9 +6,13 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
-	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
+export const command: Command = {
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Splits voice channel members into two teams'),
 	async execute({ command, member, defaultPrefs, guildPrefs }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
@@ -57,4 +61,4 @@ export default {
 				: await command.channel.send(response);
 		}
 	},
-} satisfies Command;
+};

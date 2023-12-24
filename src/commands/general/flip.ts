@@ -5,10 +5,14 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['coin'],
-	data: new SlashCommandBuilder().setDescription('Flips a coin'),
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Flips a coin'),
 	async execute({ command }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 
@@ -17,4 +21,4 @@ export default {
 		}**`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

@@ -6,9 +6,13 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
-	data: new SlashCommandBuilder().setDescription('Pauses the player'),
+export const command: Command = {
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Pauses the player'),
 	async execute({ command, guild, member }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
@@ -51,10 +55,8 @@ export default {
 				: await command.channel.send(response);
 		}
 
-		const response:
-			| string
-			| MessagePayload
-			| MessageCreateOptions = `⏸️ | Paused **${currentTrack.title}** by **${currentTrack.author}**`;
+		const response: string | MessagePayload | MessageCreateOptions =
+			`⏸️ | Paused **${currentTrack.title}** by **${currentTrack.author}**`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

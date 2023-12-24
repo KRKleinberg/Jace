@@ -6,10 +6,14 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['h'],
-	data: new SlashCommandBuilder().setDescription('Displays a list of commands'),
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Displays a list of commands'),
 	async execute({ command, defaultPrefs, guildPrefs }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const fields = command.client.commands.map((command) => {
@@ -31,4 +35,4 @@ export default {
 		const response: string | MessagePayload | MessageCreateOptions = { embeds: [embed] };
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

@@ -6,10 +6,13 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['rm'],
 	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Removes a track from the queue')
 		.addIntegerOption((option) =>
 			option.setName('track').setDescription('The position in the queue of the track you want to remove').setRequired(true)
@@ -58,10 +61,8 @@ export default {
 				: await command.channel.send(response);
 		}
 
-		const response:
-			| string
-			| MessagePayload
-			| MessageCreateOptions = `⏭️ | Removed **${track.title}** by **${track.author}**`;
+		const response: string | MessagePayload | MessageCreateOptions =
+			`⏭️ | Removed **${track.title}** by **${track.author}**`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

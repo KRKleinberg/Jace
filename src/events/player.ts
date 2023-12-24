@@ -7,7 +7,7 @@ import {
 	type MessagePayload,
 } from 'discord.js';
 
-export default {
+export const event: Event = {
 	async execute() {
 		const player = useMainPlayer();
 		if (player == null) throw new Error('Player has not been initialized!');
@@ -44,4 +44,4 @@ export default {
 			await command.channel?.send(response);
 		});
 	},
-} satisfies Event;
+};

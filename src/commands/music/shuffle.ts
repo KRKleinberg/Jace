@@ -7,10 +7,14 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
+export const command: Command = {
 	aliases: ['sh'],
-	data: new SlashCommandBuilder().setDescription('Shuffles the queue'),
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Shuffles the queue'),
 	async execute({ command, guild, member }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
@@ -47,11 +51,8 @@ export default {
 				: await command.channel.send(response);
 		}
 
-		const response:
-			| string
-			| MessagePayload
-			| InteractionEditReplyOptions
-			| MessageCreateOptions = `🔀 | Shuffled the queue`;
+		const response: string | MessagePayload | InteractionEditReplyOptions | MessageCreateOptions =
+			`🔀 | Shuffled the queue`;
 		return isInteraction ? await command.editReply(response) : await command.channel.send(response);
 	},
-} satisfies Command;
+};

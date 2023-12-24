@@ -6,7 +6,7 @@ import {
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { Events, type Event, type GuildMember } from 'discord.js';
 
-export default {
+export const event: Event = {
 	async execute(client) {
 		// Prefix Commands
 		client.on(Events.MessageCreate, async (message) => {
@@ -176,4 +176,4 @@ export default {
 			}
 		});
 	},
-} satisfies Event;
+};

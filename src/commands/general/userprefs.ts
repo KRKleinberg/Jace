@@ -11,9 +11,13 @@ import {
 	type MessageCreateOptions,
 	type MessagePayload,
 } from 'discord.js';
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
-	data: new SlashCommandBuilder().setDescription('Sets user preferences'),
+export const command: Command = {
+	data: new SlashCommandBuilder()
+		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
+		.setDescription('Sets user preferences'),
 	async execute({ command, member }) {
 		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const selectMenu = new StringSelectMenuBuilder()
@@ -90,4 +94,4 @@ export default {
 			return isInteraction ? await command.followUp(response) : await command.channel.send(response);
 		}
 	},
-} satisfies Command;
+};
