@@ -1,27 +1,15 @@
-import {
-	EmbedBuilder,
-	InteractionType,
-	SlashCommandBuilder,
-	type Command,
-	type MessageCreateOptions,
-	type MessagePayload,
-} from 'discord.js';
+import { Bot } from '@utils/bot';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Command = {
+export const command: Bot.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Splits voice channel members into two teams'),
 	async execute({ command, member, defaultPrefs, guildPrefs }) {
-		const isInteraction = command.type === InteractionType.ApplicationCommand;
-
-		if (member.voice.channel == null) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
-		}
+		if (member.voice.channel == null)
+			return await Bot.respond(command, '❌ | You are not in a voice channel');
 
 		try {
 			const voiceMembers = member.voice.channel.members
@@ -50,15 +38,11 @@ export const command: Command = {
 				])
 				.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
-			const response: string | MessagePayload | MessageCreateOptions = { embeds: [embed] };
-			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
+			return await Bot.respond(command, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not display teams';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '⚠️ | Could not display teams');
 		}
 	},
 };

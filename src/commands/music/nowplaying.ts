@@ -1,45 +1,24 @@
+import { Bot } from '@utils/bot';
 import { useQueue } from 'discord-player';
-import {
-	EmbedBuilder,
-	InteractionType,
-	SlashCommandBuilder,
-	type Command,
-	type EmbedFooterOptions,
-	type MessageCreateOptions,
-	type MessagePayload,
-} from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, type EmbedFooterOptions } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Command = {
+export const command: Bot.Command = {
 	aliases: ['np'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the currently playing song info'),
 	async execute({ command, guild, member, defaultPrefs, guildPrefs }) {
-		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
 
-		if (member.voice.channel == null) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
-		}
-		if (currentTrack == null) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | There are no tracks in the queue';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
-		}
-		if (member.voice.channel !== queue?.channel) {
-			const response: string | MessagePayload | MessageCreateOptions =
-				'❌ | You are not in the same voice channel as the bot';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
-		}
+		if (member.voice.channel == null)
+			return await Bot.respond(command, '❌ | You are not in a voice channel');
+		if (currentTrack == null)
+			return await Bot.respond(command, '❌ | There are no tracks in the queue');
+		if (member.voice.channel !== queue?.channel)
+			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
 
 		try {
 			const sources: Array<{ name: string; footerOptions: EmbedFooterOptions; filePath: string }> = [
@@ -84,20 +63,22 @@ export const command: Command = {
 				.setThumbnail(currentTrack.thumbnail)
 				.setURL(currentTrack.url)
 				.setFooter(
-					sources.find((source) => source.name === currentTrack.source)?.footerOptions ?? { text: `${currentTrack.author}` }
+					sources.find((source) => source.name === currentTrack.source)?.footerOptions ?? {
+						text: `${currentTrack.author}`,
+					}
 				);
 
-			const response: string | MessagePayload | MessageCreateOptions = {
+			return await Bot.respond(command, {
 				embeds: [embed],
 				files: [`${sources.find((source) => source.name === currentTrack.source)?.filePath}`],
-			};
-			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
+			});
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions =
-				`🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`;
-			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
+			return await Bot.respond(
+				command,
+				`🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`
+			);
 		}
 	},
 };

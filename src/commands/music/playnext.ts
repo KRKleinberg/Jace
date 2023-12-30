@@ -1,14 +1,11 @@
 import { Str } from '@supercharge/strings';
-import { QueryType, useMainPlayer } from 'discord-player';
+import { Bot } from '@utils/bot';
+import { QueryType, useMainPlayer, type TrackSource } from 'discord-player';
 import {
 	EmbedBuilder,
 	InteractionType,
 	SlashCommandBuilder,
-	type Command,
 	type EmbedFooterOptions,
-	type InteractionEditReplyOptions,
-	type MessageCreateOptions,
-	type MessagePayload,
 } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,13 +13,17 @@ import { fileURLToPath } from 'url';
 const player = useMainPlayer();
 if (player == null) throw new Error('Player has not been initialized!');
 
-export const command: Command = {
+export const command: Bot.Command = {
 	aliases: ['pn'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Plays a song or playlist')
 		.addStringOption((option) =>
-			option.setName('query').setDescription('The song or playlist to play').setAutocomplete(true).setRequired(true)
+			option
+				.setName('query')
+				.setDescription('The song or playlist to play')
+				.setAutocomplete(true)
+				.setRequired(true)
 		),
 
 	async autocomplete(interaction, userPrefs) {
@@ -64,8 +65,10 @@ export const command: Command = {
 		await interaction.respond([]);
 	},
 	async execute({ command, guild, member, args, defaultPrefs, guildPrefs, userPrefs }) {
-		const isInteraction = command.type === InteractionType.ApplicationCommand;
-		const input = isInteraction ? command.options.getString('query', true).trim() : args.join(' ').trim();
+		const input =
+			command.type === InteractionType.ApplicationCommand
+				? command.options.getString('query', true).trim()
+				: args.join(' ').trim();
 		const searchEngine = input.toLowerCase().endsWith(' apple music')
 			? QueryType.APPLE_MUSIC_SEARCH
 			: input.toLowerCase().endsWith(' soundcloud')
@@ -95,29 +98,16 @@ export const command: Command = {
 		});
 
 		if (member.voice.channel == null) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | You are not in a voice channel';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '❌ | You are not in a voice channel');
 		}
 		if (queue.connection != null && member.voice.channel !== queue.channel) {
-			const response: string | MessagePayload | MessageCreateOptions =
-				'❌ | You are not in the same voice channel as the bot';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
 		}
 		if (query.length === 0) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | You did not enter a search query';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '❌ | You did not enter a search query');
 		}
 		if (searchResults.isEmpty()) {
-			const response: string | MessagePayload | MessageCreateOptions = '❌ | No results found';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '❌ | No results found');
 		}
 
 		await queue.tasksQueue.acquire().getTask();
@@ -129,10 +119,7 @@ export const command: Command = {
 
 			queue.tasksQueue.release();
 
-			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not join your voice channel';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '⚠️ | Could not join your voice channel');
 		}
 
 		try {
@@ -142,10 +129,7 @@ export const command: Command = {
 
 			queue.tasksQueue.release();
 
-			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not add that track';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '⚠️ | Could not add that track');
 		}
 
 		try {
@@ -153,16 +137,13 @@ export const command: Command = {
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | MessageCreateOptions = '⚠️ | Could not play this track';
-			return isInteraction
-				? await command.followUp({ content: response, ephemeral: true })
-				: await command.channel.send(response);
+			return await Bot.respond(command, '⚠️ | Could not play this track');
 		} finally {
 			queue.tasksQueue.release();
 		}
 
 		try {
-			const sources: Array<{ name: string; footerOptions: EmbedFooterOptions; filePath: string }> = [
+			const sources: Array<{ name: TrackSource; footerOptions: EmbedFooterOptions; filePath: string }> = [
 				{
 					name: 'apple_music',
 					footerOptions: {
@@ -217,19 +198,18 @@ export const command: Command = {
 				.setThumbnail(track.thumbnail)
 				.setTitle(track.title)
 				.setURL(track.url)
-				.setFooter(sources.find((source) => source.name === track.source)?.footerOptions ?? { text: `${track.author}` });
+				.setFooter(
+					sources.find((source) => source.name === track.source)?.footerOptions ?? { text: `${track.author}` }
+				);
 
-			const response: string | MessagePayload | MessageCreateOptions = {
+			return await Bot.respond(command, {
 				embeds: [embed],
 				files: [`${sources.find((source) => source.name === track.source)?.filePath}`],
-			};
-			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
+			});
 		} catch (error) {
 			console.error(error);
 
-			const response: string | MessagePayload | InteractionEditReplyOptions | MessageCreateOptions =
-				`⏳ | Loading your track`;
-			return isInteraction ? await command.editReply(response) : await command.channel.send(response);
+			return await Bot.respond(command, `⏳ | Loading your track`);
 		}
 	},
 };
