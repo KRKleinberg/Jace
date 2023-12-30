@@ -1,4 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { Bot } from '@utils/bot';
+import { DynamoDB } from '@utils/dynamodb';
 import { QueryType } from 'discord-player';
 import {
 	ActionRowBuilder,
@@ -7,19 +9,15 @@ import {
 	SlashCommandBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	type Command,
-	type MessageCreateOptions,
-	type MessagePayload,
 } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Command = {
+export const command: Bot.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Sets user preferences'),
 	async execute({ command, member }) {
-		const isInteraction = command.type === InteractionType.ApplicationCommand;
 		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId('searchEngine')
 			.setPlaceholder('Select streaming service')
@@ -50,11 +48,14 @@ export const command: Command = {
 		];
 
 		try {
-			const selectMenuResponse: string | MessagePayload | MessageCreateOptions = {
-				content: '**Preferred Streaming Service:**',
-				components: [actionRow],
-			};
-			const reply = isInteraction ? await command.editReply(selectMenuResponse) : await command.reply(selectMenuResponse);
+			const reply = await Bot.respond(
+				command,
+				{
+					content: '**Preferred Streaming Service:**',
+					components: [actionRow],
+				},
+				{ messageReply: true }
+			);
 			const collector = reply.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
 				filter: (interaction) => interaction.user.id === member.user.id,
@@ -71,16 +72,20 @@ export const command: Command = {
 							searchEngine: interaction.values[0],
 						},
 					});
-					const searchEngine = searchEngines.find((searchEngine) => searchEngine.value === interaction.values[0])?.name;
+					const searchEngine = searchEngines.find(
+						(searchEngine) => searchEngine.value === interaction.values[0]
+					)?.name;
 
-					await interaction.client.dynamoDBDocumentClient.send(putCommand);
+					await DynamoDB.documentClient.send(putCommand);
 
-					const response = { content: `**Preferred Streaming Service:**\n${searchEngine}`, components: [] };
-					await interaction.update(response);
+					await Bot.respond(command, {
+						content: `**Preferred Streaming Service:**\n${searchEngine}`,
+						components: [],
+					});
 				})
 				.on('end', async (collection) => {
 					if (collection.size === 0 && collector.messageId != null) {
-						if (isInteraction) await command.deleteReply();
+						if (command.type === InteractionType.ApplicationCommand) await command.deleteReply();
 						else {
 							await command.delete();
 							await command.channel.messages.delete(collector.messageId);
@@ -90,8 +95,7 @@ export const command: Command = {
 		} catch (error) {
 			console.error(error);
 
-			const response = '⚠️ | Could not set user preferences';
-			return isInteraction ? await command.followUp(response) : await command.channel.send(response);
+			return await Bot.respond(command, '⚠️ | Could not set user preferences');
 		}
 	},
 };

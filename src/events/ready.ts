@@ -1,28 +1,20 @@
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { ActivityType, REST, Routes, type Client, type Event } from 'discord.js';
+import { Bot } from '@utils/bot';
+import { DynamoDB } from '@utils/dynamodb';
+import { ActivityType, Events, REST, Routes, type Client } from 'discord.js';
 
-export const event: Event = {
+export const event: Bot.Event = {
 	async execute(client: Client) {
-		client.once('ready', async () => {
+		client.once(Events.ClientReady, async () => {
 			if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
 			if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
 
 			const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
-			const defaultPrefix = await (async (): Promise<any> => {
-				const getCommand = new GetCommand({
-					TableName: process.env.DYNAMODB_DEFAULT_PREFS,
-					Key: {
-						env: process.env.ENV,
-					},
-				});
-
-				const response = await client.dynamoDBDocumentClient.send(getCommand);
-				return response.Item?.prefix;
-			})();
+			const defaultPrefs = await DynamoDB.getDefaultPrefs();
+			const defaultPrefix = defaultPrefs.prefix;
 
 			try {
 				await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), {
-					body: client.commands.map((command) => command.data),
+					body: Bot.commands.map((command) => command.data),
 				});
 			} catch (error) {
 				console.error(error);

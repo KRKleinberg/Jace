@@ -1,22 +1,16 @@
-import { useMainPlayer } from 'discord-player';
-import {
-	type ChatInputCommandInteraction,
-	type Event,
-	type Message,
-	type MessageCreateOptions,
-	type MessagePayload,
-} from 'discord.js';
+import { Bot } from '@utils/bot';
+import { GuildQueueEvent, useMainPlayer } from 'discord-player';
+import { ChatInputCommandInteraction, Message } from 'discord.js';
 
-export const event: Event = {
+export const event: Bot.Event = {
 	async execute() {
 		const player = useMainPlayer();
-		if (player == null) throw new Error('Player has not been initialized!');
 
-		player.events.on('error', async (queue, error) => {
+		player.events.on(GuildQueueEvent.error, async (queue, error) => {
 			console.error(error);
 		});
 
-		player.events.on('playerError', async (queue, error, track) => {
+		player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
 			const command = queue.metadata as ChatInputCommandInteraction | Message;
 
 			console.error(error);
@@ -27,21 +21,19 @@ export const event: Event = {
 				console.error(error);
 			}
 
-			const response:
-				| string
-				| MessagePayload
-				| MessageCreateOptions = `⚠️ | There was an error playing **${track.title}** by **${track.author}**`;
-			await command.channel?.send(response);
+			return await Bot.respond(
+				command,
+				`⚠️ | There was an error playing **${track.title}** by **${track.author}**`,
+				{ channelSend: true }
+			);
 		});
 
-		player.events.on('playerStart', async (queue, track) => {
+		player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
 			const command = queue.metadata as ChatInputCommandInteraction | Message;
 
-			const response:
-				| string
-				| MessagePayload
-				| MessageCreateOptions = `🎵 | Playing **${track.title}** by **${track.author}**`;
-			await command.channel?.send(response);
+			return await Bot.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {
+				channelSend: true,
+			});
 		});
 	},
 };

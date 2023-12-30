@@ -2,17 +2,19 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "typescript",
-			"tsconfig": "tsconfig.json",
-			"option": "watch",
-			"problemMatcher": ["$tsc-watch"],
+			"type": "npm",
+			"script": "build:watch",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"label": "tsc: watch - tsconfig.json",
-			"runOptions": {
-				"runOn": "folderOpen"
+			"problemMatcher": [],
+			"label": "npm: build:watch",
+			"detail": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
+			"runOptions": { "runOn": "folderOpen" },
+			"presentation": {
+				"reveal": "silent",
+				"focus": false
 			}
 		}
 	]
