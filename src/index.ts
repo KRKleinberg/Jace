@@ -6,15 +6,8 @@ import { globby } from 'globby';
 dotenv.config();
 
 // Check environment variables
-if (process.env.AWS_ACCESS_KEY_ID == null) throw new Error('AWS_ACCESS_KEY_ID is not set!');
-if (process.env.AWS_SECRET_ACCESS_KEY == null) throw new Error('AWS_SECRET_ACCESS_KEY is not set!');
-if (process.env.AWS_REGION == null) throw new Error('AWS_REGION is not set!');
-if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
-if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
-if (process.env.DYNAMODB_DEFAULT_PREFS == null)
-	throw new Error('DYNAMODB_DEFAULT_PREFS is not set!');
-if (process.env.ENV == null) throw new Error('ENV is not set!');
-if (process.env.YOUTUBE_COOKIE == null) throw new Error('YOUTUBE_COOKIE is not set!');
+for (const envKey of Object.keys(new Bot.EnvKeys()))
+	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
 // Load YouTube cookie
 Bot.player.options.ytdlOptions = {

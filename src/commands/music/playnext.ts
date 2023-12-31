@@ -1,12 +1,9 @@
 import { Str } from '@supercharge/strings';
 import { Bot } from '@utils/bot';
-import { QueryType, useMainPlayer } from 'discord-player';
+import { QueryType } from 'discord-player';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
-
-const player = useMainPlayer();
-if (player == null) throw new Error('Player has not been initialized!');
 
 export const command: Bot.Command = {
 	aliases: ['pn'],
@@ -39,7 +36,7 @@ export const command: Bot.Command = {
 			.replace(/ youtube/gi, '');
 
 		if (query.length > 0) {
-			const searchResults = await player.search(query, {
+			const searchResults = await Bot.player.search(query, {
 				searchEngine: QueryType.AUTO,
 				fallbackSearchEngine: searchEngine,
 			});
@@ -66,12 +63,12 @@ export const command: Bot.Command = {
 				: args.join(' ').trim(),
 			userPrefs
 		);
-		const searchResults = await player.search(searchQuery.query, {
+		const searchResults = await Bot.player.search(searchQuery.query, {
 			searchEngine: QueryType.AUTO,
 			fallbackSearchEngine: searchQuery.type,
 		});
 		const track = searchResults.tracks[0];
-		const queue = player.nodes.create(guild, {
+		const queue = Bot.player.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
 			leaveOnEmpty: true,
