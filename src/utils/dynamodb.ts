@@ -7,13 +7,13 @@ export namespace DynamoDB {
 	export namespace Tables {
 		export interface DefaultPrefs {
 			env: 'main' | 'dev' | 'wip';
-			nickname: string;
 			prefix: string;
 			color: ColorResolvable;
+			nickname: string;
 		}
 		export interface GuildPrefs {
-			prefix?: string;
 			env: 'main' | 'dev' | 'wip';
+			prefix?: string;
 			color?: ColorResolvable;
 		}
 		export interface UserPrefs {
