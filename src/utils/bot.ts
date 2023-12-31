@@ -62,6 +62,20 @@ export namespace Bot {
 			GatewayIntentBits.MessageContent,
 		],
 	});
+
+	export class EnvKeys {
+		constructor(
+			readonly AWS_ACCESS_KEY_ID?: string,
+			readonly AWS_SECRET_ACCESS_KEY?: string,
+			readonly AWS_REGION?: string,
+			readonly DISCORD_APP_ID?: string,
+			readonly DISCORD_BOT_TOKEN?: string,
+			readonly DYNAMODB_DEFAULT_PREFS?: string,
+			readonly ENV?: string,
+			readonly YOUTUBE_COOKIE?: string
+		) {}
+	}
+
 	export const commands = new Collection<string, Command>();
 	export const player = new Player(Bot.client);
 	export const streamSources: {

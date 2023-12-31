@@ -24,8 +24,8 @@ export const event: Bot.Event = {
 				status: 'online',
 				activities: [
 					{
-						name: `Frogger | ${defaultPrefix}help`,
-						type: ActivityType.Playing,
+						name: `${defaultPrefix}help | v${process.env.npm_package_version}`,
+						type: ActivityType.Custom,
 					},
 				],
 			});

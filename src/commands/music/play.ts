@@ -1,12 +1,9 @@
 import { Str } from '@supercharge/strings';
 import { Bot } from '@utils/bot';
-import { QueryType, useMainPlayer } from 'discord-player';
+import { QueryType } from 'discord-player';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
-
-const player = useMainPlayer();
-if (player == null) throw new Error('Player has not been initialized!');
 
 export const command: Bot.Command = {
 	aliases: ['p'],
@@ -26,7 +23,7 @@ export const command: Bot.Command = {
 		const searchQuery = Bot.getSearchQuery(input, userPrefs);
 
 		if (searchQuery.query.length > 0) {
-			const searchResults = await player.search(searchQuery.query, {
+			const searchResults = await Bot.player.search(searchQuery.query, {
 				searchEngine: QueryType.AUTO,
 				fallbackSearchEngine: searchQuery.type,
 			});
@@ -67,13 +64,13 @@ export const command: Bot.Command = {
 				? command.options.getString('query', true).trim()
 				: args.join(' ').trim();
 		const searchQuery = Bot.getSearchQuery(input, userPrefs);
-		const searchResults = await player.search(searchQuery.query, {
+		const searchResults = await Bot.player.search(searchQuery.query, {
 			searchEngine: QueryType.AUTO,
 			fallbackSearchEngine: searchQuery.type,
 		});
 		const track = searchResults.tracks[0];
 		const playlist = searchResults.playlist;
-		const queue = player.nodes.create(guild, {
+		const queue = Bot.player.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
 			leaveOnEmpty: true,
