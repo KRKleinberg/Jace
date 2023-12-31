@@ -1,12 +1,7 @@
 import { Str } from '@supercharge/strings';
 import { Bot } from '@utils/bot';
-import { QueryType, useMainPlayer, type TrackSource } from 'discord-player';
-import {
-	EmbedBuilder,
-	InteractionType,
-	SlashCommandBuilder,
-	type EmbedFooterOptions,
-} from 'discord.js';
+import { QueryType, useMainPlayer } from 'discord-player';
+import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -65,27 +60,15 @@ export const command: Bot.Command = {
 		await interaction.respond([]);
 	},
 	async execute({ command, guild, member, args, defaultPrefs, guildPrefs, userPrefs }) {
-		const input =
+		const searchQuery = Bot.getSearchQuery(
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query', true).trim()
-				: args.join(' ').trim();
-		const searchEngine = input.toLowerCase().endsWith(' apple music')
-			? QueryType.APPLE_MUSIC_SEARCH
-			: input.toLowerCase().endsWith(' soundcloud')
-				? QueryType.SOUNDCLOUD_SEARCH
-				: input.toLowerCase().endsWith(' spotify')
-					? QueryType.SPOTIFY_SEARCH
-					: input.toLowerCase().endsWith(' youtube')
-						? QueryType.YOUTUBE_SEARCH
-						: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
-		const query = input
-			.replace(/ apple music/gi, '')
-			.replace(/ soundcloud/gi, '')
-			.replace(/ spotify/gi, '')
-			.replace(/ youtube/gi, '');
-		const searchResults = await player.search(query, {
+				: args.join(' ').trim(),
+			userPrefs
+		);
+		const searchResults = await player.search(searchQuery.query, {
 			searchEngine: QueryType.AUTO,
-			fallbackSearchEngine: searchEngine,
+			fallbackSearchEngine: searchQuery.type,
 		});
 		const track = searchResults.tracks[0];
 		const queue = player.nodes.create(guild, {
@@ -103,7 +86,7 @@ export const command: Bot.Command = {
 		if (queue.connection != null && member.voice.channel !== queue.channel) {
 			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
 		}
-		if (query.length === 0) {
+		if (searchQuery.query.length === 0) {
 			return await Bot.respond(command, '❌ | You did not enter a search query');
 		}
 		if (searchResults.isEmpty()) {
@@ -143,40 +126,9 @@ export const command: Bot.Command = {
 		}
 
 		try {
-			const sources: Array<{ name: TrackSource; footerOptions: EmbedFooterOptions; filePath: string }> = [
-				{
-					name: 'apple_music',
-					footerOptions: {
-						text: `Apple Music | ${track.author}`,
-						iconURL: 'attachment://apple_music.png',
-					},
-					filePath: './icons/apple_music.png',
-				},
-				{
-					name: 'soundcloud',
-					footerOptions: {
-						text: `SoundCloud | ${track.author}`,
-						iconURL: 'attachment://soundcloud.png',
-					},
-					filePath: './icons/soundcloud.png',
-				},
-				{
-					name: 'spotify',
-					footerOptions: {
-						text: `Spotify | ${track.author}`,
-						iconURL: 'attachment://spotify.png',
-					},
-					filePath: './icons/spotify.png',
-				},
-				{
-					name: 'youtube',
-					footerOptions: {
-						text: `YouTube | ${track.author}`,
-						iconURL: 'attachment://youtube.png',
-					},
-					filePath: './icons/youtube.png',
-				},
-			];
+			const streamSource = Bot.streamSources.find(
+				(streamSource) => streamSource.trackSource === track.source
+			);
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: 'Queued Track',
@@ -199,12 +151,19 @@ export const command: Bot.Command = {
 				.setTitle(track.title)
 				.setURL(track.url)
 				.setFooter(
-					sources.find((source) => source.name === track.source)?.footerOptions ?? { text: `${track.author}` }
+					streamSource != null
+						? {
+								text: `${streamSource.name} | ${track.author}`,
+								iconURL: `attachment://${streamSource.trackSource}.png`,
+							}
+						: {
+								text: track.author,
+							}
 				);
 
 			return await Bot.respond(command, {
 				embeds: [embed],
-				files: [`${sources.find((source) => source.name === track.source)?.filePath}`],
+				files: streamSource != null ? [`./icons/${streamSource.trackSource}.png`] : [],
 			});
 		} catch (error) {
 			console.error(error);

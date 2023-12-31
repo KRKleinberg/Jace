@@ -1,16 +1,14 @@
 import { Bot } from '@utils/bot';
-import { GuildQueueEvent, useMainPlayer } from 'discord-player';
+import { GuildQueueEvent } from 'discord-player';
 import { ChatInputCommandInteraction, Message } from 'discord.js';
 
 export const event: Bot.Event = {
 	async execute() {
-		const player = useMainPlayer();
-
-		player.events.on(GuildQueueEvent.error, async (queue, error) => {
+		Bot.player.events.on(GuildQueueEvent.error, async (queue, error) => {
 			console.error(error);
 		});
 
-		player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
+		Bot.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
 			const command = queue.metadata as ChatInputCommandInteraction | Message;
 
 			console.error(error);
@@ -28,7 +26,7 @@ export const event: Bot.Event = {
 			);
 		});
 
-		player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
+		Bot.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
 			const command = queue.metadata as ChatInputCommandInteraction | Message;
 
 			return await Bot.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {

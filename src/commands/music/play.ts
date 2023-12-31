@@ -1,12 +1,7 @@
 import { Str } from '@supercharge/strings';
 import { Bot } from '@utils/bot';
-import { QueryType, useMainPlayer, type TrackSource } from 'discord-player';
-import {
-	EmbedBuilder,
-	InteractionType,
-	SlashCommandBuilder,
-	type EmbedFooterOptions,
-} from 'discord.js';
+import { QueryType, useMainPlayer } from 'discord-player';
+import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -28,25 +23,12 @@ export const command: Bot.Command = {
 
 	async autocomplete(interaction, userPrefs) {
 		const input = interaction.options.getString('query', true).trim();
-		const searchEngine = input.toLowerCase().endsWith(' apple music')
-			? QueryType.APPLE_MUSIC_SEARCH
-			: input.toLowerCase().endsWith(' soundcloud')
-				? QueryType.SOUNDCLOUD_SEARCH
-				: input.toLowerCase().endsWith(' spotify')
-					? QueryType.SPOTIFY_SEARCH
-					: input.toLowerCase().endsWith(' youtube')
-						? QueryType.YOUTUBE_SEARCH
-						: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
-		const query = input
-			.replace(/ apple music/gi, '')
-			.replace(/ soundcloud/gi, '')
-			.replace(/ spotify/gi, '')
-			.replace(/ youtube/gi, '');
+		const searchQuery = Bot.getSearchQuery(input, userPrefs);
 
-		if (query.length > 0) {
-			const searchResults = await player.search(query, {
+		if (searchQuery.query.length > 0) {
+			const searchResults = await player.search(searchQuery.query, {
 				searchEngine: QueryType.AUTO,
-				fallbackSearchEngine: searchEngine,
+				fallbackSearchEngine: searchQuery.type,
 			});
 
 			await interaction.respond(
@@ -84,23 +66,10 @@ export const command: Bot.Command = {
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query', true).trim()
 				: args.join(' ').trim();
-		const searchEngine = input.toLowerCase().endsWith(' apple music')
-			? QueryType.APPLE_MUSIC_SEARCH
-			: input.toLowerCase().endsWith(' soundcloud')
-				? QueryType.SOUNDCLOUD_SEARCH
-				: input.toLowerCase().endsWith(' spotify')
-					? QueryType.SPOTIFY_SEARCH
-					: input.toLowerCase().endsWith(' youtube')
-						? QueryType.YOUTUBE_SEARCH
-						: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
-		const query = input
-			.replace(/ apple music/gi, '')
-			.replace(/ soundcloud/gi, '')
-			.replace(/ spotify/gi, '')
-			.replace(/ youtube/gi, '');
-		const searchResults = await player.search(query, {
+		const searchQuery = Bot.getSearchQuery(input, userPrefs);
+		const searchResults = await player.search(searchQuery.query, {
 			searchEngine: QueryType.AUTO,
-			fallbackSearchEngine: searchEngine,
+			fallbackSearchEngine: searchQuery.type,
 		});
 		const track = searchResults.tracks[0];
 		const playlist = searchResults.playlist;
@@ -117,7 +86,8 @@ export const command: Bot.Command = {
 			return await Bot.respond(command, '❌ | You are not in a voice channel');
 		if (queue.connection != null && member.voice.channel !== queue.channel)
 			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
-		if (query.length === 0) return await Bot.respond(command, '❌ | You did not enter a search query');
+		if (searchQuery.query.length === 0)
+			return await Bot.respond(command, '❌ | You did not enter a search query');
 		if (searchResults.isEmpty()) return await Bot.respond(command, '❌ | No results found');
 
 		await queue.tasksQueue.acquire().getTask();
@@ -153,146 +123,69 @@ export const command: Bot.Command = {
 		}
 
 		try {
-			if (playlist != null) {
-				const sources: Array<{ name: TrackSource; footerOptions: EmbedFooterOptions; filePath: string }> = [
-					{
-						name: 'apple_music',
-						footerOptions: {
-							text: `Apple Music | ${playlist.author.name}`,
-							iconURL: 'attachment://apple_music.png',
-						},
-						filePath: './icons/apple_music.png',
-					},
-					{
-						name: 'soundcloud',
-						footerOptions: {
-							text: `SoundCloud | ${playlist.author.name}`,
-							iconURL: 'attachment://soundcloud.png',
-						},
-						filePath: './icons/soundcloud.png',
-					},
-					{
-						name: 'spotify',
-						footerOptions: {
-							text: `Spotify | ${playlist.author.name}`,
-							iconURL: 'attachment://spotify.png',
-						},
-						filePath: './icons/spotify.png',
-					},
-					{
-						name: 'youtube',
-						footerOptions: {
-							text: `YouTube | ${playlist.author.name}`,
-							iconURL: 'attachment://youtube.png',
-						},
-						filePath: './icons/youtube.png',
-					},
-				];
-				const embed = new EmbedBuilder()
-					.setAuthor({
-						name: 'Queued Tracks',
-						iconURL: member.user.avatarURL() ?? undefined,
-					})
-					.setColor(guildPrefs?.color ?? defaultPrefs.color)
-					.setTitle(playlist.title)
-					.setDescription(
-						Str(
-							`${playlist.tracks
-								.map(
-									(track, index) => `**${index + 1}.** [**${track.title}**](${track.url}) by **${track.author}**`
-								)
-								.join('\n')}`
-						)
-							.limit(4093, '...')
-							.toString()
-					)
-					.setThumbnail(playlist.thumbnail)
-					.setURL(playlist.url)
-					.setFooter(
-						sources.find((source) => source.name === playlist.source)?.footerOptions ?? {
-							text: `${playlist.author.name}`,
-						}
-					);
-
-				return await Bot.respond(command, {
-					embeds: [embed],
-					files: [`${sources.find((source) => source.name === track.source)?.filePath}`],
-				});
-			}
-		} catch (error) {
-			console.error(error);
-
-			return await Bot.respond(command, `⏳ | Loading your tracks`);
-		}
-
-		try {
-			const sources: Array<{ name: TrackSource; footerOptions: EmbedFooterOptions; filePath: string }> = [
-				{
-					name: 'apple_music',
-					footerOptions: {
-						text: `Apple Music | ${track.author}`,
-						iconURL: 'attachment://apple_music.png',
-					},
-					filePath: './icons/apple_music.png',
-				},
-				{
-					name: 'soundcloud',
-					footerOptions: {
-						text: `SoundCloud | ${track.author}`,
-						iconURL: 'attachment://soundcloud.png',
-					},
-					filePath: './icons/soundcloud.png',
-				},
-				{
-					name: 'spotify',
-					footerOptions: {
-						text: `Spotify | ${track.author}`,
-						iconURL: 'attachment://spotify.png',
-					},
-					filePath: './icons/spotify.png',
-				},
-				{
-					name: 'youtube',
-					footerOptions: {
-						text: `YouTube | ${track.author}`,
-						iconURL: 'attachment://youtube.png',
-					},
-					filePath: './icons/youtube.png',
-				},
-			];
+			const streamSource = Bot.streamSources.find(
+				(streamSource) => streamSource.trackSource === (playlist != null ? playlist.source : track.source)
+			);
 			const embed = new EmbedBuilder()
 				.setAuthor({
-					name: 'Queued Track',
+					name: playlist != null ? 'Queued Tracks' : 'Queued Track',
 					iconURL: member.user.avatarURL() ?? undefined,
 				})
 				.setColor(guildPrefs?.color ?? defaultPrefs.color)
-				.setFields([
-					{
-						name: 'Position',
-						value: `${queue.tracks.toArray().length}`,
-						inline: true,
-					},
-					{
-						name: 'Duration',
-						value: `${track.durationMS === 0 ? '--:--' : track.duration}`,
-						inline: true,
-					},
-				])
-				.setThumbnail(track.thumbnail)
-				.setTitle(track.title)
-				.setURL(track.url)
+				.setTitle(playlist != null ? playlist.title : track.title)
+				.setDescription(
+					playlist != null
+						? Str(
+								`${playlist.tracks
+									.map(
+										(track, index) => `**${index + 1}.** [**${track.title}**](${track.url}) by **${track.author}**`
+									)
+									.join('\n')}`
+							)
+								.limit(4093, '...')
+								.toString()
+						: null
+				)
+				.setFields(
+					playlist != null
+						? []
+						: [
+								{
+									name: 'Position',
+									value: `${queue.tracks.toArray().length}`,
+									inline: true,
+								},
+								{
+									name: 'Duration',
+									value: `${track.durationMS === 0 ? '--:--' : track.duration}`,
+									inline: true,
+								},
+							]
+				)
+				.setThumbnail(playlist != null ? playlist.thumbnail : track.thumbnail)
+				.setURL(playlist != null ? playlist.url : track.url)
 				.setFooter(
-					sources.find((source) => source.name === track.source)?.footerOptions ?? { text: `${track.author}` }
+					streamSource != null
+						? {
+								text: `${streamSource.name} | ${playlist != null ? playlist.author.name : track.author}`,
+								iconURL: `attachment://${streamSource.trackSource}.png`,
+							}
+						: {
+								text: playlist != null ? playlist.author.name : track.author,
+							}
 				);
 
 			return await Bot.respond(command, {
 				embeds: [embed],
-				files: [`${sources.find((source) => source.name === track.source)?.filePath}`],
+				files: streamSource != null ? [`./icons/${streamSource.trackSource}.png`] : [],
 			});
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, `⏳ | Loading your track`);
+			return await Bot.respond(
+				command,
+				playlist != null ? `⏳ | Loading your tracks` : `⏳ | Loading your track`
+			);
 		}
 	},
 };
