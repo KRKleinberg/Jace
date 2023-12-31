@@ -1,15 +1,15 @@
 import { Bot } from '@utils/bot';
 import { DynamoDB } from '@utils/dynamodb';
-import { ActivityType, Events, REST, Routes, type Client } from 'discord.js';
+import { ActivityType, Events, REST, Routes } from 'discord.js';
 
 export const event: Bot.Event = {
-	async execute(client: Client) {
-		client.once(Events.ClientReady, async () => {
+	async execute() {
+		Bot.client.once(Events.ClientReady, async () => {
 			if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
 			if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
 
 			const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
-			const defaultPrefs = await DynamoDB.getDefaultPrefs();
+			const defaultPrefs = await DynamoDB.Tables.getDefaultPrefs();
 			const defaultPrefix = defaultPrefs.prefix;
 
 			try {
@@ -20,7 +20,7 @@ export const event: Bot.Event = {
 				console.error(error);
 			}
 
-			client.user?.setPresence({
+			Bot.client.user?.setPresence({
 				status: 'online',
 				activities: [
 					{
@@ -30,7 +30,7 @@ export const event: Bot.Event = {
 				],
 			});
 
-			console.log(`${client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
+			console.log(`${Bot.client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
 		});
 	},
 };
