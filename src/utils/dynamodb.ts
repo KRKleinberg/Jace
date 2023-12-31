@@ -6,8 +6,9 @@ import { ColorResolvable, Guild, User } from 'discord.js';
 export namespace DynamoDB {
 	export namespace Tables {
 		export interface DefaultPrefs {
-			prefix: string;
 			env: 'main' | 'dev' | 'wip';
+			nickname: string;
+			prefix: string;
 			color: ColorResolvable;
 		}
 		export interface GuildPrefs {
