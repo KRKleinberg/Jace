@@ -24,7 +24,7 @@ export const event: Bot.Event = {
 				status: 'online',
 				activities: [
 					{
-						name: `${defaultPrefix}help | v${process.env.npm_package_version}`,
+						name: `📻 | ${defaultPrefix}help | v${process.env.npm_package_version}`,
 						type: ActivityType.Custom,
 					},
 				],
