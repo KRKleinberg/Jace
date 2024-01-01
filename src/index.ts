@@ -1,9 +1,5 @@
 import { Bot } from '@utils/bot';
-import * as dotenv from 'dotenv';
 import { globby } from 'globby';
-
-// Load environment variables
-dotenv.config();
 
 // Check environment variables
 for (const envKey of Object.keys(new Bot.EnvKeys()))
