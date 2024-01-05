@@ -11,14 +11,14 @@ export const command: Bot.Command = {
 		.setDescription('Adds a song or playlist to the top of the queue')
 		.addStringOption((option) =>
 			option
-				.setName('search')
+				.setName('query')
 				.setDescription('The song or playlist to play next')
 				.setAutocomplete(true)
 				.setRequired(true)
 		),
 
 	async autocomplete(interaction, userPrefs) {
-		const search = new Bot.Search(interaction.options.getString('search', true), userPrefs);
+		const search = new Bot.Search(interaction.options.getString('query', true), userPrefs);
 
 		if (search.query.length > 0) {
 			const searchResult = await search.result();
@@ -38,7 +38,7 @@ export const command: Bot.Command = {
 	async execute({ command, guild, member, args, defaultPrefs, guildPrefs, userPrefs }) {
 		const search = new Bot.Search(
 			command.type === InteractionType.ApplicationCommand
-				? command.options.getString('search', true)
+				? command.options.getString('query', true)
 				: args.join(' '),
 			userPrefs
 		);
