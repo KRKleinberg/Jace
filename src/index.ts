@@ -5,15 +5,6 @@ import { globby } from 'globby';
 for (const envKey of Object.keys(new Bot.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
-// Load YouTube cookie
-Bot.player.options.ytdlOptions = {
-	requestOptions: {
-		headers: {
-			cookie: process.env.YOUTUBE_COOKIE,
-		},
-	},
-};
-
 // Load player extractors
 await Bot.player.extractors.loadDefault();
 

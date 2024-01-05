@@ -4,7 +4,12 @@ import { ChatInputCommandInteraction, Message } from 'discord.js';
 
 export const event: Bot.Event = {
 	async execute() {
-		Bot.player.events.on(GuildQueueEvent.error, async (queue, error) => {
+		/**
+		 * Debug
+		 * Bot.player.events.on(GuildQueueEvent.debug, (_queue, message) => console.log(message));
+		 */
+
+		Bot.player.events.on(GuildQueueEvent.error, async (_queue, error) => {
 			console.error(error);
 		});
 

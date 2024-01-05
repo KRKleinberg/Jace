@@ -4,6 +4,9 @@ import { QueryType } from 'discord-player';
 import { ColorResolvable, Guild, User } from 'discord.js';
 
 export namespace DynamoDB {
+	export const client = new DynamoDBClient();
+	export const documentClient = DynamoDBDocumentClient.from(DynamoDB.client);
+
 	export namespace Tables {
 		export interface DefaultPrefs {
 			env: 'main' | 'dev' | 'wip';
@@ -64,6 +67,4 @@ export namespace DynamoDB {
 			}
 		}
 	}
-	export const client = new DynamoDBClient();
-	export const documentClient = DynamoDBDocumentClient.from(DynamoDB.client);
 }

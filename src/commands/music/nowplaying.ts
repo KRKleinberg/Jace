@@ -1,6 +1,6 @@
 import { Bot } from '@utils/bot';
 import { useQueue } from 'discord-player';
-import { EmbedBuilder, SlashCommandBuilder, type EmbedFooterOptions } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,40 +21,9 @@ export const command: Bot.Command = {
 			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
 
 		try {
-			const sources: Array<{ name: string; footerOptions: EmbedFooterOptions; filePath: string }> = [
-				{
-					name: 'apple_music',
-					footerOptions: {
-						text: `Apple Music | ${currentTrack.author}`,
-						iconURL: 'attachment://apple_music.png',
-					},
-					filePath: './icons/apple_music.png',
-				},
-				{
-					name: 'soundcloud',
-					footerOptions: {
-						text: `SoundCloud | ${currentTrack.author}`,
-						iconURL: 'attachment://soundcloud.png',
-					},
-					filePath: './icons/soundcloud.png',
-				},
-				{
-					name: 'spotify',
-					footerOptions: {
-						text: `Spotify | ${currentTrack.author}`,
-						iconURL: 'attachment://spotify.png',
-					},
-					filePath: './icons/spotify.png',
-				},
-				{
-					name: 'youtube',
-					footerOptions: {
-						text: `YouTube | ${currentTrack.author}`,
-						iconURL: 'attachment://youtube.png',
-					},
-					filePath: './icons/youtube.png',
-				},
-			];
+			const streamSource = Bot.streamSources.find(
+				(streamSource) => streamSource.trackSource === currentTrack.source
+			);
 			const embed = new EmbedBuilder()
 				.setColor(guildPrefs?.color ?? defaultPrefs.color)
 				.setAuthor({ name: 'Now Playing' })
@@ -63,14 +32,19 @@ export const command: Bot.Command = {
 				.setThumbnail(currentTrack.thumbnail)
 				.setURL(currentTrack.url)
 				.setFooter(
-					sources.find((source) => source.name === currentTrack.source)?.footerOptions ?? {
-						text: `${currentTrack.author}`,
-					}
+					streamSource != null
+						? {
+								text: `${streamSource.name} | ${currentTrack.author}`,
+								iconURL: `attachment://${streamSource.trackSource}.png`,
+							}
+						: {
+								text: `${currentTrack.author}`,
+							}
 				);
 
 			return await Bot.respond(command, {
 				embeds: [embed],
-				files: [`${sources.find((source) => source.name === currentTrack.source)?.filePath}`],
+				files: streamSource != null ? [`./icons/${streamSource.trackSource}.png`] : [],
 			});
 		} catch (error) {
 			console.error(error);

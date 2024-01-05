@@ -1,5 +1,5 @@
 import { DynamoDB } from '@utils/dynamodb';
-import { Player, QueryType, TrackSource } from 'discord-player';
+import { Player, QueryType, TrackSource, useMainPlayer } from 'discord-player';
 import {
 	AnySelectMenuInteraction,
 	AutocompleteInteraction,
@@ -39,6 +39,64 @@ export namespace Bot {
 		execute: () => Promise<void>;
 	}
 
+	export class EnvKeys {
+		constructor(
+			readonly AWS_ACCESS_KEY_ID?: string,
+			readonly AWS_SECRET_ACCESS_KEY?: string,
+			readonly AWS_REGION?: string,
+			readonly DISCORD_APP_ID?: string,
+			readonly DISCORD_BOT_TOKEN?: string,
+			readonly DYNAMODB_DEFAULT_PREFS?: string,
+			readonly DYNAMODB_GUILD_PREFS?: string,
+			readonly DYNAMODB_USER_PREFS?: string,
+			readonly ENV?: string,
+			readonly YOUTUBE_COOKIE?: string
+		) {}
+	}
+	export class Search {
+		private readonly input;
+		private readonly userPrefs;
+
+		constructor(
+			/** User input */
+			input: string,
+			/** The users preferences from the database */
+			userPrefs?: DynamoDB.Tables.UserPrefs
+		) {
+			this.input = input.trim();
+			this.userPrefs = userPrefs;
+		}
+		/**
+		 * Returns the user input without the requested search engine
+		 */
+		get query() {
+			for (const streamSource of Bot.streamSources)
+				if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
+					return this.input.replace(streamSource.replaceRegExp, '').trim();
+
+			return this.input;
+		}
+		/**
+		 * Returns the search engine the user requests. Defaults to YouTube.
+		 */
+		get engine() {
+			for (const streamSource of Bot.streamSources)
+				if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
+					return streamSource.searchQueryType;
+
+			return this.userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
+		}
+		/**
+		 * Returns search result
+		 */
+		result() {
+			return Bot.player.search(this.query, {
+				searchEngine: QueryType.AUTO,
+				fallbackSearchEngine: this.engine,
+			});
+		}
+	}
+
 	export const client = new Client({
 		intents: [
 			// GatewayIntentBits.AutoModerationConfiguration,
@@ -62,22 +120,16 @@ export namespace Bot {
 			GatewayIntentBits.MessageContent,
 		],
 	});
-
-	export class EnvKeys {
-		constructor(
-			readonly AWS_ACCESS_KEY_ID?: string,
-			readonly AWS_SECRET_ACCESS_KEY?: string,
-			readonly AWS_REGION?: string,
-			readonly DISCORD_APP_ID?: string,
-			readonly DISCORD_BOT_TOKEN?: string,
-			readonly DYNAMODB_DEFAULT_PREFS?: string,
-			readonly ENV?: string,
-			readonly YOUTUBE_COOKIE?: string
-		) {}
-	}
-
 	export const commands = new Collection<string, Command>();
-	export const player = new Player(Bot.client);
+	export const player = new Player(Bot.client, {
+		ytdlOptions: {
+			requestOptions: {
+				headers: {
+					cookie: process.env.YOUTUBE_COOKIE,
+				},
+			},
+		},
+	});
 	export const streamSources: {
 		name: string;
 		searchQueryType: (typeof QueryType)[keyof typeof QueryType];
@@ -110,25 +162,6 @@ export namespace Bot {
 		},
 	];
 
-	export function getSearchQuery(
-		input: string,
-		userPrefs?: DynamoDB.Tables.UserPrefs
-	): {
-		query: string;
-		type: (typeof QueryType)[keyof typeof QueryType];
-	} {
-		for (const streamSource of Bot.streamSources) {
-			if (input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
-				return {
-					query: input.replace(streamSource.replaceRegExp, ''),
-					type: streamSource.searchQueryType,
-				};
-		}
-		return {
-			query: input,
-			type: userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH,
-		};
-	}
 	export async function respond(
 		command: ChatInputCommandInteraction | AnySelectMenuInteraction | Message,
 		response: string | BaseMessageOptions,

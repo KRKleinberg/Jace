@@ -19,7 +19,7 @@ export const command: Bot.Command = {
 		.setDescription('Sets user preferences'),
 	async execute({ command, member }) {
 		const selectMenu = new StringSelectMenuBuilder()
-			.setCustomId('searchEngine')
+			.setCustomId('streamSource')
 			.setPlaceholder('Select streaming service')
 			.addOptions(
 				new StringSelectMenuOptionBuilder().setLabel('Apple Music').setValue(QueryType.APPLE_MUSIC_SEARCH),
@@ -28,24 +28,6 @@ export const command: Bot.Command = {
 				new StringSelectMenuOptionBuilder().setLabel('YouTube').setValue(QueryType.YOUTUBE_SEARCH)
 			);
 		const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
-		const searchEngines = [
-			{
-				name: 'Apple Music',
-				value: QueryType.APPLE_MUSIC_SEARCH,
-			},
-			{
-				name: 'SoundCloud',
-				value: QueryType.SOUNDCLOUD_SEARCH,
-			},
-			{
-				name: 'Spotify',
-				value: QueryType.SPOTIFY_SEARCH,
-			},
-			{
-				name: 'YouTube',
-				value: QueryType.YOUTUBE_SEARCH,
-			},
-		];
 
 		try {
 			const reply = await Bot.respond(
@@ -64,24 +46,32 @@ export const command: Bot.Command = {
 
 			return collector
 				.once('collect', async (interaction) => {
-					const putCommand = new PutCommand({
-						TableName: process.env.DYNAMODB_USER_PREFS,
-						Item: {
-							userId: interaction.user.id,
-							env: process.env.ENV,
-							searchEngine: interaction.values[0],
-						},
-					});
-					const searchEngine = searchEngines.find(
-						(searchEngine) => searchEngine.value === interaction.values[0]
-					)?.name;
+					try {
+						const putCommand = new PutCommand({
+							TableName: process.env.DYNAMODB_USER_PREFS,
+							Item: {
+								userId: interaction.user.id,
+								env: process.env.ENV,
+								searchEngine: interaction.values[0],
+							},
+						});
+						const streamSource = Bot.streamSources.find(
+							(streamSource) => streamSource.searchQueryType === interaction.values[0]
+						);
 
-					await DynamoDB.documentClient.send(putCommand);
+						if (streamSource != null) {
+							await DynamoDB.documentClient.send(putCommand);
 
-					await Bot.respond(command, {
-						content: `**Preferred Streaming Service:**\n${searchEngine}`,
-						components: [],
-					});
+							await Bot.respond(interaction, {
+								content: `**Preferred Streaming Service:**\n${streamSource.name}`,
+								components: [],
+							});
+						} else await Bot.respond(interaction, '⚠️ | Could not set preferred streaming service');
+					} catch (error) {
+						console.error(error);
+
+						await Bot.respond(interaction, '⚠️ | Could not connect to database');
+					}
 				})
 				.on('end', async (collection) => {
 					if (collection.size === 0 && collector.messageId != null) {
