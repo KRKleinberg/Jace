@@ -1,10 +1,7 @@
 import { Bot } from '@utils/bot';
 import { globby } from 'globby';
-import * as dotenv from 'dotenv';
 
 // Check environment variables
-dotenv.config();
-
 for (const envKey of Object.keys(new Bot.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
