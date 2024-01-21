@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create image definition
+        env:
+          IMAGE_DEFINITION: ${{ secrets.IMAGE_DEFINITION }}
+        run: echo "$IMAGE_DEFINITION" > imagedefinition.json
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
