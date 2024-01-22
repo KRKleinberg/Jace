@@ -18,7 +18,7 @@ jobs:
         id: create-json
         uses: jsdaniell/create-json@v1.2.2
         with:
-          name: "imagedefinition.json"
+          name: "imagedefinitions.json"
           json: ${{ secrets.IMAGE_DEFINITION }}
 
       - name: Configure AWS credentials
