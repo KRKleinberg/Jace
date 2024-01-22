@@ -14,13 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create image definition
-        id: create-json
-        uses: jsdaniell/create-json@v1.2.2
-        with:
-          name: "imagedefinitions.json"
-          json: ${{ secrets.IMAGE_DEFINITION }}
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
