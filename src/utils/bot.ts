@@ -1,5 +1,5 @@
 import { DynamoDB } from '@utils/dynamodb';
-import { Player, QueryType, TrackSource, useMainPlayer } from 'discord-player';
+import { Player, QueryType, TrackSource } from 'discord-player';
 import {
 	AnySelectMenuInteraction,
 	AutocompleteInteraction,
