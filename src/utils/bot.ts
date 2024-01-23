@@ -123,9 +123,6 @@ export namespace Bot {
 	export const commands = new Collection<string, Command>();
 	export const player = new Player(Bot.client, {
 		ytdlOptions: {
-			quality: 'highestaudio',
-			filter: 'audioonly',
-			highWaterMark: 1 << 25,
 			requestOptions: {
 				headers: {
 					cookie: process.env.YOUTUBE_COOKIE,
