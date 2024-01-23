@@ -16,9 +16,6 @@ import {
 	SlashCommandBuilder,
 } from 'discord.js';
 import EventEmitter from 'events';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 export namespace Bot {
 	export interface Command {
