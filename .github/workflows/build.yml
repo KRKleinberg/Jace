@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - dev
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
