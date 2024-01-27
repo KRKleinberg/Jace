@@ -1,11 +1,12 @@
 import { Bot } from '@utils/bot';
 import { DynamoDB } from '@utils/dynamodb';
 import { ActivityType, Events, REST, Routes } from 'discord.js';
-import express from 'express';
+import http from 'http';
 
 export const event: Bot.Event = {
 	async execute() {
 		Bot.client.once(Events.ClientReady, async () => {
+			// REST API
 			if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
 			if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
 
@@ -21,6 +22,7 @@ export const event: Bot.Event = {
 				console.error(error);
 			}
 
+			// Set Presence
 			Bot.client.user?.setPresence({
 				status: 'online',
 				activities: [
@@ -31,16 +33,15 @@ export const event: Bot.Event = {
 				],
 			});
 
-			// Listen for health check
-			const app = express();
+			// Health Check
+			http
+				.createServer((_req, res) => {
+					res.writeHead(200);
+					res.end('OK');
+				})
+				.listen(process.env.HEALTH_PORT);
 
-			app.get('/health', (_req, res) => {
-				console.log('Health check requested');
-
-				res.status(200).send('OK');
-			});
-			app.listen(process.env.PORT);
-
+			// Log Start
 			console.log(`${Bot.client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
 		});
 	},
