@@ -50,6 +50,7 @@ export namespace Bot {
 			readonly DYNAMODB_GUILD_PREFS?: string,
 			readonly DYNAMODB_USER_PREFS?: string,
 			readonly ENV?: string,
+			readonly HEALTH_PORT?: string,
 			readonly YOUTUBE_COOKIE?: string
 		) {}
 	}
