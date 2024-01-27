@@ -37,7 +37,7 @@ export const event: Bot.Event = {
 			app.get('/health', (_req, res) => {
 				console.log('Health check requested');
 
-				res.status(200).end('OK');
+				res.status(200).send('OK');
 			});
 			app.listen(process.env.PORT);
 
