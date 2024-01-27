@@ -1,6 +1,7 @@
 import { Bot } from '@utils/bot';
 import { DynamoDB } from '@utils/dynamodb';
 import { ActivityType, Events, REST, Routes } from 'discord.js';
+import express from 'express';
 
 export const event: Bot.Event = {
 	async execute() {
@@ -29,6 +30,16 @@ export const event: Bot.Event = {
 					},
 				],
 			});
+
+			// Listen for health check
+			const app = express();
+
+			app.get('/health', (_req, res) => {
+				console.log('Health check requested');
+
+				res.status(200).end('OK');
+			});
+			app.listen(process.env.PORT);
 
 			console.log(`${Bot.client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
 		});
