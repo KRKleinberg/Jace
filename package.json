@@ -42,7 +42,7 @@
 		"@supercharge/strings": "^2.0.0",
 		"discord-player": "^6.6.7",
 		"discord.js": "^14.14.1",
-		"globby": "^14.0.0",
+		"globby": "^14.0.1",
 		"mediaplex": "^0.0.9"
 	},
 	"optionalDependencies": {
