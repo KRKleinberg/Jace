@@ -35,7 +35,7 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "^3.540.0",
-		"@aws-sdk/lib-dynamodb": "^3.538.0",
+		"@aws-sdk/lib-dynamodb": "^3.540.0",
 		"@discord-player/extractor": "^4.4.6",
 		"@distube/ytdl-core": "^4.13.3",
 		"@supercharge/strings": "^2.0.0",
