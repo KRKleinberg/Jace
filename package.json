@@ -34,7 +34,7 @@
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.549.0",
+		"@aws-sdk/client-dynamodb": "^3.554.0",
 		"@aws-sdk/lib-dynamodb": "^3.554.0",
 		"@discord-player/extractor": "^4.4.7",
 		"@distube/ytdl-core": "^4.13.3",
