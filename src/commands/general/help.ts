@@ -1,4 +1,4 @@
-import { Bot } from '@utils/bot';
+import * as Bot from '@utils/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';

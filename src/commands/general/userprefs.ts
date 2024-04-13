@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { Bot } from '@utils/bot';
-import { DynamoDB } from '@utils/dynamodb';
+import * as Bot from '@utils/bot';
+import * as DynamoDB from '@utils/dynamodb';
 import { QueryType } from 'discord-player';
 import {
 	ActionRowBuilder,

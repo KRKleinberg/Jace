@@ -1,5 +1,5 @@
 import { Str } from '@supercharge/strings';
-import { Bot } from '@utils/bot';
+import * as Bot from '@utils/bot';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';

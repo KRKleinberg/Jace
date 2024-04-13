@@ -1,4 +1,4 @@
-import { Bot } from '@utils/bot';
+import * as Bot from '@utils/bot';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -14,7 +14,7 @@ export const command: Bot.Command = {
 
 		if (member.voice.channel == null)
 			return await Bot.respond(command, '❌ | You are not in a voice channel');
-		if (queue?.isEmpty() ?? false)
+		if (queue?.isEmpty() === true)
 			return await Bot.respond(command, '❌ | There are no tracks in the queue');
 		if (member.voice.channel !== queue?.channel)
 			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');

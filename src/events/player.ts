@@ -1,6 +1,11 @@
-import { Bot } from '@utils/bot';
+import * as Bot from '@utils/bot';
 import { GuildQueueEvent } from 'discord-player';
-import { ChatInputCommandInteraction, Message } from 'discord.js';
+import {
+	type AnySelectMenuInteraction,
+	type CacheType,
+	type ChatInputCommandInteraction,
+	type Message,
+} from 'discord.js';
 
 export const event: Bot.Event = {
 	async execute() {
@@ -14,7 +19,10 @@ export const event: Bot.Event = {
 		});
 
 		Bot.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
-			const command = queue.metadata as ChatInputCommandInteraction | Message;
+			const command:
+				| ChatInputCommandInteraction<CacheType>
+				| AnySelectMenuInteraction
+				| Message<boolean> = queue.metadata;
 
 			console.error(error);
 
@@ -32,7 +40,10 @@ export const event: Bot.Event = {
 		});
 
 		Bot.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
-			const command = queue.metadata as ChatInputCommandInteraction | Message;
+			const command:
+				| ChatInputCommandInteraction<CacheType>
+				| AnySelectMenuInteraction
+				| Message<boolean> = queue.metadata;
 
 			return await Bot.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {
 				channelSend: true,

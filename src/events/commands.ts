@@ -1,5 +1,5 @@
-import { Bot } from '@utils/bot';
-import { DynamoDB } from '@utils/dynamodb';
+import * as Bot from '@utils/bot';
+import * as DynamoDB from '@utils/dynamodb';
 import { Events, type GuildMember } from 'discord.js';
 
 export const event: Bot.Event = {
@@ -7,9 +7,9 @@ export const event: Bot.Event = {
 		// Prefix Commands
 		Bot.client.on(Events.MessageCreate, async (message) => {
 			if (!message.author.bot && message.guild != null && message.member != null) {
-				const defaultPrefs = await DynamoDB.Tables.getDefaultPrefs();
-				const guildPrefs = await DynamoDB.Tables.getGuildPrefs(message.guild);
-				const userPrefs = await DynamoDB.Tables.getUserPrefs(message.author);
+				const defaultPrefs = await DynamoDB.getDefaultPrefs();
+				const guildPrefs = await DynamoDB.getGuildPrefs(message.guild);
+				const userPrefs = await DynamoDB.getUserPrefs(message.author);
 				const prefix = guildPrefs?.prefix ?? defaultPrefs.prefix;
 
 				if (defaultPrefs == null) throw new Error('DynamoDB default preferences not defined!');
@@ -46,9 +46,9 @@ export const event: Bot.Event = {
 		// Slash Commands
 		Bot.client.on(Events.InteractionCreate, async (interaction) => {
 			if (interaction.guild != null) {
-				const defaultPrefs = await DynamoDB.Tables.getDefaultPrefs();
-				const guildPrefs = await DynamoDB.Tables.getGuildPrefs(interaction.guild);
-				const userPrefs = await DynamoDB.Tables.getUserPrefs(interaction.user);
+				const defaultPrefs = await DynamoDB.getDefaultPrefs();
+				const guildPrefs = await DynamoDB.getGuildPrefs(interaction.guild);
+				const userPrefs = await DynamoDB.getUserPrefs(interaction.user);
 
 				if (defaultPrefs == null) throw new Error('DynamoDB default preferences not defined!');
 

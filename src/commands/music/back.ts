@@ -1,4 +1,4 @@
-import { Bot } from '@utils/bot';
+import * as Bot from '@utils/bot';
 import { useHistory, useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';

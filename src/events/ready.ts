@@ -1,5 +1,5 @@
-import { Bot } from '@utils/bot';
-import { DynamoDB } from '@utils/dynamodb';
+import * as Bot from '@utils/bot';
+import * as DynamoDB from '@utils/dynamodb';
 import { ActivityType, Events, REST, Routes } from 'discord.js';
 import http from 'http';
 
@@ -11,7 +11,7 @@ export const event: Bot.Event = {
 			if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
 
 			const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
-			const defaultPrefs = await DynamoDB.Tables.getDefaultPrefs();
+			const defaultPrefs = await DynamoDB.getDefaultPrefs();
 			const defaultPrefix = defaultPrefs.prefix;
 
 			try {
@@ -23,14 +23,9 @@ export const event: Bot.Event = {
 			}
 
 			// Set Presence
-			Bot.client.user?.setPresence({
-				status: 'online',
-				activities: [
-					{
-						name: `📻 | ${defaultPrefix}help | v${process.env.npm_package_version}`,
-						type: ActivityType.Custom,
-					},
-				],
+			Bot.client.user?.setActivity({
+				name: `📻 | ${defaultPrefix}help | v${process.env.npm_package_version}`,
+				type: ActivityType.Custom,
 			});
 
 			// Health Check
