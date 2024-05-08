@@ -46,6 +46,7 @@
 	},
 	"optionalDependencies": {
 		"mediaplex-linux-x64-gnu": "^0.0.9",
-		"mediaplex-win32-x64-msvc": "^0.0.9"
+		"mediaplex-win32-x64-msvc": "^0.0.9",
+		"opusscript": "^0.0.8"
 	}
 }
