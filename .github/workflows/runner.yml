@@ -14,7 +14,7 @@ jobs:
     environment: production
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Run Container
         run: docker compose up -d --build
