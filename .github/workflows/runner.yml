@@ -35,5 +35,5 @@ jobs:
         run: docker image prune -f
 
       - name: Cleanup Build Cache
-        run: docker builder prune -f --keep-storage 2GB
+        run: docker builder prune -f --keep-storage 10GB
           
