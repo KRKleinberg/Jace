@@ -5,6 +5,7 @@ import {
 	Collection,
 	GatewayIntentBits,
 	InteractionType,
+	type SlashCommandOptionsOnlyBuilder,
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
@@ -12,14 +13,13 @@ import {
 	type Guild,
 	type GuildMember,
 	type InteractionResponse,
-	type Message,
-	type SlashCommandBuilder,
+	type Message
 } from 'discord.js';
 import type EventEmitter from 'events';
 
 export interface Command {
 	aliases?: string[];
-	data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+	data: Omit<SlashCommandOptionsOnlyBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 	autocomplete?: (
 		interaction: AutocompleteInteraction,
 		userPrefs?: DynamoDB.UserPrefs
