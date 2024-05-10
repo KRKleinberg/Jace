@@ -149,7 +149,9 @@ export const command: Bot.Command = {
 								},
 							]
 				)
-				.setThumbnail(playlist != null ? playlist.thumbnail : track.thumbnail)
+				.setThumbnail(
+					playlist != null ? playlist.thumbnail ?? playlist.tracks[0].thumbnail : track.thumbnail
+				)
 				.setURL(playlist != null ? playlist.url : track.url)
 				.setFooter(
 					streamSource != null
