@@ -1,6 +1,6 @@
 {
 	"name": "jacebot",
-	"version": "6.6.2",
+	"version": "6.6.1",
 	"description": "A multipurpose Discord bot",
 	"main": "dist/index.js",
 	"scripts": {
@@ -24,8 +24,8 @@
 		"@types/node": "^20.12.11",
 		"concurrently": "^8.2.2",
 		"eslint": "^8.57.0",
+		"eslint-config-love": "^47.0.0",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-config-standard-with-typescript": "^43.0.1",
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-n": "^16.6.2",
 		"eslint-plugin-promise": "^6.1.1",

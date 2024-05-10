@@ -3,7 +3,7 @@
 		"es2024": true,
 		"node": true
 	},
-	"extends": ["standard-with-typescript", "prettier"],
+	"extends": ["love", "prettier"],
 	"overrides": [],
 	"parserOptions": {
 		"ecmaVersion": "latest",
