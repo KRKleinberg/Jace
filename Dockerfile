@@ -1,13 +1,13 @@
 FROM node:lts-bookworm-slim
 
-WORKDIR /app/
+WORKDIR /jace
 
 RUN \
   apt-get update && \
   apt-get install -y build-essential && \
   apt-get install -y ffmpeg
 
-COPY package.json /app/
+COPY package.json .
 
 RUN npm install
 
