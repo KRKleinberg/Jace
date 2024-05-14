@@ -2,7 +2,7 @@ version: '3.8'
 services:
   main:
     build: .
-    container_name: Jace
+    container_name: jace
     environment:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
