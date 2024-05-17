@@ -1,4 +1,4 @@
-import type * as DynamoDB from '@utils/dynamodb';
+import * as DynamoDB from '@utils/dynamodb';
 import { Player, QueryType, type SearchResult, type TrackSource } from 'discord-player';
 import {
 	Client,
@@ -13,9 +13,12 @@ import {
 	type Guild,
 	type GuildMember,
 	type InteractionResponse,
-	type Message
+	type Message,
+	ActivityType,
 } from 'discord.js';
 import type EventEmitter from 'events';
+
+const defaultPrefs = await DynamoDB.getDefaultPrefs();
 
 export interface Command {
 	aliases?: string[];
@@ -122,6 +125,14 @@ export const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.MessageContent,
 	],
+	presence: {
+		activities: [
+			{
+				name: `📻 | ${defaultPrefs.prefix}help | v${process.env.npm_package_version}`,
+				type: ActivityType.Custom,
+			},
+		],
+	},
 });
 export const commands = new Collection<string, Command>();
 export const player = new Player(client, {

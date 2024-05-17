@@ -45,42 +45,46 @@ export const command: Bot.Command = {
 			});
 
 			return collector
-				.once('collect', async (interaction) => {
-					try {
-						const putCommand = new PutCommand({
-							TableName: process.env.DYNAMODB_USER_PREFS,
-							Item: {
-								userId: interaction.user.id,
-								env: process.env.ENV,
-								searchEngine: interaction.values[0],
-							},
-						});
-						const streamSource = Bot.streamSources.find(
-							(streamSource) => streamSource.searchQueryType === interaction.values[0]
-						);
-
-						if (streamSource != null) {
-							await DynamoDB.documentClient.send(putCommand);
-
-							await Bot.respond(interaction, {
-								content: `**Preferred Streaming Service:**\n${streamSource.name}`,
-								components: [],
+				.once('collect', (interaction) => {
+					void (async () => {
+						try {
+							const putCommand = new PutCommand({
+								TableName: process.env.DYNAMODB_USER_PREFS,
+								Item: {
+									userId: interaction.user.id,
+									env: process.env.ENV,
+									searchEngine: interaction.values[0],
+								},
 							});
-						} else await Bot.respond(interaction, '⚠️ | Could not set preferred streaming service');
-					} catch (error) {
-						console.error(error);
+							const streamSource = Bot.streamSources.find(
+								(streamSource) => streamSource.searchQueryType === interaction.values[0]
+							);
 
-						await Bot.respond(interaction, '⚠️ | Could not connect to database');
-					}
-				})
-				.on('end', async (collection) => {
-					if (collection.size === 0 && collector.messageId != null) {
-						if (command.type === InteractionType.ApplicationCommand) await command.deleteReply();
-						else {
-							await command.delete();
-							await command.channel.messages.delete(collector.messageId);
+							if (streamSource != null) {
+								await DynamoDB.documentClient.send(putCommand);
+
+								await Bot.respond(interaction, {
+									content: `**Preferred Streaming Service:**\n${streamSource.name}`,
+									components: [],
+								});
+							} else await Bot.respond(interaction, '⚠️ | Could not set preferred streaming service');
+						} catch (error) {
+							console.error(error);
+
+							await Bot.respond(interaction, '⚠️ | Could not connect to database');
 						}
-					}
+					})();
+				})
+				.on('end', (collection) => {
+					void (async () => {
+						if (collection.size === 0 && collector.messageId != null) {
+							if (command.type === InteractionType.ApplicationCommand) await command.deleteReply();
+							else {
+								await command.delete();
+								await command.channel.messages.delete(collector.messageId);
+							}
+						}
+					})();
 				});
 		} catch (error) {
 			console.error(error);
