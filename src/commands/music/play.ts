@@ -27,13 +27,13 @@ export const command: App.Command = {
 				searchResult.playlist != null
 					? [
 							{
-								name: Str(`${searchResult.playlist.cleanTitle} — ${searchResult.playlist.author.name}`)
+								name: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
 									.limit(97, '...')
 									.toString(),
 								value: `${
 									Str(`${searchResult.playlist.url}`).length() <= 100
 										? searchResult.playlist.url
-										: Str(`${searchResult.playlist.cleanTitle} — ${searchResult.playlist.author.name}`)
+										: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
 												.limit(97, '...')
 												.toString()
 								}`,
@@ -119,7 +119,7 @@ export const command: App.Command = {
 					iconURL: member.user.avatarURL() ?? undefined,
 				})
 				.setColor(guildPrefs?.color ?? defaultPrefs.color)
-				.setTitle(playlist != null ? playlist.cleanTitle : track.cleanTitle)
+				.setTitle(playlist != null ? playlist.title : track.cleanTitle)
 				.setDescription(
 					playlist != null
 						? Str(
