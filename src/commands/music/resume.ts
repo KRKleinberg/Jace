@@ -31,7 +31,7 @@ export const command: App.Command = {
 
 		return await App.respond(
 			command,
-			`▶️ | Resumed **${currentTrack.title}** by **${currentTrack.author}**`
+			`▶️ | Resumed **${currentTrack.cleanTitle}** by **${currentTrack.author}**`
 		);
 	},
 };

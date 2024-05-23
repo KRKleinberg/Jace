@@ -30,7 +30,7 @@ export const command: App.Command = {
 
 		return await App.respond(
 			command,
-			`⏸️ | Paused **${currentTrack.title}** by **${currentTrack.author}**`
+			`⏸️ | Paused **${currentTrack.cleanTitle}** by **${currentTrack.author}**`
 		);
 	},
 };

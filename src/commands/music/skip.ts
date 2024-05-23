@@ -30,7 +30,7 @@ export const command: App.Command = {
 
 		return await App.respond(
 			command,
-			`⏭️ | Skipped **${currentTrack.title}** by **${currentTrack.author}**`
+			`⏭️ | Skipped **${currentTrack.cleanTitle}** by **${currentTrack.author}**`
 		);
 	},
 };

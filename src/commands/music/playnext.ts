@@ -25,11 +25,11 @@ export const command: App.Command = {
 
 			await interaction.respond(
 				searchResult.tracks.slice(0, 5).map((track) => ({
-					name: Str(`${track.title} — ${track.author}`).limit(97, '...').toString(),
+					name: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString(),
 					value: `${
 						Str(`${track.url}`).length() <= 100
 							? track.url
-							: Str(`${track.title} — ${track.author}`).limit(97, '...').toString()
+							: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString()
 					}`,
 				}))
 			);
@@ -116,7 +116,7 @@ export const command: App.Command = {
 					},
 				])
 				.setThumbnail(track.thumbnail)
-				.setTitle(track.title)
+				.setTitle(track.cleanTitle)
 				.setURL(track.url)
 				.setFooter(
 					streamSource != null

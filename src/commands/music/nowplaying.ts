@@ -27,7 +27,7 @@ export const command: App.Command = {
 			const embed = new EmbedBuilder()
 				.setColor(guildPrefs?.color ?? defaultPrefs.color)
 				.setAuthor({ name: 'Now Playing' })
-				.setTitle(currentTrack.title)
+				.setTitle(currentTrack.cleanTitle)
 				.setDescription(queue.node.createProgressBar())
 				.setThumbnail(currentTrack.thumbnail)
 				.setURL(currentTrack.url)
@@ -51,7 +51,7 @@ export const command: App.Command = {
 
 			return await App.respond(
 				command,
-				`🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`
+				`🎶 | Now playing **${currentTrack.cleanTitle}** by **${currentTrack.author}**`
 			);
 		}
 	},

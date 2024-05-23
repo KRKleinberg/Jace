@@ -40,6 +40,6 @@ export const command: App.Command = {
 			return await App.respond(command, '⚠️ | Could not remove that track');
 		}
 
-		return await App.respond(command, `⏭️ | Removed **${track.title}** by **${track.author}**`);
+		return await App.respond(command, `⏭️ | Removed **${track.cleanTitle}** by **${track.author}**`);
 	},
 };

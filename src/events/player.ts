@@ -1,10 +1,10 @@
 import * as App from '@utils/app';
 import { GuildQueueEvent } from 'discord-player';
 import {
-	type AnySelectMenuInteraction,
-	type CacheType,
-	type ChatInputCommandInteraction,
-	type Message,
+    type AnySelectMenuInteraction,
+    type CacheType,
+    type ChatInputCommandInteraction,
+    type Message,
 } from 'discord.js';
 
 export const event: App.Event = {
@@ -34,7 +34,7 @@ export const event: App.Event = {
 
 			return await App.respond(
 				command,
-				`⚠️ | There was an error playing **${track.title}** by **${track.author}**`,
+				`⚠️ | There was an error playing **${track.cleanTitle}** by **${track.author}**`,
 				{ channelSend: true }
 			);
 		});
@@ -45,7 +45,7 @@ export const event: App.Event = {
 				| AnySelectMenuInteraction
 				| Message<boolean> = queue.metadata;
 
-			return await App.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {
+			return await App.respond(command, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
 				channelSend: true,
 			});
 		});

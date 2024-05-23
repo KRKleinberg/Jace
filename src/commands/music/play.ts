@@ -27,24 +27,24 @@ export const command: App.Command = {
 				searchResult.playlist != null
 					? [
 							{
-								name: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
+								name: Str(`${searchResult.playlist.cleanTitle} — ${searchResult.playlist.author.name}`)
 									.limit(97, '...')
 									.toString(),
 								value: `${
 									Str(`${searchResult.playlist.url}`).length() <= 100
 										? searchResult.playlist.url
-										: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
+										: Str(`${searchResult.playlist.cleanTitle} — ${searchResult.playlist.author.name}`)
 												.limit(97, '...')
 												.toString()
 								}`,
 							},
 						]
 					: searchResult.tracks.slice(0, 5).map((track) => ({
-							name: Str(`${track.title} — ${track.author}`).limit(97, '...').toString(),
+							name: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString(),
 							value: `${
 								Str(`${track.url}`).length() <= 100
 									? track.url
-									: Str(`${track.title} — ${track.author}`).limit(97, '...').toString()
+									: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString()
 							}`,
 						}))
 			);
@@ -119,13 +119,13 @@ export const command: App.Command = {
 					iconURL: member.user.avatarURL() ?? undefined,
 				})
 				.setColor(guildPrefs?.color ?? defaultPrefs.color)
-				.setTitle(playlist != null ? playlist.title : track.title)
+				.setTitle(playlist != null ? playlist.cleanTitle : track.cleanTitle)
 				.setDescription(
 					playlist != null
 						? Str(
 								`${playlist.tracks
 									.map(
-										(track, index) => `**${index + 1}.** [**${track.title}**](${track.url}) by **${track.author}**`
+										(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
 									)
 									.join('\n')}`
 							)

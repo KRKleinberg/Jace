@@ -27,11 +27,11 @@ export const command: App.Command = {
 				.setTitle('Queue')
 				.setDescription(
 					Str(
-						`**Now Playing:**\n[**${currentTrack.title}**](${currentTrack.url}) by **${
+						`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
 							currentTrack.author
 						}**\n\n${queue.tracks
 							.map(
-								(track, index) => `**${index + 1}.** [**${track.title}**](${track.url}) by **${track.author}**`
+								(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
 							)
 							.join('\n')}`
 					)

@@ -40,6 +40,6 @@ export const command: App.Command = {
 			return await App.respond(command, '⚠️ | Could not jump to that track');
 		}
 
-		return await App.respond(command, `⏭️ | Jumped to **${track.title}** by **${track.author}**`);
+		return await App.respond(command, `⏭️ | Jumped to **${track.cleanTitle}** by **${track.author}**`);
 	},
 };
