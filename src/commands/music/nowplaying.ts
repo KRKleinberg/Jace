@@ -1,10 +1,10 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	aliases: ['np'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
@@ -14,14 +14,14 @@ export const command: Bot.Command = {
 		const currentTrack = queue?.currentTrack;
 
 		if (member.voice.channel == null)
-			return await Bot.respond(command, '❌ | You are not in a voice channel');
+			return await App.respond(command, '❌ | You are not in a voice channel');
 		if (currentTrack == null)
-			return await Bot.respond(command, '❌ | There are no tracks in the queue');
+			return await App.respond(command, '❌ | There are no tracks in the queue');
 		if (member.voice.channel !== queue?.channel)
-			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
+			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
 
 		try {
-			const streamSource = Bot.streamSources.find(
+			const streamSource = App.streamSources.find(
 				(streamSource) => streamSource.trackSource === currentTrack.source
 			);
 			const embed = new EmbedBuilder()
@@ -42,14 +42,14 @@ export const command: Bot.Command = {
 							}
 				);
 
-			return await Bot.respond(command, {
+			return await App.respond(command, {
 				embeds: [embed],
 				files: streamSource != null ? [`./icons/${streamSource.trackSource}.png`] : [],
 			});
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(
+			return await App.respond(
 				command,
 				`🎶 | Now playing **${currentTrack.title}** by **${currentTrack.author}**`
 			);

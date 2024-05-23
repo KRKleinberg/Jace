@@ -1,10 +1,10 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import * as DynamoDB from '@utils/dynamodb';
 import { Events } from 'discord.js';
 
-export const event: Bot.Event = {
+export const event: App.Event = {
 	async execute() {
-		Bot.client.on(Events.GuildCreate, (guild) => {
+		App.client.on(Events.GuildCreate, (guild) => {
 			void (async () => {
 				const defaultPrefs = await DynamoDB.getDefaultPrefs();
 

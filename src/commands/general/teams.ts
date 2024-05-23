@@ -1,15 +1,15 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Splits voice channel members into two teams'),
 	async execute({ command, member, defaultPrefs, guildPrefs }) {
 		if (member.voice.channel == null)
-			return await Bot.respond(command, '❌ | You are not in a voice channel');
+			return await App.respond(command, '❌ | You are not in a voice channel');
 
 		try {
 			const voiceMembers = member.voice.channel.members
@@ -38,11 +38,11 @@ export const command: Bot.Command = {
 				])
 				.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
-			return await Bot.respond(command, { embeds: [embed] });
+			return await App.respond(command, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not display teams');
+			return await App.respond(command, '⚠️ | Could not display teams');
 		}
 	},
 };

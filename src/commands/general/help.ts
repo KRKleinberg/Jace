@@ -1,16 +1,16 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	aliases: ['h'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays a list of commands'),
 	async execute({ command, defaultPrefs, guildPrefs }) {
 		try {
-			const fields = Bot.commands.map((command) => {
+			const fields = App.commands.map((command) => {
 				return {
 					name:
 						command.aliases?.length != null
@@ -29,11 +29,11 @@ export const command: Bot.Command = {
 				.setDescription(`Prefix: **${guildPrefs?.prefix ?? defaultPrefs?.prefix}**`)
 				.addFields(fields);
 
-			return await Bot.respond(command, { embeds: [embed] });
+			return await App.respond(command, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not display commands');
+			return await App.respond(command, '⚠️ | Could not display commands');
 		}
 	},
 };

@@ -1,4 +1,4 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { GuildQueueEvent } from 'discord-player';
 import {
 	type AnySelectMenuInteraction,
@@ -7,18 +7,18 @@ import {
 	type Message,
 } from 'discord.js';
 
-export const event: Bot.Event = {
+export const event: App.Event = {
 	async execute() {
 		/**
 		 * Debug
-		 * Bot.player.events.on(GuildQueueEvent.debug, (_queue, message) => console.log(message));
+		 * App.player.events.on(GuildQueueEvent.debug, (_queue, message) => console.log(message));
 		 */
 
-		Bot.player.events.on(GuildQueueEvent.error, async (_queue, error) => {
+		App.player.events.on(GuildQueueEvent.error, async (_queue, error) => {
 			console.error(error);
 		});
 
-		Bot.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
+		App.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
 			const command:
 				| ChatInputCommandInteraction<CacheType>
 				| AnySelectMenuInteraction
@@ -32,20 +32,20 @@ export const event: Bot.Event = {
 				console.error(error);
 			}
 
-			return await Bot.respond(
+			return await App.respond(
 				command,
 				`⚠️ | There was an error playing **${track.title}** by **${track.author}**`,
 				{ channelSend: true }
 			);
 		});
 
-		Bot.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
+		App.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
 			const command:
 				| ChatInputCommandInteraction<CacheType>
 				| AnySelectMenuInteraction
 				| Message<boolean> = queue.metadata;
 
-			return await Bot.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {
+			return await App.respond(command, `🎵 | Playing **${track.title}** by **${track.author}**`, {
 				channelSend: true,
 			});
 		});

@@ -1,10 +1,10 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	aliases: ['dc', 'stop'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
@@ -17,9 +17,9 @@ export const command: Bot.Command = {
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not disconnect');
+			return await App.respond(command, '⚠️ | Could not disconnect');
 		}
 
-		return await Bot.respond(command, `🔌 | Disconnected`);
+		return await App.respond(command, `🔌 | Disconnected`);
 	},
 };

@@ -1,2 +1,2 @@
-# JaceBot
-A multipurpose Discord music bot
+# Jace
+A multipurpose Discord music app

@@ -1,5 +1,5 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import * as DynamoDB from '@utils/dynamodb';
 import { QueryType } from 'discord-player';
 import {
@@ -13,7 +13,7 @@ import {
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Sets user preferences'),
@@ -30,7 +30,7 @@ export const command: Bot.Command = {
 		const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
 		try {
-			const reply = await Bot.respond(
+			const reply = await App.respond(
 				command,
 				{
 					content: '**Preferred Streaming Service:**',
@@ -56,22 +56,22 @@ export const command: Bot.Command = {
 									searchEngine: interaction.values[0],
 								},
 							});
-							const streamSource = Bot.streamSources.find(
+							const streamSource = App.streamSources.find(
 								(streamSource) => streamSource.searchQueryType === interaction.values[0]
 							);
 
 							if (streamSource != null) {
 								await DynamoDB.documentClient.send(putCommand);
 
-								await Bot.respond(interaction, {
+								await App.respond(interaction, {
 									content: `**Preferred Streaming Service:**\n${streamSource.name}`,
 									components: [],
 								});
-							} else await Bot.respond(interaction, '⚠️ | Could not set preferred streaming service');
+							} else await App.respond(interaction, '⚠️ | Could not set preferred streaming service');
 						} catch (error) {
 							console.error(error);
 
-							await Bot.respond(interaction, '⚠️ | Could not connect to database');
+							await App.respond(interaction, '⚠️ | Could not connect to database');
 						}
 					})();
 				})
@@ -89,7 +89,7 @@ export const command: Bot.Command = {
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not set user preferences');
+			return await App.respond(command, '⚠️ | Could not set user preferences');
 		}
 	},
 };

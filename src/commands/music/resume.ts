@@ -1,10 +1,10 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	aliases: ['res'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
@@ -14,22 +14,22 @@ export const command: Bot.Command = {
 		const currentTrack = queue?.currentTrack;
 
 		if (member.voice.channel == null)
-			return await Bot.respond(command, '❌ | You are not in a voice channel');
+			return await App.respond(command, '❌ | You are not in a voice channel');
 		if (currentTrack == null)
-			return await Bot.respond(command, '❌ | There are no tracks in the queue');
+			return await App.respond(command, '❌ | There are no tracks in the queue');
 		if (member.voice.channel !== queue?.channel)
-			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
-		if (queue.node.isPlaying()) return await Bot.respond(command, '🎶 | A track is already playing');
+			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
+		if (queue.node.isPlaying()) return await App.respond(command, '🎶 | A track is already playing');
 
 		try {
 			queue.node.resume();
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not resume the player');
+			return await App.respond(command, '⚠️ | Could not resume the player');
 		}
 
-		return await Bot.respond(
+		return await App.respond(
 			command,
 			`▶️ | Resumed **${currentTrack.title}** by **${currentTrack.author}**`
 		);

@@ -1,11 +1,11 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import * as DynamoDB from '@utils/dynamodb';
 import { Events, type GuildMember } from 'discord.js';
 
-export const event: Bot.Event = {
+export const event: App.Event = {
 	async execute() {
 		// Prefix Commands
-		Bot.client.on(Events.MessageCreate, (message) => {
+		App.client.on(Events.MessageCreate, (message) => {
 			void (async () => {
 				if (!message.author.bot && message.guild != null && message.member != null) {
 					const defaultPrefs = await DynamoDB.getDefaultPrefs();
@@ -18,8 +18,8 @@ export const event: Bot.Event = {
 					if (message.content.toLowerCase().startsWith(prefix)) {
 						const [input, ...args] = message.content.slice(prefix.length).trim().split(/ +/g);
 						const prefixCommand =
-							Bot.commands.get(input?.toLowerCase()) ??
-							Bot.commands.find((command) => command.aliases?.includes(input?.toLowerCase()));
+							App.commands.get(input?.toLowerCase()) ??
+							App.commands.find((command) => command.aliases?.includes(input?.toLowerCase()));
 
 						if (prefixCommand != null) {
 							await message?.channel.sendTyping();
@@ -46,7 +46,7 @@ export const event: Bot.Event = {
 		});
 
 		// Slash Commands
-		Bot.client.on(Events.InteractionCreate, (interaction) => {
+		App.client.on(Events.InteractionCreate, (interaction) => {
 			void (async () => {
 				if (interaction.guild != null) {
 					const defaultPrefs = await DynamoDB.getDefaultPrefs();
@@ -57,7 +57,7 @@ export const event: Bot.Event = {
 
 					if (interaction.guild != null && interaction.member != null) {
 						if (interaction.isAutocomplete()) {
-							const slashCommand = Bot.commands.get(interaction.commandName);
+							const slashCommand = App.commands.get(interaction.commandName);
 
 							if (slashCommand?.autocomplete != null)
 								try {
@@ -66,7 +66,7 @@ export const event: Bot.Event = {
 									console.error(error);
 								}
 						} else if (interaction.isChatInputCommand()) {
-							const slashCommand = Bot.commands.get(interaction.commandName);
+							const slashCommand = App.commands.get(interaction.commandName);
 
 							if (slashCommand != null) {
 								await interaction.deferReply();

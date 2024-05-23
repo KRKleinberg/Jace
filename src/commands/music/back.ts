@@ -1,10 +1,10 @@
-import * as Bot from '@utils/bot';
+import * as App from '@utils/app';
 import { useHistory, useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
-export const command: Bot.Command = {
+export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Plays the previous track'),
@@ -13,19 +13,19 @@ export const command: Bot.Command = {
 		const queue = useQueue(guild);
 
 		if (member.voice.channel == null)
-			return await Bot.respond(command, '❌ | You are not in a voice channel');
+			return await App.respond(command, '❌ | You are not in a voice channel');
 		if (member.voice.channel !== history?.queue.channel)
-			return await Bot.respond(command, '❌ | You are not in the same voice channel as the bot');
+			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
 		if (history.isEmpty()) {
 			try {
 				await queue?.node.seek(0);
 			} catch (error) {
 				console.error(error);
 
-				return await Bot.respond(command, '⚠️ | Could not go back a track');
+				return await App.respond(command, '⚠️ | Could not go back a track');
 			}
 
-			return await Bot.respond(command, '⏮️ | Restarting track');
+			return await App.respond(command, '⏮️ | Restarting track');
 		}
 
 		try {
@@ -33,9 +33,9 @@ export const command: Bot.Command = {
 		} catch (error) {
 			console.error(error);
 
-			return await Bot.respond(command, '⚠️ | Could not go back a track');
+			return await App.respond(command, '⚠️ | Could not go back a track');
 		}
 
-		return await Bot.respond(command, '⏮️ | Playing previous track');
+		return await App.respond(command, '⏮️ | Playing previous track');
 	},
 };

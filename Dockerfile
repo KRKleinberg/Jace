@@ -14,5 +14,5 @@ COPY . .
 
 RUN npm run build
 
-# Start the bot.
+# Start the app.
 CMD ["npm", "start"]
