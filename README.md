@@ -1,2 +1,2 @@
 # Jace
-A multipurpose Discord music app
+A multipurpose Discord music app written in TypeScript.
