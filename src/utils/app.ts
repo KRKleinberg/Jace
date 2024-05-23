@@ -43,16 +43,27 @@ export interface Event {
 
 export class EnvKeys {
 	constructor(
+		/** Public access key for AWS. */
 		readonly AWS_ACCESS_KEY_ID?: string,
+		/** Private access key for AWS. */
 		readonly AWS_SECRET_ACCESS_KEY?: string,
+		/** Region for AWS. */
 		readonly AWS_REGION?: string,
+		/** Application ID for Discord. */
 		readonly DISCORD_APP_ID?: string,
+		/** Bot Token for Discord. */
 		readonly DISCORD_BOT_TOKEN?: string,
+		/** Table name of default preferences for DynamoDB. */
 		readonly DYNAMODB_DEFAULT_PREFS?: string,
+		/** Table name of guild preferences for DynamoDB. */
 		readonly DYNAMODB_GUILD_PREFS?: string,
+		/** Table name of user preferences for DynamoDB. */
 		readonly DYNAMODB_USER_PREFS?: string,
+		/** The environment this instance is running in (ex. 'main', 'dev', 'wip'). */
 		readonly ENV?: string,
+		/** The port to check the app's connection on. */
 		readonly HEALTH_PORT?: string,
+		/** YouTube Cookie for music player. */
 		readonly YOUTUBE_COOKIE?: string
 	) {}
 }
