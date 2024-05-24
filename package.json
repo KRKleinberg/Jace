@@ -42,7 +42,7 @@
 		"@supercharge/strings": "^2.0.0",
 		"@web-scrobbler/metadata-filter": "^3.1.0",
 		"discord-player": "^6.6.9",
-		"discord.js": "^14.14.1",
+		"discord.js": "^14.15.2",
 		"globby": "^14.0.1"
 	}
 }
