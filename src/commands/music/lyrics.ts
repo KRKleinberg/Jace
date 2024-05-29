@@ -26,40 +26,43 @@ export const command: App.Command = {
 				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
+			const trimmedLyrics = lyrics.plainLyrics.substring(0, 1997);
+			const embed = new EmbedBuilder()
+				.setTitle(lyrics.trackName)
+				.setAuthor({ name: lyrics.artistName })
+				.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
+				.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
 			if (!lyrics?.plainLyrics)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
 
-			if (!query && queue?.syncedLyrics(lyrics)) {
-				const syncedLyrics = queue?.syncedLyrics(lyrics);
+			if (!query) {
+				try {
+					const syncedLyrics = queue?.syncedLyrics(lyrics);
 
-				if (syncedLyrics?.isSubscribed()) {
-					syncedLyrics.pause();
-					syncedLyrics.unsubscribe();
+					if (syncedLyrics?.isSubscribed()) {
+						syncedLyrics.pause();
+						syncedLyrics.unsubscribe();
 
-					return await App.respond(command, '❎ | Stopped lyrics');
-				} else {
-					syncedLyrics?.onChange(async (lyrics, timestamp) => {
-						const response = await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
-							channelSend: true,
+						return await App.respond(command, '❎ | Stopped lyrics');
+					} else {
+						syncedLyrics?.onChange(async (lyrics, timestamp) => {
+							const response = await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
+								channelSend: true,
+							});
+
+							setTimeout(() => response.delete(), 7_000);
 						});
+						syncedLyrics?.subscribe();
 
-						setTimeout(() => response.delete(), 7_000);
-					});
-					syncedLyrics?.subscribe();
-
-					return await App.respond(command, '🔄️ | Syncing lyrics');
+						return await App.respond(command, '🔄️ | Syncing lyrics');
+					}
+				} catch {
+					// Do nothing, continue.
 				}
-			} else {
-				const trimmedLyrics = lyrics.plainLyrics.substring(0, 1997);
-				const embed = new EmbedBuilder()
-					.setTitle(lyrics.trackName)
-					.setAuthor({ name: lyrics.artistName })
-					.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-					.setColor(guildPrefs?.color ?? defaultPrefs.color);
-
-				return await App.respond(command, { embeds: [embed] });
 			}
+
+			return await App.respond(command, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
