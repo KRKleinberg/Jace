@@ -46,7 +46,7 @@ export const command: App.Command = {
 			if (!query && lyrics.syncedLyrics) {
 				const syncedLyrics = queue?.syncedLyrics(lyrics);
 
-				if (syncedLyrics?.isSubscribed() === false) {
+				if (syncedLyrics?.isSubscribed()) {
 					syncedLyrics.pause();
 					syncedLyrics.unsubscribe();
 
