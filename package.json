@@ -35,12 +35,16 @@
 	},
 	"dependencies": {
 		"@aws-sdk/lib-dynamodb": "^3.585.0",
-		"@discordjs/opus": "^0.9.0",
 		"@distube/ytdl-core": "^4.13.3",
 		"@supercharge/strings": "^2.0.0",
 		"@web-scrobbler/metadata-filter": "^3.1.0",
 		"discord-player": "^6.6.9",
 		"discord.js": "^14.15.2",
-		"globby": "^14.0.1"
+		"globby": "^14.0.1",
+		"mediaplex": "^0.0.9"
+	},
+	"optionalDependencies": {
+		"mediaplex-linux-arm-gnueabihf": "^0.0.9",
+		"mediaplex-win32-x64-msvc": "^0.0.9"
 	}
 }
