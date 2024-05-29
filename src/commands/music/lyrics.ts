@@ -47,7 +47,6 @@ export const command: App.Command = {
 				const syncedLyrics = queue?.syncedLyrics(lyrics);
 
 				if (syncedLyrics?.isSubscribed()) {
-					syncedLyrics.pause();
 					syncedLyrics.unsubscribe();
 
 					return await App.respond(command, '❎ | Stopped lyrics');
