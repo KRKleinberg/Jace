@@ -17,20 +17,34 @@ export const command: App.Command = {
 		const query =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query')
-				: args.length > 0
-					? args.join(' ')
-					: null;
+				: args.join(' ');
 
 		try {
 			const results = await player.lyrics.search({
 				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
+			const syncedLyrics = queue?.syncedLyrics(lyrics);
 
 			if (!lyrics?.plainLyrics)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
 
-			if (query) {
+			if (!query && syncedLyrics) {
+				if (syncedLyrics?.isSubscribed()) {
+					syncedLyrics.pause();
+					syncedLyrics.unsubscribe();
+
+					return await App.respond(command, '❎ | Stopped lyrics');
+				} else {
+					syncedLyrics?.onChange(async (lyrics, timestamp) => {
+						await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, { channelSend: true });
+					});
+
+					syncedLyrics?.subscribe();
+
+					return await App.respond(command, '🔄️ | Syncing lyrics');
+				}
+			} else {
 				const trimmedLyrics = lyrics.plainLyrics.substring(0, 1997);
 				const embed = new EmbedBuilder()
 					.setTitle(lyrics.trackName)
@@ -39,22 +53,6 @@ export const command: App.Command = {
 					.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
 				return await App.respond(command, { embeds: [embed] });
-			} else {
-				const syncedLyrics = queue?.syncedLyrics(lyrics);
-
-				if (syncedLyrics?.isSubscribed()) {
-					syncedLyrics.unsubscribe();
-
-					return await App.respond(command, '❎ | Stopped lyrics');
-				} else {
-					syncedLyrics?.onChange(async (lyrics, timestamp) => {
-						await App.respond(command, `[${Util.formatDuration(timestamp)}]: ${lyrics}`, { channelSend: true });
-					});
-
-					syncedLyrics?.subscribe();
-
-					return await App.respond(command, '🔄️ | Syncing lyrics');
-				}
 			}
 		} catch (error) {
 			console.error(error);
