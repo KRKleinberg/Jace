@@ -1,5 +1,5 @@
 import * as App from '@utils/app';
-import { useMainPlayer, useQueue } from 'discord-player';
+import { useMainPlayer, useQueue, Util } from 'discord-player';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -7,41 +7,53 @@ import { fileURLToPath } from 'url';
 export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Displays lyrics of given track')
+		.setDescription('Toggles the display of lyrics of given or current track')
 		.addStringOption((option) => {
 			return option.setName('query').setDescription('The track whose lyrics you want to display');
 		}),
 	async execute({ command, guild, args, defaultPrefs, guildPrefs }) {
 		const player = useMainPlayer();
 		const queue = useQueue(guild);
+		const query =
+			command.type === InteractionType.ApplicationCommand
+				? command.options.getString('query')
+				: args.join(' ');
 
 		try {
 			const results = await player.lyrics.search({
-				q:
-					command.type === InteractionType.ApplicationCommand
-						? command.options.getString('query') ?? `${queue?.currentTrack?.title}`
-						: args.join(' ') ?? `${queue?.currentTrack?.title}`,
+				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
 
 			if (!lyrics?.plainLyrics)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
 
-			const syncedLyrics = queue?.syncedLyrics(lyrics);
+			if (query) {
+				const trimmedLyrics = lyrics.plainLyrics.substring(0, 1997);
+				const embed = new EmbedBuilder()
+					.setTitle(lyrics.trackName)
+					.setAuthor({ name: lyrics.artistName })
+					.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
+					.setColor(guildPrefs?.color ?? defaultPrefs.color);
 
-			syncedLyrics?.onChange(async (lyrics, timestamp) => {
-				await App.respond(command, `[${timestamp}]: ${lyrics}`, { channelSend: true });
-			});
-			syncedLyrics?.subscribe();
+				return await App.respond(command, { embeds: [embed] });
+			} else {
+				const syncedLyrics = queue?.syncedLyrics(lyrics);
 
-			const trimmedLyrics = lyrics.plainLyrics.substring(0, 1997);
-			const embed = new EmbedBuilder()
-				.setTitle(lyrics.trackName)
-				.setAuthor({ name: lyrics.artistName })
-				.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-				.setColor(guildPrefs?.color ?? defaultPrefs.color);
+				if (syncedLyrics?.isSubscribed()) {
+					syncedLyrics.unsubscribe();
 
-			return await App.respond(command, { embeds: [embed] });
+					return await App.respond(command, '❎ | Stopped lyrics');
+				} else {
+					syncedLyrics?.onChange(async (lyrics, timestamp) => {
+						await App.respond(command, `[${Util.formatDuration(timestamp)}]: ${lyrics}`, { channelSend: true });
+					});
+
+					syncedLyrics?.subscribe();
+
+					return await App.respond(command, '🔄️ | Syncing lyrics');
+				}
+			}
 		} catch (error) {
 			console.error(error);
 
