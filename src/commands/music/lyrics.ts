@@ -17,14 +17,16 @@ export const command: App.Command = {
 		const query =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query')
-				: args.join(' ');
+				: args.length > 0
+					? args.join(' ')
+					: null;
 
 		try {
 			const results = await player.lyrics.search({
 				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
-			const syncedLyrics = queue?.syncedLyrics(lyrics);
+			const syncedLyrics = queue?.syncedLyrics(lyrics) ?? null;
 
 			if (!lyrics?.plainLyrics)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
@@ -37,7 +39,9 @@ export const command: App.Command = {
 					return await App.respond(command, '❎ | Stopped lyrics');
 				} else {
 					syncedLyrics?.onChange(async (lyrics, timestamp) => {
-						await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, { channelSend: true });
+						await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
+							channelSend: true,
+						});
 					});
 
 					syncedLyrics?.subscribe();
