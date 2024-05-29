@@ -57,7 +57,7 @@ export const command: App.Command = {
 							channelSend: true,
 						});
 
-						setTimeout(() => response.delete(), 7_000);
+						setTimeout(() => response.delete(), 20_000);
 					});
 					syncedLyrics?.subscribe();
 
