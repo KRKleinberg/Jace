@@ -17,11 +17,13 @@ export const command: App.Command = {
 		const query =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query')
-				: args.join(' ');
+				: args.length > 0
+					? args.join(' ')
+					: null;
 
 		try {
 			const results = await player.lyrics.search({
-				q: query || `${queue?.currentTrack?.title}`,
+				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
 
