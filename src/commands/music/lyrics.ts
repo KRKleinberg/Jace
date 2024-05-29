@@ -46,7 +46,7 @@ export const command: App.Command = {
 			if (!query && lyrics.syncedLyrics) {
 				const syncedLyrics = queue?.syncedLyrics(lyrics);
 
-				if (syncedLyrics?.isSubscribed()) {
+				if (syncedLyrics?.isSubscribed() === false) {
 					syncedLyrics.pause();
 					syncedLyrics.unsubscribe();
 
@@ -57,7 +57,7 @@ export const command: App.Command = {
 							channelSend: true,
 						});
 
-						setTimeout(() => response.delete(), 30_000);
+						setTimeout(() => response.delete(), 20_000);
 					});
 					syncedLyrics?.subscribe();
 
