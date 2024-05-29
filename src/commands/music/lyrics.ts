@@ -53,7 +53,7 @@ export const command: App.Command = {
 					return await App.respond(command, '❎ | Stopped lyrics');
 				} else {
 					syncedLyrics?.onChange(async (lyrics, timestamp) => {
-						const response = await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
+						const response = await App.respond(command, `\`${Util.formatDuration(timestamp)}**: ${lyrics}\``, {
 							channelSend: true,
 						});
 
