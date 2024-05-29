@@ -1,5 +1,5 @@
 import * as App from '@utils/app';
-import { useMainPlayer, useQueue, Util } from 'discord-player';
+import { useMainPlayer, useQueue } from 'discord-player';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
