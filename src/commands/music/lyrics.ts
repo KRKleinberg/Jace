@@ -19,8 +19,8 @@ export const command: App.Command = {
 			const results = await player.lyrics.search({
 				q:
 					command.type === InteractionType.ApplicationCommand
-						? command.options.getString('query', true)
-						: args.join(' '),
+						? command.options.getString('query') ?? `${queue?.currentTrack?.title}`
+						: args.join(' ') ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
 
