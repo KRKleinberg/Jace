@@ -1,5 +1,5 @@
 import * as App from '@utils/app';
-import { useMainPlayer, useQueue } from 'discord-player';
+import { useQueue } from 'discord-player';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,6 @@ export const command: App.Command = {
 			return option.setName('query').setDescription('The track whose lyrics you want to display');
 		}),
 	async execute({ command, guild, args, defaultPrefs, guildPrefs }) {
-		const player = useMainPlayer();
 		const queue = useQueue(guild);
 		const query =
 			command.type === InteractionType.ApplicationCommand
@@ -22,7 +21,7 @@ export const command: App.Command = {
 					: null;
 
 		try {
-			const results = await player.lyrics.search(
+			const results = await App.player.lyrics.search(
 				query
 					? {
 							q: query,
