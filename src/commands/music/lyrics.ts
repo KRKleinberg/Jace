@@ -21,7 +21,7 @@ export const command: App.Command = {
 
 		try {
 			const results = await player.lyrics.search({
-				q: query ?? `${queue?.currentTrack?.title}`,
+				q: query || `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
 
