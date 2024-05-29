@@ -26,12 +26,13 @@ export const command: App.Command = {
 				q: query ?? `${queue?.currentTrack?.title}`,
 			});
 			const lyrics = results?.[0];
-			const syncedLyrics = queue?.syncedLyrics(lyrics) ?? null;
 
 			if (!lyrics?.plainLyrics)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
 
-			if (!query && syncedLyrics) {
+			if (!query && queue?.syncedLyrics(lyrics)) {
+				const syncedLyrics = queue?.syncedLyrics(lyrics);
+
 				if (syncedLyrics?.isSubscribed()) {
 					syncedLyrics.pause();
 					syncedLyrics.unsubscribe();
@@ -39,11 +40,12 @@ export const command: App.Command = {
 					return await App.respond(command, '❎ | Stopped lyrics');
 				} else {
 					syncedLyrics?.onChange(async (lyrics, timestamp) => {
-						await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
+						const response = await App.respond(command, `**${Util.formatDuration(timestamp)}**: ${lyrics}`, {
 							channelSend: true,
 						});
-					});
 
+						setTimeout(() => response.delete(), 7_000);
+					});
 					syncedLyrics?.subscribe();
 
 					return await App.respond(command, '🔄️ | Syncing lyrics');
