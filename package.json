@@ -44,7 +44,7 @@
 		"mediaplex": "^0.0.9"
 	},
 	"optionalDependencies": {
-		"mediaplex-linux-arm64-gnu": "^0.0.1",
+		"mediaplex-linux-arm-gnueabihf": "^0.0.9",
 		"mediaplex-win32-x64-msvc": "^0.0.9"
 	}
 }
