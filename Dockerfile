@@ -2,7 +2,9 @@ FROM node:lts-bookworm-slim
 
 WORKDIR /jace
 
-RUN apt-get update && apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  ffmpeg
 
 COPY package.json .
 
