@@ -29,9 +29,7 @@
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-n": "^17.7.0",
 		"eslint-plugin-promise": "^6.2.0",
-		"prettier": "^3.3.0",
-		"tsc-alias": "^1.8.10",
-		"typescript": "^5.4.5"
+		"prettier": "^3.3.0"
 	},
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "^3.588.0",
@@ -43,6 +41,8 @@
 		"discord-player": "^6.6.9",
 		"discord.js": "^14.15.2",
 		"globby": "^14.0.1",
-		"opusscript": "^0.1.1"
+		"opusscript": "^0.1.1",
+		"tsc-alias": "^1.8.10",
+		"typescript": "^5.4.5"
 	}
 }
