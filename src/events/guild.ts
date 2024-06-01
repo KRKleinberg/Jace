@@ -11,7 +11,7 @@ export const event: App.Event = {
 				try {
 					await guild.members.me?.setNickname(defaultPrefs.nickname);
 				} catch (error) {
-					console.log('Could not set nickname');
+					console.error('Could not set nickname');
 				}
 			})();
 		});

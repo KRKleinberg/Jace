@@ -1,10 +1,10 @@
 import * as App from '@utils/app';
-import { GuildQueueEvent } from 'discord-player';
+import { GuildQueueEvent, Util } from 'discord-player';
 import {
-    type AnySelectMenuInteraction,
-    type CacheType,
-    type ChatInputCommandInteraction,
-    type Message,
+	type AnySelectMenuInteraction,
+	type CacheType,
+	type ChatInputCommandInteraction,
+	type Message,
 } from 'discord.js';
 
 export const event: App.Event = {
@@ -32,7 +32,7 @@ export const event: App.Event = {
 				console.error(error);
 			}
 
-			return await App.respond(
+			await App.respond(
 				command,
 				`⚠️ | There was an error playing **${track.cleanTitle}** by **${track.author}**`,
 				{ channelSend: true }
@@ -45,9 +45,61 @@ export const event: App.Event = {
 				| AnySelectMenuInteraction
 				| Message<boolean> = queue.metadata;
 
-			return await App.respond(command, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
-				channelSend: true,
-			});
+			const lyricsResult = (
+				await App.player.lyrics.search({
+					trackName: track.cleanTitle,
+					artistName: track.author,
+				})
+			)[0];
+
+			if (lyricsResult.syncedLyrics) {
+				try {
+					const syncedLyrics = queue.syncedLyrics(lyricsResult);
+					const syncedVerses = lyricsResult.syncedLyrics
+						.split('\n')
+						.filter((verse) => verse.slice(11).length !== 0);
+					const response = await App.respond(
+						command,
+						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`,
+						{
+							channelSend: true,
+						}
+					);
+
+					syncedLyrics.onChange(async (currentVerse, timestamp) => {
+						try {
+							const currentVerseIndex = syncedVerses.findIndex((verse) =>
+								verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
+							);
+
+							const lyrics = [
+								currentVerseIndex !== syncedVerses.length - 1
+									? `**${currentVerse}**`
+									: syncedVerses[currentVerseIndex - 1].slice(11),
+								currentVerseIndex !== syncedVerses.length - 1
+									? syncedVerses[currentVerseIndex + 1].slice(11)
+									: `**${currentVerse}**`,
+							];
+
+							if (currentVerseIndex === syncedVerses.length - 1)
+								setTimeout(
+									async () => await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`),
+									10_000
+								);
+
+							await response.edit(
+								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n———\n${lyrics.join('\n')}`
+							);
+						} catch (err) {
+							await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`);
+						}
+					});
+
+					syncedLyrics.subscribe();
+				} catch (err) {
+					// Do nothing.
+				}
+			}
 		});
 	},
 };
