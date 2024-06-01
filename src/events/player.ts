@@ -60,7 +60,7 @@ export const event: App.Event = {
 						.filter((verse) => verse.slice(11).length !== 0);
 					const response = await App.respond(
 						command,
-						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`,
+						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n———\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
 						{
 							channelSend: true,
 						}
@@ -99,7 +99,10 @@ export const event: App.Event = {
 				} catch (err) {
 					// Do nothing.
 				}
-			}
+			} else
+				await App.respond(command, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
+					channelSend: true,
+				});
 		});
 	},
 };
