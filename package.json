@@ -21,7 +21,7 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"devDependencies": {
-		"@types/node": "^20.13.0",
+		"@types/node": "^20.14.0",
 		"concurrently": "^8.2.2",
 		"eslint": "^8.57.0",
 		"eslint-config-love": "^52.0.0",
@@ -40,7 +40,7 @@
 		"@supercharge/strings": "^2.0.0",
 		"@web-scrobbler/metadata-filter": "^3.1.0",
 		"discord-player": "^6.6.9",
-		"discord.js": "^14.15.2",
+		"discord.js": "^14.15.3",
 		"globby": "^14.0.1",
 		"tsc-alias": "^1.8.10",
 		"typescript": "^5.4.5"
