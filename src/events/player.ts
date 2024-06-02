@@ -52,7 +52,7 @@ export const event: App.Event = {
 				})
 			)[0];
 
-			if (lyricsResult.syncedLyrics) {
+			if (lyricsResult?.syncedLyrics) {
 				try {
 					const syncedLyrics = queue.syncedLyrics(lyricsResult);
 					const syncedVerses = lyricsResult.syncedLyrics
