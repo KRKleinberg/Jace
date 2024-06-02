@@ -57,9 +57,6 @@ export const command: App.Command = {
 				: args.join(' '),
 			userPrefs
 		);
-		const searchResult = await search.result();
-		const track = searchResult.tracks[0];
-		const playlist = searchResult.playlist;
 		const queue = App.player.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
@@ -73,8 +70,27 @@ export const command: App.Command = {
 			return await App.respond(command, '❌ | You are not in a voice channel');
 		if (queue.connection != null && member.voice.channel !== queue.channel)
 			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
-		if (search.query.length === 0)
+		if (search.query.length === 0) {
+			if (queue.currentTrack && queue.node.isPaused()) {
+				try {
+					queue.node.resume();
+
+					return await App.respond(
+						command,
+						`▶️ | Resumed **${queue.currentTrack?.cleanTitle}** by **${queue.currentTrack?.author}**`
+					);
+				} catch {
+					// Do nothing.
+				}
+			}
+
 			return await App.respond(command, '❌ | You did not enter a search query');
+		}
+
+		const searchResult = await search.result();
+		const track = searchResult.tracks[0];
+		const playlist = searchResult.playlist;
+
 		if (searchResult.isEmpty()) return await App.respond(command, '❌ | No results found');
 
 		await queue.tasksQueue.acquire().getTask();
