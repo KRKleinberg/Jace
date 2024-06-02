@@ -11,6 +11,7 @@ export interface DefaultPrefs {
 	prefix: string;
 	color: ColorResolvable;
 	nickname: string;
+	searchEngine?: (typeof QueryType)[keyof typeof QueryType];
 }
 export interface GuildPrefs {
 	env: 'main' | 'dev' | 'wip';

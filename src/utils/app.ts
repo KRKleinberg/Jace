@@ -100,7 +100,7 @@ export class Search {
 			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
 				return streamSource.searchQueryType;
 
-		return this.userPrefs?.searchEngine ?? QueryType.YOUTUBE_SEARCH;
+		return this.userPrefs?.searchEngine ?? defaultPrefs.searchEngine ?? QueryType.AUTO;
 	}
 
 	/**
