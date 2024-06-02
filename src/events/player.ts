@@ -60,7 +60,7 @@ export const event: App.Event = {
 						.filter((verse) => verse.slice(11).length !== 0);
 					const response = await App.respond(
 						command,
-						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n———\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
+						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n—•—•—\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
 						{
 							channelSend: true,
 						}
@@ -88,7 +88,7 @@ export const event: App.Event = {
 								);
 
 							await response.edit(
-								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n———\n${lyrics.join('\n')}`
+								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n—•—•—\n${lyrics.join('\n')}`
 							);
 						} catch (err) {
 							await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`);
