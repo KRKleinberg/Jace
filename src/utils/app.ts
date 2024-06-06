@@ -188,7 +188,7 @@ export const streamSources: Array<{
 ];
 
 export async function respond(
-	command: ChatInputCommandInteraction | AnySelectMenuInteraction | Message,
+	command: Parameters<Command['execute']>[0]['command'] | AnySelectMenuInteraction,
 	response: string | BaseMessageOptions,
 	options?: {
 		channelSend?: boolean;

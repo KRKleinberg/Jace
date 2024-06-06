@@ -19,10 +19,7 @@ export const event: App.Event = {
 		});
 
 		App.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
-			const command:
-				| ChatInputCommandInteraction<CacheType>
-				| AnySelectMenuInteraction
-				| Message<boolean> = queue.metadata;
+			const command: Parameters<typeof App.respond>[0] = queue.metadata;
 
 			console.error(error);
 
@@ -40,10 +37,7 @@ export const event: App.Event = {
 		});
 
 		App.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
-			const command:
-				| ChatInputCommandInteraction<CacheType>
-				| AnySelectMenuInteraction
-				| Message<boolean> = queue.metadata;
+			const command: Parameters<typeof App.respond>[0] = queue.metadata;
 
 			const lyricsResult = (
 				await App.player.lyrics.search({
