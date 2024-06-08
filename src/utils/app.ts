@@ -61,8 +61,6 @@ export class EnvKeys {
 		readonly DYNAMODB_USER_PREFS?: string,
 		/** The environment this instance is running in (ex. 'main', 'dev', 'wip'). */
 		readonly ENV?: string,
-		/** The port to check the app's connection on. */
-		readonly HEALTH_PORT?: string,
 		/** YouTube Cookie for music player. */
 		readonly YOUTUBE_COOKIE?: string
 	) {}

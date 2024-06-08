@@ -1,7 +1,6 @@
 import * as App from '@utils/app';
 import * as DynamoDB from '@utils/dynamodb';
 import { Events, REST, Routes } from 'discord.js';
-import http from 'http';
 
 export const event: App.Event = {
 	async execute() {
@@ -22,14 +21,6 @@ export const event: App.Event = {
 				} catch (error) {
 					console.error(error);
 				}
-
-				// Health Check
-				http
-					.createServer((_req, res) => {
-						res.writeHead(200);
-						res.end('OK');
-					})
-					.listen(process.env.HEALTH_PORT);
 
 				// Log Start
 				console.log(`${App.client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
