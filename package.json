@@ -39,7 +39,7 @@
 		"@distube/ytdl-core": "^4.13.4",
 		"@supercharge/strings": "^2.0.0",
 		"@web-scrobbler/metadata-filter": "^3.1.0",
-		"discord-player": "^6.6.9",
+		"discord-player": "^6.6.10",
 		"discord.js": "^14.15.3",
 		"globby": "^14.0.1",
 		"tsc-alias": "^1.8.10",
