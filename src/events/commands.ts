@@ -1,5 +1,4 @@
 import * as App from '@utils/app';
-import * as DynamoDB from '@utils/dynamodb';
 import { Events, type GuildMember } from 'discord.js';
 
 export const event: App.Event = {
@@ -8,15 +7,12 @@ export const event: App.Event = {
 		App.client.on(Events.MessageCreate, (message) => {
 			void (async () => {
 				if (!message.author.bot && message.guild != null && message.member != null) {
-					const defaultPrefs = await DynamoDB.getDefaultPrefs();
-					const guildPrefs = await DynamoDB.getGuildPrefs(message.guild);
-					const userPrefs = await DynamoDB.getUserPrefs(message.author);
-					const prefix = guildPrefs?.prefix ?? defaultPrefs.prefix;
+					const user = message.member;
+					const guild = message.guild;
+					const preferences = await App.getPreferences({ userId: user.id, guildId: guild.id });
 
-					if (defaultPrefs == null) throw new Error('DynamoDB default preferences not defined!');
-
-					if (message.content.toLowerCase().startsWith(prefix)) {
-						const [input, ...args] = message.content.slice(prefix.length).trim().split(/ +/g);
+					if (message.content.toLowerCase().startsWith(preferences.prefix)) {
+						const [input, ...args] = message.content.slice(preferences.prefix.length).trim().split(/ +/g);
 						const prefixCommand =
 							App.commands.get(input?.toLowerCase()) ??
 							App.commands.find((command) => command.aliases?.includes(input?.toLowerCase()));
@@ -30,9 +26,7 @@ export const event: App.Event = {
 									guild: message.guild,
 									member: message.member,
 									args,
-									defaultPrefs,
-									guildPrefs,
-									userPrefs,
+									preferences,
 								});
 							} catch (error) {
 								console.error(error);
@@ -49,11 +43,10 @@ export const event: App.Event = {
 		App.client.on(Events.InteractionCreate, (interaction) => {
 			void (async () => {
 				if (interaction.guild != null) {
-					const defaultPrefs = await DynamoDB.getDefaultPrefs();
-					const guildPrefs = await DynamoDB.getGuildPrefs(interaction.guild);
-					const userPrefs = await DynamoDB.getUserPrefs(interaction.user);
-
-					if (defaultPrefs == null) throw new Error('DynamoDB default preferences not defined!');
+					const preferences = await App.getPreferences({
+						userId: interaction.user.id,
+						guildId: interaction.guild.id,
+					});
 
 					if (interaction.guild != null && interaction.member != null) {
 						if (interaction.isAutocomplete()) {
@@ -61,7 +54,7 @@ export const event: App.Event = {
 
 							if (slashCommand?.autocomplete != null)
 								try {
-									await slashCommand.autocomplete(interaction, userPrefs);
+									await slashCommand.autocomplete(interaction, preferences);
 								} catch (error) {
 									console.error(error);
 								}
@@ -77,9 +70,7 @@ export const event: App.Event = {
 										guild: interaction.guild,
 										member: interaction.member as GuildMember,
 										args: [],
-										defaultPrefs,
-										guildPrefs,
-										userPrefs,
+										preferences,
 									});
 								} catch (error) {
 									console.error(error);

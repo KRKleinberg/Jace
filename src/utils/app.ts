@@ -1,11 +1,11 @@
-import * as DynamoDB from '@utils/dynamodb';
 import { Player, QueryType, type SearchResult, type TrackSource } from 'discord-player';
 import {
+	ActivityType,
 	Client,
 	Collection,
+	ColorResolvable,
 	GatewayIntentBits,
 	InteractionType,
-	type SlashCommandOptionsOnlyBuilder,
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
@@ -14,27 +14,38 @@ import {
 	type GuildMember,
 	type InteractionResponse,
 	type Message,
-	ActivityType,
+	type SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
 import type EventEmitter from 'events';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const defaultPrefs = await DynamoDB.getDefaultPrefs();
-
+export interface Preferences {
+	/** The prefix to use with prefix commands. */
+	prefix?: string;
+	/** The color to use on embeds. */
+	color?: ColorResolvable;
+	/** The search engine to search for tracks with. */
+	searchEngine?: (typeof QueryType)[keyof typeof QueryType];
+}
+export interface Document {
+	/** The User ID or Guild ID. Use '0' for master. */
+	discordId: string;
+	/** The preferences set for this ID. */
+	preferences: Preferences;
+}
 export interface Command {
 	aliases?: string[];
 	data: Omit<SlashCommandOptionsOnlyBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 	autocomplete?: (
 		interaction: AutocompleteInteraction,
-		userPrefs?: DynamoDB.UserPrefs
+		preferences: Required<Preferences>
 	) => Promise<void>;
 	execute: (options: {
 		command: ChatInputCommandInteraction | Message;
 		guild: Guild;
 		member: GuildMember;
 		args: string[];
-		defaultPrefs: DynamoDB.DefaultPrefs;
-		guildPrefs?: DynamoDB.GuildPrefs;
-		userPrefs?: DynamoDB.UserPrefs;
+		preferences: Required<Preferences>;
 	}) => Promise<Message | InteractionResponse | EventEmitter>;
 }
 export interface Event {
@@ -43,40 +54,30 @@ export interface Event {
 
 export class EnvKeys {
 	constructor(
-		/** Public access key for AWS. */
-		readonly AWS_ACCESS_KEY_ID?: string,
-		/** Private access key for AWS. */
-		readonly AWS_SECRET_ACCESS_KEY?: string,
-		/** Region for AWS. */
-		readonly AWS_REGION?: string,
 		/** Application ID for Discord. */
 		readonly DISCORD_APP_ID?: string,
 		/** Bot Token for Discord. */
 		readonly DISCORD_BOT_TOKEN?: string,
-		/** Table name of default preferences for DynamoDB. */
-		readonly DYNAMODB_DEFAULT_PREFS?: string,
-		/** Table name of guild preferences for DynamoDB. */
-		readonly DYNAMODB_GUILD_PREFS?: string,
-		/** Table name of user preferences for DynamoDB. */
-		readonly DYNAMODB_USER_PREFS?: string,
 		/** The environment this instance is running in (ex. 'main', 'dev', 'wip'). */
-		readonly ENV?: string,
+		readonly ENV?: 'main' | 'dev' | 'wip',
+		/** MongoDB URL for login. */
+		readonly MONGODB_URL?: string,
 		/** YouTube Cookie for music player. */
 		readonly YOUTUBE_COOKIE?: string
 	) {}
 }
 export class Search {
 	private readonly input;
-	private readonly userPrefs;
+	private readonly preferences;
 
 	constructor(
 		/** User input */
 		input: string,
-		/** The users preferences from the database */
-		userPrefs?: DynamoDB.UserPrefs
+		/** The preferences from the database */
+		preferences: Preferences
 	) {
 		this.input = input.trim();
-		this.userPrefs = userPrefs;
+		this.preferences = preferences;
 	}
 
 	/**
@@ -98,7 +99,7 @@ export class Search {
 			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
 				return streamSource.searchQueryType;
 
-		return this.userPrefs?.searchEngine ?? defaultPrefs.searchEngine ?? QueryType.AUTO;
+		return this.preferences.searchEngine ?? QueryType.AUTO;
 	}
 
 	/**
@@ -112,6 +113,13 @@ export class Search {
 	}
 }
 
+export const mongoClient = new MongoClient(process.env.MONGODB_URL as string, {
+	serverApi: {
+		version: ServerApiVersion.v1,
+		strict: true,
+		deprecationErrors: true,
+	},
+});
 export const client = new Client({
 	intents: [
 		// GatewayIntentBits.AutoModerationConfiguration,
@@ -137,7 +145,7 @@ export const client = new Client({
 	presence: {
 		activities: [
 			{
-				name: `📻 | ${defaultPrefs.prefix}help | v${process.env.npm_package_version}`,
+				name: `📻 | ${(await getPreferences()).prefix}help | v${process.env.npm_package_version}`,
 				type: ActivityType.Custom,
 			},
 		],
@@ -185,6 +193,29 @@ export const streamSources: Array<{
 	},
 ];
 
+export async function getPreferences(id?: {
+	userId?: string;
+	guildId?: string;
+}): Promise<Required<Preferences>> {
+	const collection = mongoClient
+		.db(process.env.npm_package_name)
+		.collection<Document>(process.env.ENV!);
+
+	const user = id?.userId ? await collection.findOne({ discordId: id?.userId }) : null;
+	const guild = id?.guildId ? await collection.findOne({ discordId: id?.guildId }) : null;
+	const master = (await collection.findOne({ discordId: '0' }))!;
+
+	if (!master) throw new Error('Cannot fetch master preferences!');
+
+	return {
+		prefix: user?.preferences?.prefix ?? guild?.preferences?.prefix ?? master.preferences.prefix!,
+		color: user?.preferences?.color ?? guild?.preferences?.color ?? master.preferences.color!,
+		searchEngine:
+			user?.preferences?.searchEngine ??
+			guild?.preferences?.searchEngine ??
+			master.preferences.searchEngine!,
+	};
+}
 export async function respond(
 	command: Parameters<Command['execute']>[0]['command'] | AnySelectMenuInteraction,
 	response: string | BaseMessageOptions,

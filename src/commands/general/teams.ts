@@ -7,7 +7,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Splits voice channel members into two teams'),
-	async execute({ command, member, defaultPrefs, guildPrefs }) {
+	async execute({ command, member, preferences }) {
 		if (member.voice.channel == null)
 			return await App.respond(command, '❌ | You are not in a voice channel');
 
@@ -36,7 +36,7 @@ export const command: App.Command = {
 						value: voiceMembers[Math.floor(Math.random() * voiceMembers.length)].toString(),
 					},
 				])
-				.setColor(guildPrefs?.color ?? defaultPrefs.color);
+				.setColor(preferences.color);
 
 			return await App.respond(command, { embeds: [embed] });
 		} catch (error) {

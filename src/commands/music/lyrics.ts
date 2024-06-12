@@ -14,7 +14,7 @@ export const command: App.Command = {
 				.setDescription('The track whose lyrics you want to display')
 				.setRequired(true);
 		}),
-	async execute({ command, guild, args, defaultPrefs, guildPrefs }) {
+	async execute({ command, guild, args, preferences }) {
 		const query =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query', true)
@@ -42,7 +42,7 @@ export const command: App.Command = {
 							? `...${Str(value).limit(1993, '...').toString()}`
 							: Str(value).limit(1993, '...').toString()
 					)
-					.setColor(guildPrefs?.color ?? defaultPrefs.color);
+					.setColor(preferences.color);
 
 				embeds.push(embed);
 			});

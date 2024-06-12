@@ -9,7 +9,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the currently playing song info'),
-	async execute({ command, guild, member, defaultPrefs, guildPrefs }) {
+	async execute({ command, guild, member, preferences }) {
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
 
@@ -25,7 +25,7 @@ export const command: App.Command = {
 				(streamSource) => streamSource.trackSource === currentTrack.source
 			);
 			const embed = new EmbedBuilder()
-				.setColor(guildPrefs?.color ?? defaultPrefs.color)
+				.setColor(preferences.color)
 				.setAuthor({ name: 'Now Playing' })
 				.setTitle(currentTrack.cleanTitle)
 				.setDescription(queue.node.createProgressBar())

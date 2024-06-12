@@ -10,7 +10,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the queue'),
-	async execute({ command, guild, member, defaultPrefs, guildPrefs }) {
+	async execute({ command, guild, member, preferences }) {
 		const queue = useQueue(guild);
 		const currentTrack = queue?.currentTrack;
 
@@ -23,21 +23,21 @@ export const command: App.Command = {
 
 		try {
 			const embed = new EmbedBuilder()
-				.setColor(guildPrefs?.color ?? defaultPrefs.color)
-				.setTitle('Queue')
-				.setDescription(
-					Str(
-						`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
-							currentTrack.author
-						}**\n\n${queue.tracks
-							.map(
-								(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
-							)
-							.join('\n')}`
-					)
-						.limit(4093, '...')
-						.toString()
-				);
+	.setColor(preferences.color)
+	.setTitle('Queue')
+	.setDescription(
+		Str(
+			`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
+				currentTrack.author
+			}**\n\n${queue.tracks
+				.map(
+					(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
+				)
+				.join('\n')}`
+		)
+			.limit(4093, '...')
+			.toString()
+	);
 
 			return await App.respond(command, { embeds: [embed] });
 		} catch (error) {

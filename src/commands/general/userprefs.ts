@@ -1,6 +1,4 @@
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import * as App from '@utils/app';
-import * as DynamoDB from '@utils/dynamodb';
 import { QueryType } from 'discord-player';
 import {
 	ActionRowBuilder,
@@ -48,20 +46,19 @@ export const command: App.Command = {
 				.once('collect', (interaction) => {
 					void (async () => {
 						try {
-							const putCommand = new PutCommand({
-								TableName: process.env.DYNAMODB_USER_PREFS,
-								Item: {
-									userId: interaction.user.id,
-									env: process.env.ENV,
-									searchEngine: interaction.values[0],
-								},
-							});
 							const streamSource = App.streamSources.find(
 								(streamSource) => streamSource.searchQueryType === interaction.values[0]
 							);
 
 							if (streamSource != null) {
-								await DynamoDB.documentClient.send(putCommand);
+								App.mongoClient
+									.db(process.env.npm_package_name!)
+									.collection<Document>(process.env.ENV!)
+									.updateOne(
+										{ discordId: interaction.user.id },
+										{ $set: { preferences: { searchEngine: streamSource.searchQueryType } } },
+										{ upsert: true }
+									);
 
 								await App.respond(interaction, {
 									content: `**Preferred Streaming Service:**\n${streamSource.name}`,

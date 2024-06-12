@@ -2,7 +2,7 @@ name: Docker Runner
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,16 +19,10 @@ jobs:
       - name: Run Container
         run: docker compose up -d --build
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DYNAMODB_DEFAULT_PREFS: ${{ secrets.DYNAMODB_DEFAULT_PREFS }}
-          DYNAMODB_GUILD_PREFS: ${{ secrets.DYNAMODB_GUILD_PREFS }}
-          DYNAMODB_USER_PREFS: ${{ secrets.DYNAMODB_USER_PREFS }}
           ENV: ${{ secrets.ENV }}
-          HEALTH_PORT: ${{ secrets.HEALTH_PORT }}
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
           YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }}
 
       - name: Cleanup Unused Images
@@ -36,4 +30,3 @@ jobs:
 
       - name: Cleanup Build Cache
         run: docker builder prune -f --keep-storage 10GB
-          

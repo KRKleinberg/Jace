@@ -1,5 +1,4 @@
 import * as App from '@utils/app';
-import * as DynamoDB from '@utils/dynamodb';
 import { Events, REST, Routes } from 'discord.js';
 
 export const event: App.Event = {
@@ -11,8 +10,7 @@ export const event: App.Event = {
 				if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
 
 				const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
-				const defaultPrefs = await DynamoDB.getDefaultPrefs();
-				const defaultPrefix = defaultPrefs.prefix;
+				const preferences = await App.getPreferences();
 
 				try {
 					await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), {
@@ -23,7 +21,7 @@ export const event: App.Event = {
 				}
 
 				// Log Start
-				console.log(`${App.client.user?.tag} is online! Prefix set as "${defaultPrefix}"`);
+				console.log(`${App.client.user?.tag} is online! Prefix set as "${preferences.prefix}"`);
 			})();
 		});
 	},

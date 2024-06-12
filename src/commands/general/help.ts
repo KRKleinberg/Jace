@@ -8,7 +8,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays a list of commands'),
-	async execute({ command, defaultPrefs, guildPrefs }) {
+	async execute({ command, preferences }) {
 		try {
 			const fields = App.commands.map((command) => {
 				return {
@@ -24,9 +24,9 @@ export const command: App.Command = {
 				};
 			});
 			const embed = new EmbedBuilder()
-				.setColor(guildPrefs?.color ?? defaultPrefs.color)
+				.setColor(preferences.color)
 				.setTitle('Commands')
-				.setDescription(`Prefix: **${guildPrefs?.prefix ?? defaultPrefs?.prefix}**`)
+				.setDescription(`Prefix: **${preferences.prefix}**`)
 				.addFields(fields);
 
 			return await App.respond(command, { embeds: [embed] });

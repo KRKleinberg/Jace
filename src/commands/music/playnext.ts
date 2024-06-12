@@ -17,8 +17,8 @@ export const command: App.Command = {
 				.setRequired(true)
 		),
 
-	async autocomplete(interaction, userPrefs) {
-		const search = new App.Search(interaction.options.getString('query', true), userPrefs);
+	async autocomplete(interaction, preferences) {
+		const search = new App.Search(interaction.options.getString('query', true), preferences);
 
 		if (search.query.length > 0) {
 			const searchResult = await search.result();
@@ -35,13 +35,13 @@ export const command: App.Command = {
 			);
 		} else await interaction.respond([]);
 	},
-	async execute({ command, guild, member, args, defaultPrefs, guildPrefs, userPrefs }) {
+	async execute({ command, guild, member, args, preferences }) {
 		const search = new App.Search(
-			command.type === InteractionType.ApplicationCommand
-				? command.options.getString('query', true)
-				: args.join(' '),
-			userPrefs
-		);
+	command.type === InteractionType.ApplicationCommand
+		? command.options.getString('query', true)
+		: args.join(' '),
+	preferences
+);
 
 		const queue = App.player.nodes.create(guild, {
 			metadata: command,
@@ -101,36 +101,36 @@ export const command: App.Command = {
 				(streamSource) => streamSource.trackSource === track.source
 			);
 			const embed = new EmbedBuilder()
-				.setAuthor({
-					name: 'Queued Track',
-					iconURL: member.user.avatarURL() ?? undefined,
-				})
-				.setColor(guildPrefs?.color ?? defaultPrefs.color)
-				.setFields([
-					{
-						name: 'Position',
-						value: '1',
-						inline: true,
-					},
-					{
-						name: 'Duration',
-						value: `${track.durationMS === 0 ? '--:--' : track.duration}`,
-						inline: true,
-					},
-				])
-				.setThumbnail(track.thumbnail)
-				.setTitle(track.cleanTitle)
-				.setURL(track.url)
-				.setFooter(
-					streamSource != null
-						? {
-								text: `${streamSource.name} | ${track.author}`,
-								iconURL: `attachment://${streamSource.trackSource}.png`,
-							}
-						: {
-								text: `${track.author}`,
-							}
-				);
+	.setAuthor({
+		name: 'Queued Track',
+		iconURL: member.user.avatarURL() ?? undefined,
+	})
+	.setColor(preferences.color)
+	.setFields([
+		{
+			name: 'Position',
+			value: '1',
+			inline: true,
+		},
+		{
+			name: 'Duration',
+			value: `${track.durationMS === 0 ? '--:--' : track.duration}`,
+			inline: true,
+		},
+	])
+	.setThumbnail(track.thumbnail)
+	.setTitle(track.cleanTitle)
+	.setURL(track.url)
+	.setFooter(
+		streamSource != null
+			? {
+					text: `${streamSource.name} | ${track.author}`,
+					iconURL: `attachment://${streamSource.trackSource}.png`,
+				}
+			: {
+					text: `${track.author}`,
+				}
+	);
 
 			return await App.respond(command, {
 				embeds: [embed],

@@ -1,18 +1,12 @@
-version: '3.8'
+version: "3.8"
 services:
   main:
     build: .
     container_name: jace
     environment:
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_REGION
       - DISCORD_APP_ID
       - DISCORD_BOT_TOKEN
-      - DYNAMODB_DEFAULT_PREFS
-      - DYNAMODB_GUILD_PREFS
-      - DYNAMODB_USER_PREFS
       - ENV
-      - HEALTH_PORT
+      - MONGODB_URL
       - YOUTUBE_COOKIE
     restart: always
