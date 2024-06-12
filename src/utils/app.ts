@@ -74,7 +74,7 @@ export class Search {
 		/** User input */
 		input: string,
 		/** The preferences from the database */
-		preferences: Preferences
+		preferences: Required<Preferences>
 	) {
 		this.input = input.trim();
 		this.preferences = preferences;
@@ -99,7 +99,7 @@ export class Search {
 			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
 				return streamSource.searchQueryType;
 
-		return this.preferences.searchEngine ?? QueryType.AUTO;
+		return this.preferences.searchEngine;
 	}
 
 	/**
