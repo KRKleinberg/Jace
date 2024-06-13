@@ -1,11 +1,5 @@
 import * as App from '@utils/app';
 import { GuildQueueEvent, Util } from 'discord-player';
-import {
-	type AnySelectMenuInteraction,
-	type CacheType,
-	type ChatInputCommandInteraction,
-	type Message,
-} from 'discord.js';
 
 export const event: App.Event = {
 	async execute() {
