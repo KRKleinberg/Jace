@@ -15,7 +15,7 @@ export const command: App.Command = {
 	aliases: ['prefs'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Sets user preferences'),
+		.setDescription('Sets preferences'),
 	async execute({ command, member }) {
 		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId('streamSource')
