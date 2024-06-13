@@ -12,6 +12,7 @@ import { basename } from 'path';
 import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
+	aliases: ['prefs'],
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Sets user preferences'),
