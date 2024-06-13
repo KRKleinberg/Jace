@@ -49,12 +49,12 @@ export const event: App.Event = {
 						.split('\n')
 						.filter((verse) => verse.slice(11).length !== 0);
 					const response = await App.respond(
-	queue.metadata,
-	`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
-	{
-		channelSend: true,
-	}
-);
+						queue.metadata,
+						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
+						{
+							channelSend: true,
+						}
+					);
 
 					syncedLyrics.onChange(async (currentVerse, timestamp) => {
 						try {
@@ -78,8 +78,8 @@ export const event: App.Event = {
 								);
 
 							await response.edit(
-	`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${lyrics.join('\n')}`
-);
+								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${lyrics.join('\n')}`
+							);
 						} catch (err) {
 							try {
 								await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`);
