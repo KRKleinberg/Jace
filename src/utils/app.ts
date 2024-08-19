@@ -16,7 +16,7 @@ import {
 	type Message,
 	type SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
-import type EventEmitter from 'events';
+import { type EventEmitter } from 'events';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
 export interface Preferences {
