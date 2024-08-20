@@ -7,6 +7,7 @@ for (const envKey of Object.keys(new App.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
 // Load player extractors
+await App.player.extractors.loadDefault((extractor) => extractor !== 'YouTubeExtractor');
 await App.player.extractors.register(YoutubeiExtractor, {
 	authentication: process.env.YOUTUBE_COOKIE,
 });
