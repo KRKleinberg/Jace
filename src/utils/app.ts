@@ -223,10 +223,12 @@ export async function respond(
 		command.channel.type === ChannelType.GuildText
 	)
 		return await command.channel.send(response);
-
-	if (command.type === InteractionType.ApplicationCommand)
+	else if (command.type === InteractionType.ApplicationCommand)
 		return command.replied ? await command.editReply(response) : await command.followUp(response);
-	if (command.type === InteractionType.MessageComponent) return await command.update(response);
-	if (options?.messageReply === true) return await command.reply(response);
-	else return await command.reply(response);
+	else if (command.type === InteractionType.MessageComponent) return await command.update(response);
+	else if (options?.messageReply === true) return await command.reply(response);
+	else
+		return command.channel.type === ChannelType.GuildText
+			? await command.channel.send(response)
+			: await command.reply(response);
 }
