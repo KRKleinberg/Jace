@@ -1,6 +1,7 @@
 import { Player, QueryType, type SearchResult, type TrackSource } from 'discord-player';
 import {
 	ActivityType,
+	ChannelType,
 	Client,
 	Collection,
 	ColorResolvable,
@@ -216,11 +217,16 @@ export async function respond(
 		messageReply?: boolean;
 	}
 ): Promise<Message | InteractionResponse> {
-	if (options?.channelSend === true && command.channel != null)
+	if (
+		options?.channelSend === true &&
+		command.channel != null &&
+		command.channel.type === ChannelType.GuildText
+	)
 		return await command.channel.send(response);
+
 	if (command.type === InteractionType.ApplicationCommand)
 		return command.replied ? await command.editReply(response) : await command.followUp(response);
 	if (command.type === InteractionType.MessageComponent) return await command.update(response);
 	if (options?.messageReply === true) return await command.reply(response);
-	else return await command.channel.send(response);
+	else return await command.reply(response);
 }
