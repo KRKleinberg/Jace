@@ -21,7 +21,7 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"devDependencies": {
-		"@types/node": "^22.5.4",
+		"@types/node": "^22.5.5",
 		"concurrently": "^9.0.1",
 		"eslint": "^8.57.0",
 		"eslint-config-love": "^66.0.0",
