@@ -84,6 +84,10 @@ export const event: App.Event = {
 					});
 
 					syncedLyrics.subscribe();
+
+					syncedLyrics.onUnsubscribe(
+						async () => await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`)
+					);
 				} catch (err) {
 					// Do nothing.
 				}
