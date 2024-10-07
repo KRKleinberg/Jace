@@ -24,7 +24,7 @@
 		"@types/node": "^22.7.4",
 		"concurrently": "^9.0.1",
 		"eslint": "^8.57.0",
-		"eslint-config-love": "^83.0.0",
+		"eslint-config-love": "^84.1.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-n": "^17.7.0",
