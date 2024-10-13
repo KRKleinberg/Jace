@@ -64,6 +64,7 @@ export const command: App.Command = {
 			leaveOnEmptyCooldown: 5000,
 			leaveOnEnd: true,
 			leaveOnEndCooldown: 300000,
+			volume: 50,
 		});
 
 		if (member.voice.channel == null)
@@ -166,7 +167,7 @@ export const command: App.Command = {
 							]
 				)
 				.setThumbnail(
-					playlist != null ? playlist.thumbnail ?? playlist.tracks[0].thumbnail : track.thumbnail
+					playlist != null ? (playlist.thumbnail ?? playlist.tracks[0].thumbnail) : track.thumbnail
 				)
 				.setURL(playlist != null ? playlist.url : track.url)
 				.setFooter(
