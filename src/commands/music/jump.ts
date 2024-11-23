@@ -16,7 +16,7 @@ export const command: App.Command = {
 				.setRequired(true)
 		),
 	async execute({ command, guild, member, args }) {
-		const queue = useQueue(guild);
+		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 		const trackNumber =
 			command.type === InteractionType.ApplicationCommand

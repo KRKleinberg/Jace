@@ -10,7 +10,7 @@ export const command: App.Command = {
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the currently playing song info'),
 	async execute({ command, guild, member, preferences }) {
-		const queue = useQueue(guild);
+		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 
 		if (member.voice.channel == null)

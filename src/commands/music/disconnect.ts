@@ -10,7 +10,7 @@ export const command: App.Command = {
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Disconnects from the voice channel'),
 	async execute({ command, guild }) {
-		const queue = useQueue(guild);
+		const queue = useQueue();
 
 		try {
 			queue?.delete();

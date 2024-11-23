@@ -25,7 +25,7 @@ export const command: App.Command = {
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('mode')
 				: args[0]?.toLowerCase();
-		const queue = useQueue(guild);
+		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 		const repeatModes = [
 			{

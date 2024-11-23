@@ -9,8 +9,8 @@ export const command: App.Command = {
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Plays the previous track'),
 	async execute({ command, guild, member }) {
-		const history = useHistory(guild);
-		const queue = useQueue(guild);
+		const history = useHistory();
+		const queue = useQueue();
 
 		if (member.voice.channel == null)
 			return await App.respond(command, '❌ | You are not in a voice channel');
