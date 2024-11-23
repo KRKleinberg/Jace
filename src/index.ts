@@ -1,4 +1,5 @@
 import * as App from '@utils/app';
+import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { globby } from 'globby';
 
 // Check environment variables
@@ -6,7 +7,10 @@ for (const envKey of Object.keys(new App.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
 // Load player extractors
-await App.player.extractors.loadDefault();
+await App.player.extractors.loadDefault((extractor) => extractor !== 'YouTubeExtractor');
+await App.player.extractors.register(YoutubeiExtractor, {
+	cookie: process.env.YOUTUBE_COOKIE,
+});
 
 // Load commands
 const commandFiles = await globby('./commands/**/*.js', { cwd: './dist/' });
