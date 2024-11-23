@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
   build-essential \
   ffmpeg
 
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 RUN npm install --omit=dev
 
