@@ -153,7 +153,15 @@ export const client = new Client({
 	},
 });
 export const commands = new Collection<string, Command>();
-export const player = new Player(client);
+export const player = new Player(client, {
+	ytdlOptions: {
+		requestOptions: {
+			headers: {
+				cookie: [{ name: '0', value: process.env.YOUTUBE_COOKIE }],
+			},
+		},
+	},
+});
 export const streamSources: Array<{
 	name: string;
 	searchQueryType: (typeof QueryType)[keyof typeof QueryType];

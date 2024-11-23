@@ -1,5 +1,4 @@
 import * as App from '@utils/app';
-import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { globby } from 'globby';
 
 // Check environment variables
@@ -8,9 +7,6 @@ for (const envKey of Object.keys(new App.EnvKeys()))
 
 // Load player extractors
 await App.player.extractors.loadDefault();
-await App.player.extractors.register(YoutubeiExtractor, {
-	authentication: process.env.YOUTUBE_COOKIE,
-});
 
 // Load commands
 const commandFiles = await globby('./commands/**/*.js', { cwd: './dist/' });
