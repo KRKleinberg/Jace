@@ -1,5 +1,5 @@
 import * as App from '@utils/app';
-import { Events, type GuildMember } from 'discord.js';
+import { Events, Guild, type GuildMember } from 'discord.js';
 
 export const event: App.Event = {
 	async execute() {
@@ -21,13 +21,20 @@ export const event: App.Event = {
 							await message?.channel.sendTyping();
 
 							try {
-								await prefixCommand.execute({
-									command: message,
-									guild: message.guild,
-									member: message.member,
-									args,
-									preferences,
-								});
+								const guild = message.guild;
+								const member = message.member;
+
+								await App.player.context.provide(
+									{ guild },
+									async () =>
+										await prefixCommand.execute({
+											command: message,
+											guild,
+											member,
+											args,
+											preferences,
+										})
+								);
 							} catch (error) {
 								console.error(error);
 
@@ -65,13 +72,20 @@ export const event: App.Event = {
 								await interaction.deferReply();
 
 								try {
-									await slashCommand.execute({
-										command: interaction,
-										guild: interaction.guild,
-										member: interaction.member as GuildMember,
-										args: [],
-										preferences,
-									});
+									const guild = interaction.guild;
+									const member = interaction.member as GuildMember;
+
+									await App.player.context.provide(
+										{ guild },
+										async () =>
+											await slashCommand.execute({
+												command: interaction,
+												guild,
+												member,
+												args: [],
+												preferences,
+											})
+									);
 								} catch (error) {
 									console.error(error);
 
