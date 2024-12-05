@@ -93,7 +93,7 @@ export class Search {
 	}
 
 	/**
-	 * Returns the search engine the user requests. Defaults to YouTube.
+	 * Returns the search engine the user requests.
 	 */
 	get engine(): (typeof QueryType)[keyof typeof QueryType] {
 		for (const streamSource of streamSources)

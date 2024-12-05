@@ -1,3 +1,8 @@
+import {
+	AppleMusicExtractor,
+	SoundCloudExtractor,
+	SpotifyExtractor,
+} from '@discord-player/extractor';
 import * as App from '@utils/app';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { globby } from 'globby';
@@ -7,8 +12,11 @@ for (const envKey of Object.keys(new App.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
 // Load player extractors
-await App.player.extractors.loadDefault((extractor) => extractor !== 'YouTubeExtractor');
+await App.player.extractors.register(AppleMusicExtractor, {});
+await App.player.extractors.register(SoundCloudExtractor, {});
+await App.player.extractors.register(SpotifyExtractor, {});
 await App.player.extractors.register(YoutubeiExtractor, {
+	// authentication: process.env.YOUTUBE_AUTH,
 	cookie: process.env.YOUTUBE_COOKIE,
 });
 
