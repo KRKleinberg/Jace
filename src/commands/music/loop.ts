@@ -1,4 +1,4 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
 import { QueueRepeatMode, useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -20,7 +20,7 @@ export const command: App.Command = {
 					{ name: 'Autoplay', value: 'autoplay' }
 				)
 		),
-	async execute({ command, guild, member, args }) {
+	async execute({ command, member, args }) {
 		const input =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('mode')

@@ -1,30 +1,32 @@
-import * as App from '@utils/app';
-import { Events, Guild, type GuildMember } from 'discord.js';
+import { App } from '#utils/app';
+import { Data } from '#utils/data';
+import { Player } from '#utils/player';
+import { Events, type GuildMember } from 'discord.js';
 
 export const event: App.Event = {
-	async execute() {
+	execute() {
 		// Prefix Commands
 		App.client.on(Events.MessageCreate, (message) => {
 			void (async () => {
 				if (!message.author.bot && message.guild != null && message.member != null) {
 					const user = message.member;
 					const guild = message.guild;
-					const preferences = await App.getPreferences({ userId: user.id, guildId: guild.id });
+					const preferences = await Data.getPreferences({ userId: user.id, guildId: guild.id });
 
 					if (message.content.toLowerCase().startsWith(preferences.prefix)) {
 						const [input, ...args] = message.content.slice(preferences.prefix.length).trim().split(/ +/g);
 						const prefixCommand =
-							App.commands.get(input?.toLowerCase()) ??
-							App.commands.find((command) => command.aliases?.includes(input?.toLowerCase()));
+							App.commands.get(input.toLowerCase()) ??
+							App.commands.find((command) => command.aliases?.includes(input.toLowerCase()));
 
 						if (prefixCommand != null) {
-							await message?.channel.sendTyping();
+							await message.channel.sendTyping();
 
 							try {
 								const guild = message.guild;
 								const member = message.member;
 
-								await App.player.context.provide(
+								await Player.client.context.provide(
 									{ guild },
 									async () =>
 										await prefixCommand.execute({
@@ -38,7 +40,7 @@ export const event: App.Event = {
 							} catch (error) {
 								console.error(error);
 
-								await message?.channel.send('⚠️ | Something went wrong');
+								await message.channel.send('⚠️ | Something went wrong');
 							}
 						}
 					}
@@ -50,12 +52,12 @@ export const event: App.Event = {
 		App.client.on(Events.InteractionCreate, (interaction) => {
 			void (async () => {
 				if (interaction.guild != null) {
-					const preferences = await App.getPreferences({
+					const preferences = await Data.getPreferences({
 						userId: interaction.user.id,
 						guildId: interaction.guild.id,
 					});
 
-					if (interaction.guild != null && interaction.member != null) {
+					if (interaction.member != null) {
 						if (interaction.isAutocomplete()) {
 							const slashCommand = App.commands.get(interaction.commandName);
 
@@ -75,7 +77,7 @@ export const event: App.Event = {
 									const guild = interaction.guild;
 									const member = interaction.member as GuildMember;
 
-									await App.player.context.provide(
+									await Player.client.context.provide(
 										{ guild },
 										async () =>
 											await slashCommand.execute({

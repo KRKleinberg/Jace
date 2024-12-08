@@ -1,4 +1,4 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
 import { useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -15,7 +15,7 @@ export const command: App.Command = {
 				.setDescription('The position in the queue of the track you want to remove')
 				.setRequired(true)
 		),
-	async execute({ command, guild, member, args }) {
+	async execute({ command, member, args }) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 		const trackNumber =

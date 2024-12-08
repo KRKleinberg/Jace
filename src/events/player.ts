@@ -1,18 +1,28 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
+import { Player } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
+import {
+	type AnySelectMenuInteraction,
+	ChannelType,
+	type ChatInputCommandInteraction,
+	type Message,
+} from 'discord.js';
 
 export const event: App.Event = {
-	async execute() {
-		/**
-		 * Debug
-		 * App.player.events.on(GuildQueueEvent.debug, (_queue, message) => console.log(message));
-		 */
+	execute() {
+		/* Player.client.events.on(GuildQueueEvent.debug, (_queue, message) => {
+			console.log(message);
+		}); */
 
-		App.player.events.on(GuildQueueEvent.error, async (_queue, error) => {
+		Player.client.events.on(GuildQueueEvent.error, (_queue, error) => {
 			console.error(error);
 		});
 
-		App.player.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
+		Player.client.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
+			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
+
+			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
+
 			console.error(error);
 
 			try {
@@ -22,28 +32,32 @@ export const event: App.Event = {
 			}
 
 			await App.respond(
-				queue.metadata,
+				command,
 				`⚠️ | There was an error playing **${track.cleanTitle}** by **${track.author}**`,
 				{ channelSend: true }
 			);
 		});
 
-		App.player.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
+		Player.client.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
+			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
+
+			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
+
 			const lyricsResult = (
-				await App.player.lyrics.search({
+				await Player.client.lyrics.search({
 					trackName: track.cleanTitle,
 					artistName: track.author,
 				})
 			)[0];
 
-			if (lyricsResult?.syncedLyrics) {
+			if (lyricsResult.syncedLyrics) {
 				try {
 					const syncedLyrics = queue.syncedLyrics(lyricsResult);
 					const syncedVerses = lyricsResult.syncedLyrics
 						.split('\n')
 						.filter((verse) => verse.slice(11).length !== 0);
 					const response = await App.respond(
-						queue.metadata,
+						command,
 						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
 						{
 							channelSend: true,
@@ -74,7 +88,7 @@ export const event: App.Event = {
 							await response.edit(
 								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${lyrics.join('\n')}`
 							);
-						} catch (err) {
+						} catch {
 							try {
 								await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`);
 							} catch (error) {
@@ -88,11 +102,11 @@ export const event: App.Event = {
 					syncedLyrics.onUnsubscribe(
 						async () => await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`)
 					);
-				} catch (err) {
+				} catch {
 					// Do nothing.
 				}
 			} else
-				await App.respond(queue.metadata, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
+				await App.respond(command, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
 					channelSend: true,
 				});
 		});

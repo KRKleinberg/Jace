@@ -1,5 +1,6 @@
+import { App } from '#utils/app';
+import { Player } from '#utils/player';
 import { Str } from '@supercharge/strings';
-import * as App from '@utils/app';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -18,7 +19,7 @@ export const command: App.Command = {
 		),
 
 	async autocomplete(interaction, preferences) {
-		const search = new App.Search(interaction.options.getString('query', true), preferences);
+		const search = new Player.Search(interaction.options.getString('query', true), preferences);
 
 		if (search.query.length > 0) {
 			const searchResult = await search.result();
@@ -30,34 +31,32 @@ export const command: App.Command = {
 								name: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
 									.limit(97, '...')
 									.toString(),
-								value: `${
-									Str(`${searchResult.playlist.url}`).length() <= 100
+								value:
+									Str(searchResult.playlist.url).length() <= 100
 										? searchResult.playlist.url
 										: Str(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`)
 												.limit(97, '...')
-												.toString()
-								}`,
+												.toString(),
 							},
 						]
 					: searchResult.tracks.slice(0, 5).map((track) => ({
 							name: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString(),
-							value: `${
-								Str(`${track.url}`).length() <= 100
+							value:
+								Str(track.url).length() <= 100
 									? track.url
-									: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString()
-							}`,
+									: Str(`${track.cleanTitle} — ${track.author}`).limit(97, '...').toString(),
 						}))
 			);
 		} else await interaction.respond([]);
 	},
 	async execute({ command, guild, member, args, preferences }) {
-		const search = new App.Search(
+		const search = new Player.Search(
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query', true)
 				: args.join(' '),
 			preferences
 		);
-		const queue = App.player.nodes.create(guild, {
+		const queue = Player.client.nodes.create(guild, {
 			metadata: command,
 			selfDeaf: true,
 			leaveOnEmpty: true,
@@ -78,7 +77,7 @@ export const command: App.Command = {
 
 					return await App.respond(
 						command,
-						`▶️ | Resumed **${queue.currentTrack?.cleanTitle}** by **${queue.currentTrack?.author}**`
+						`▶️ | Resumed **${queue.currentTrack.cleanTitle}** by **${queue.currentTrack.author}**`
 					);
 				} catch {
 					// Do nothing.
@@ -127,7 +126,7 @@ export const command: App.Command = {
 		}
 
 		try {
-			const streamSource = App.streamSources.find(
+			const streamSource = Player.streamSources.find(
 				(streamSource) => streamSource.trackSource === (playlist != null ? playlist.source : track.source)
 			);
 			const embed = new EmbedBuilder()
@@ -140,11 +139,12 @@ export const command: App.Command = {
 				.setDescription(
 					playlist != null
 						? Str(
-								`${playlist.tracks
+								playlist.tracks
 									.map(
-										(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
+										(track, index) =>
+											`**${(index + 1).toString()}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
 									)
-									.join('\n')}`
+									.join('\n')
 							)
 								.limit(4093, '...')
 								.toString()
@@ -156,19 +156,17 @@ export const command: App.Command = {
 						: [
 								{
 									name: 'Position',
-									value: `${queue.tracks.toArray().length}`,
+									value: queue.tracks.toArray().length.toString(),
 									inline: true,
 								},
 								{
 									name: 'Duration',
-									value: `${track.durationMS === 0 ? '--:--' : track.duration}`,
+									value: track.durationMS === 0 ? '--:--' : track.duration,
 									inline: true,
 								},
 							]
 				)
-				.setThumbnail(
-					playlist != null ? (playlist.thumbnail ?? playlist.tracks[0].thumbnail) : track.thumbnail
-				)
+				.setThumbnail(playlist != null ? playlist.thumbnail : track.thumbnail)
 				.setURL(playlist != null ? playlist.url : track.url)
 				.setFooter(
 					streamSource != null
@@ -177,7 +175,7 @@ export const command: App.Command = {
 								iconURL: `attachment://${streamSource.trackSource}.png`,
 							}
 						: {
-								text: `${playlist != null ? playlist.author.name : track.author}`,
+								text: playlist != null ? playlist.author.name : track.author,
 							}
 				);
 

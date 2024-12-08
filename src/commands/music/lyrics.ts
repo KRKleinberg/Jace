@@ -1,5 +1,6 @@
+import { App } from '#utils/app';
+import { Player } from '#utils/player';
 import { Str } from '@supercharge/strings';
-import * as App from '@utils/app';
 import { EmbedBuilder, InteractionType, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -14,26 +15,26 @@ export const command: App.Command = {
 				.setDescription('The track whose lyrics you want to display')
 				.setRequired(true);
 		}),
-	async execute({ command, guild, args, preferences }) {
+	async execute({ command, args, preferences }) {
 		const query =
 			command.type === InteractionType.ApplicationCommand
 				? command.options.getString('query', true)
 				: args.join(' ');
 
-		if (query?.length === 0) return await App.respond(command, '❌ | You did not enter a search query');
+		if (query.length === 0) return await App.respond(command, '❌ | You did not enter a search query');
 
 		try {
-			const results = await App.player.lyrics.search({
+			const results = await Player.client.lyrics.search({
 				q: query,
 			});
 
-			if (!results)
+			if (results.length === 0)
 				return await App.respond(command, `❌ | There are no available lyrics for this track`);
 
 			const lyrics = results[0];
 			const embeds: EmbedBuilder[] = [];
 
-			lyrics.plainLyrics.match(/[\s\S]{1,1994}/g)?.forEach(async (value, index) => {
+			lyrics.plainLyrics.match(/[\s\S]{1,1994}/g)?.forEach((value, index) => {
 				const embed = new EmbedBuilder()
 					.setTitle(index > 0 ? null : lyrics.trackName)
 					.setAuthor(index > 0 ? null : { name: lyrics.artistName })

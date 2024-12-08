@@ -1,4 +1,6 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
+import { Data } from '#utils/data';
+import { Player } from '#utils/player';
 import { QueryType } from 'discord-player';
 import {
 	ActionRowBuilder,
@@ -47,13 +49,13 @@ export const command: App.Command = {
 				.once('collect', (interaction) => {
 					void (async () => {
 						try {
-							const streamSource = App.streamSources.find(
+							const streamSource = Player.streamSources.find(
 								(streamSource) => streamSource.searchQueryType === interaction.values[0]
 							);
 
 							if (streamSource != null) {
-								App.mongoClient
-									.db(process.env.npm_package_name!)
+								await Data.client
+									.db(process.env.npm_package_name)
 									.collection<Document>(process.env.ENV!)
 									.updateOne(
 										{ discordId: interaction.user.id },

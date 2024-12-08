@@ -1,4 +1,4 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';

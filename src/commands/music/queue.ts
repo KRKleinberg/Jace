@@ -1,5 +1,5 @@
+import { App } from '#utils/app';
 import { Str } from '@supercharge/strings';
-import * as App from '@utils/app';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -10,7 +10,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the queue'),
-	async execute({ command, guild, member, preferences }) {
+	async execute({ command, member, preferences }) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 
@@ -31,7 +31,8 @@ export const command: App.Command = {
 							currentTrack.author
 						}**\n\n${queue.tracks
 							.map(
-								(track, index) => `**${index + 1}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
+								(track, index) =>
+									`**${(index + 1).toString()}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
 							)
 							.join('\n')}`
 					)

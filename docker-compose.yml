@@ -8,4 +8,5 @@ services:
       - ENV
       - MONGODB_URL
       - YOUTUBE_COOKIE
+      - YOUTUBE_OAUTH
     restart: always

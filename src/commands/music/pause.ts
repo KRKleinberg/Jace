@@ -1,4 +1,4 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -8,7 +8,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Pauses the player'),
-	async execute({ command, guild, member }) {
+	async execute({ command, member }) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 

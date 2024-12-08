@@ -1,13 +1,13 @@
 {
 	"name": "jace",
-	"version": "6.12.1",
+	"version": "7.0.0",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "node dist/index.js",
 		"test": "node --env-file=.env.local dist/index.js",
-		"build": "tsc && tsc-alias",
-		"build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")"
+		"build": "tsc",
+		"build:watch": "tsc -w"
 	},
 	"type": "module",
 	"repository": {
@@ -20,21 +20,30 @@
 		"url": "https://github.com/KRKleinberg/Jace/issues"
 	},
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
+	"imports": {
+		"#utils/*": "./dist/utils/*.js"
+	},
 	"devDependencies": {
+		"@eslint/js": "^9.16.0",
 		"@types/node": "^22.10.1",
 		"concurrently": "^9.1.0",
-		"prettier": "^3.4.1"
+		"eslint": "^9.16.0",
+		"ffmpeg-static": "^5.2.0",
+		"globals": "^15.13.0",
+		"prettier": "^3.4.2",
+		"typescript-eslint": "^8.17.0"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^4.5.1",
+		"@discord-player/extractor": "^7.0.0-dev.3",
 		"@supercharge/strings": "^2.0.0",
-		"discord-player": "^6.7.1",
-		"discord-player-youtubei": "^1.3.5",
+		"discord-api-types": "^0.37.110",
+		"discord-player": "^7.0.0-dev.3",
+		"discord-player-youtubei": "^1.3.6",
 		"discord.js": "^14.16.3",
 		"globby": "^14.0.2",
 		"mediaplex": "^1.0.0",
 		"mongodb": "^6.11.0",
-		"tsc-alias": "^1.8.10",
+		"prism-media": "^1.3.5",
 		"typescript": "^5.7.2"
 	}
 }

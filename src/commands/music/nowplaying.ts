@@ -1,4 +1,5 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
+import { Player } from '#utils/player';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
@@ -9,7 +10,7 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder()
 		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Displays the currently playing song info'),
-	async execute({ command, guild, member, preferences }) {
+	async execute({ command, member, preferences }) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 
@@ -21,7 +22,7 @@ export const command: App.Command = {
 			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
 
 		try {
-			const streamSource = App.streamSources.find(
+			const streamSource = Player.streamSources.find(
 				(streamSource) => streamSource.trackSource === currentTrack.source
 			);
 			const embed = new EmbedBuilder()
@@ -38,7 +39,7 @@ export const command: App.Command = {
 								iconURL: `attachment://${streamSource.trackSource}.png`,
 							}
 						: {
-								text: `${currentTrack.author}`,
+								text: currentTrack.author,
 							}
 				);
 

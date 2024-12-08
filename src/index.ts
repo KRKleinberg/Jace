@@ -1,9 +1,10 @@
+import { App } from '#utils/app';
+import { Player } from '#utils/player';
 import {
 	AppleMusicExtractor,
 	SoundCloudExtractor,
 	SpotifyExtractor,
 } from '@discord-player/extractor';
-import * as App from '@utils/app';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { globby } from 'globby';
 
@@ -12,18 +13,18 @@ for (const envKey of Object.keys(new App.EnvKeys()))
 	if (process.env[envKey] == null) throw new Error(`${envKey} is not set!`);
 
 // Load player extractors
-await App.player.extractors.register(AppleMusicExtractor, {});
-await App.player.extractors.register(SoundCloudExtractor, {});
-await App.player.extractors.register(SpotifyExtractor, {});
-await App.player.extractors.register(YoutubeiExtractor, {
-	// authentication: process.env.YOUTUBE_AUTH,
+await Player.client.extractors.register(AppleMusicExtractor, {});
+await Player.client.extractors.register(SoundCloudExtractor, {});
+await Player.client.extractors.register(SpotifyExtractor, {});
+await Player.client.extractors.register(YoutubeiExtractor, {
+	// authentication: process.env.YOUTUBE_OAUTH,
 	cookie: process.env.YOUTUBE_COOKIE,
 });
 
 // Load commands
 const commandFiles = await globby('./commands/**/*.js', { cwd: './dist/' });
 for (const commandFile of commandFiles) {
-	const { command }: { command: App.Command } = await import(commandFile);
+	const { command } = (await import(commandFile)) as { command: App.Command };
 
 	App.commands.set(command.data.name, command);
 }
@@ -31,7 +32,7 @@ for (const commandFile of commandFiles) {
 // Load events
 const eventFiles = await globby('./events/**/*.js', { cwd: './dist/' });
 for (const eventFile of eventFiles) {
-	const { event }: { event: App.Event } = await import(eventFile);
+	const { event } = (await import(eventFile)) as { event: App.Event };
 
 	await event.execute();
 }

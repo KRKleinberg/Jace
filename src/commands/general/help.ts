@@ -1,4 +1,4 @@
-import * as App from '@utils/app';
+import { App } from '#utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -15,12 +15,12 @@ export const command: App.Command = {
 					name:
 						command.aliases?.length != null
 							? `${command.data.name} (${command.aliases.join(', ')})`
-							: `${command.data.name}`,
+							: command.data.name,
 					value:
 						command.data.options.length > 0
 							? `${command.data.description}
 				Input: \`${command.data.options.map((option) => option.toJSON().name).join(', ')}\``
-							: `${command.data.description}`,
+							: command.data.description,
 				};
 			});
 			const embed = new EmbedBuilder()
