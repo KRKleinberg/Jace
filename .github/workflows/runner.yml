@@ -24,6 +24,7 @@ jobs:
           ENV: ${{ secrets.ENV }}
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
           YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }}
+          YOUTUBE_OAUTH: ${{ secrets.YOUTUBE_OAUTH }}
 
       - name: Cleanup Unused Images
         run: docker image prune -f
