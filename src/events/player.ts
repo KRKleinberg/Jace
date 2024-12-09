@@ -43,14 +43,13 @@ export const event: App.Event = {
 
 			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
 
-			const lyricsResult = (
-				await Player.client.lyrics.search({
-					trackName: track.cleanTitle,
-					artistName: track.author,
-				})
-			)[0];
+			const lyricsResults = await Player.client.lyrics.search({
+				trackName: track.cleanTitle,
+				artistName: track.author,
+			});
+			const lyricsResult = lyricsResults[0];
 
-			if (lyricsResult.syncedLyrics) {
+			if (lyricsResults.length && lyricsResult.syncedLyrics) {
 				try {
 					const syncedLyrics = queue.syncedLyrics(lyricsResult);
 					const syncedVerses = lyricsResult.syncedLyrics
