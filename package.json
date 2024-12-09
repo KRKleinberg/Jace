@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "node dist/index.js",
-		"test": "node --env-file=.env.local dist/index.js",
+		"test": "tsc && node --env-file=.env.local dist/index.js",
 		"build": "tsc",
 		"build:watch": "tsc -w"
 	},
@@ -26,7 +26,6 @@
 	"devDependencies": {
 		"@eslint/js": "^9.16.0",
 		"@types/node": "^22.10.1",
-		"concurrently": "^9.1.0",
 		"eslint": "^9.16.0",
 		"ffmpeg-static": "^5.2.0",
 		"globals": "^15.13.0",
