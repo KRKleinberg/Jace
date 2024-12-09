@@ -3,8 +3,8 @@ import { App } from '#utils/app';
 import { type Data } from '#utils/data';
 import {
 	Player,
-	type QueryExtractorSearch,
 	QueryType,
+	type QueryExtractorSearch,
 	type SearchOptions,
 	type SearchQueryType,
 	type SearchResult,

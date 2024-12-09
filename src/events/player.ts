@@ -2,8 +2,8 @@ import { App } from '#utils/app';
 import { Player } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
 import {
-	type AnySelectMenuInteraction,
 	ChannelType,
+	type AnySelectMenuInteraction,
 	type ChatInputCommandInteraction,
 	type Message,
 } from 'discord.js';
