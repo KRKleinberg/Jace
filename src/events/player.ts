@@ -10,15 +10,15 @@ import {
 
 export const event: App.Event = {
 	execute() {
-		/* Player.client.events.on(GuildQueueEvent.debug, (_queue, message) => {
+		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 			console.log(message);
 		}); */
 
-		Player.client.events.on(GuildQueueEvent.error, (_queue, error) => {
+		Player.client.events.on(GuildQueueEvent.Error, (_queue, error) => {
 			console.error(error);
 		});
 
-		Player.client.events.on(GuildQueueEvent.playerError, async (queue, error, track) => {
+		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
 
 			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
@@ -38,7 +38,7 @@ export const event: App.Event = {
 			);
 		});
 
-		Player.client.events.on(GuildQueueEvent.playerStart, async (queue, track) => {
+		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
 
 			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();

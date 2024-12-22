@@ -7,14 +7,11 @@ export const event: App.Event = {
 		App.client.once(Events.ClientReady, () => {
 			void (async () => {
 				// REST API
-				if (process.env.DISCORD_APP_ID == null) throw new Error('DISCORD_APP_ID is not set!');
-				if (process.env.DISCORD_BOT_TOKEN == null) throw new Error('DISCORD_BOT_TOKEN is not set!');
-
-				const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
+				const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 				const preferences = await Data.getPreferences();
 
 				try {
-					await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), {
+					await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID!), {
 						body: App.commands.map((command) => command.data),
 					});
 				} catch (error) {

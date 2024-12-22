@@ -3,6 +3,7 @@ services:
     build: .
     container_name: jace
     environment:
+      - DEEZER_KEY
       - DISCORD_APP_ID
       - DISCORD_BOT_TOKEN
       - ENV

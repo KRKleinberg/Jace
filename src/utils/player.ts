@@ -4,10 +4,10 @@ import { type Data } from '#utils/data';
 import {
 	Player,
 	QueryType,
-	type QueryExtractorSearch,
 	type SearchOptions,
 	type SearchQueryType,
 	type SearchResult,
+	type TrackSource,
 } from 'discord-player';
 
 export class Search {
@@ -38,7 +38,7 @@ export class Search {
 	/**
 	 * Returns the search engine the user requests.
 	 */
-	get engine(): SearchOptions {
+	get searchOptions(): SearchOptions {
 		for (const streamSource of streamSources)
 			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`))
 				return {
@@ -56,16 +56,17 @@ export class Search {
 	 * Returns search result
 	 */
 	async result(): Promise<SearchResult> {
-		return await client.search(this.query, this.engine);
+		return await client.search(this.query, this.searchOptions);
 	}
 }
 
 export const client = new Player(App.client);
 export const streamSources: {
 	name: string;
-	searchQueryType: SearchQueryType | QueryExtractorSearch;
+	searchQueryType: SearchQueryType;
 	replaceRegExp: string | RegExp;
-	trackSource: string;
+	/** Icon name matches TrackSource */
+	trackSource: TrackSource;
 }[] = [
 	{
 		name: 'Apple Music',

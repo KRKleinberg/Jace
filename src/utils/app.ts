@@ -38,7 +38,7 @@ export interface Event {
 	execute: () => Promise<void> | void;
 }
 
-export class EnvKeys {
+export class ReqEnvKeys {
 	constructor(
 		/** Application ID for Discord. */
 		readonly DISCORD_APP_ID?: string,
@@ -47,11 +47,7 @@ export class EnvKeys {
 		/** The environment this instance is running in (ex. 'main', 'dev', 'wip'). */
 		readonly ENV?: 'main' | 'dev' | 'wip',
 		/** MongoDB URL for login. */
-		readonly MONGODB_URL?: string,
-		/** YouTube cookie for music player. */
-		readonly YOUTUBE_COOKIE?: string,
-		/** YouTube OAUTH token for music player. */
-		readonly YOUTUBE_OAUTH?: string
+		readonly MONGODB_URL?: string
 	) {}
 }
 
