@@ -130,12 +130,11 @@ export function createQueuedEmbed(
 					? { text: playlist.author.name }
 					: null
 				: position === 0
-					? { text: track.durationMS === 0 ? `▶` : `▶\u2002|\u2002${track.duration}` }
+					? {
+							text: `▶\u2002|\u2002${track.duration || '--:--'}`,
+						}
 					: {
-							text:
-								track.durationMS === 0
-									? `${position.toString()}\u2002|\u2002--:--`
-									: `${position.toString()}\u2002|\u2002${track.duration}`,
+							text: `${position.toString()}\u2002|\u2002${track.duration || '--:--'}`,
 						}
 		);
 }
@@ -171,6 +170,13 @@ export async function requestBridgeFrom(
 
 				if (!stream) {
 					throw new Error('Failed to create stream');
+				}
+
+				track.bridgedExtractor = targetExtractor;
+				track.bridgedTrack = tracks[0];
+
+				if (!track.durationMS) {
+					track.duration = tracks[0].duration;
 				}
 
 				return stream as Readable | string;
