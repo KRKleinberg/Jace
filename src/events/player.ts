@@ -67,7 +67,7 @@ export const event: App.Event = {
 					});
 					const lyrics = [waitLyricBold, syncedVerses[0].slice(11)];
 					const embed = Player.createPlayEmbed(queue, track, lyrics);
-					const response = await App.respond(ctx, { embeds: [embed] });
+					const response = await App.respond(ctx, { embeds: [embed] }, App.ResponseType.Channel);
 					const interval = setInterval(async () => {
 						const embed = Player.createPlayEmbed(queue, track, lyrics);
 
@@ -121,7 +121,7 @@ export const event: App.Event = {
 				}
 			} else {
 				const embed = Player.createPlayEmbed(queue, track);
-				const response = await App.respond(ctx, { embeds: [embed] });
+				const response = await App.respond(ctx, { embeds: [embed] }, App.ResponseType.Channel);
 
 				const interval = setInterval(async () => {
 					const embed = Player.createPlayEmbed(queue, track);
