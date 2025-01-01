@@ -9,8 +9,8 @@ export function createNumberedList(array: string[], charLimit?: number): string 
 		const results: string[] = [];
 		let totalLength = 0;
 
-		for (const currentString of array) {
-			const lengthDiff = array.length - results.length;
+		for (const currentString of numberedArray) {
+			const lengthDiff = numberedArray.length - results.length;
 			const endPhrase =
 				lengthDiff < 100 ? `**...and ${lengthDiff.toString()} more**` : '**...and 99+ more**';
 

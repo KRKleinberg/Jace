@@ -134,7 +134,7 @@ export const command: App.Command = {
 		}
 
 		try {
-			const embed = Player.createQueuedEmbed(queue, searchResult);
+			const embed = Player.createQueuedEmbed(queue, searchResult, true);
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
