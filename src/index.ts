@@ -9,7 +9,6 @@ import {
 import { DeezerExtractor } from 'discord-player-deezer';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { basename } from 'path';
-import { type Readable } from 'stream';
 
 if (!process.env.DISCORD_BOT_TOKEN) {
 	throw new Error('Environment variable "DISCORD_BOT_TOKEN" is not set!');
@@ -21,6 +20,12 @@ if (process.env.DEEZER_KEY) {
 		decryptionKey: process.env.DEEZER_KEY,
 	});
 }
+/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
+	await Player.client.extractors.register(YoutubeiExtractor, {
+		authentication: process.env.YOUTUBE_OAUTH,
+		cookie: process.env.YOUTUBE_COOKIE,
+	});
+} */
 await Player.client.extractors.register(SoundCloudExtractor, {});
 await Player.client.extractors.register(AppleMusicExtractor, {
 	async createStream(ext, _url, track) {
@@ -33,13 +38,7 @@ await Player.client.extractors.register(AppleMusicExtractor, {
 			throw new Error('No suitable extractors are registered to bridge from');
 		}
 
-		const stream = await Player.client.extractors.requestBridgeFrom(track, ext, bridgeExtractor);
-
-		if (!stream) {
-			throw new Error('Failed to create stream');
-		}
-
-		return stream as Readable | string;
+		return Player.requestBridgeFrom(track, ext, bridgeExtractor);
 	},
 });
 await Player.client.extractors.register(SpotifyExtractor, {
@@ -54,17 +53,8 @@ await Player.client.extractors.register(SpotifyExtractor, {
 		}
 
 		const searchResults = await Player.client.search(url, { searchEngine: 'spotifySong' });
-		const stream = await Player.client.extractors.requestBridgeFrom(
-			searchResults.tracks[0],
-			ext,
-			bridgeExtractor
-		);
 
-		if (!stream) {
-			throw new Error('Failed to create stream');
-		}
-
-		return stream as Readable | string;
+		return Player.requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
 	},
 });
 

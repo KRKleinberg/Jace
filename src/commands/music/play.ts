@@ -58,7 +58,7 @@ export const command: App.Command = {
 				: ctx.args.join(' ')
 		);
 
-		const queue = Player.client.nodes.create(ctx.guild, { ...Player.queueOptions });
+		const queue = Player.client.nodes.create(ctx.guild, Player.queueOptions);
 		const [, setMetadata] = useMetadata(ctx.guild);
 
 		setMetadata(ctx);

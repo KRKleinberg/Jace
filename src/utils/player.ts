@@ -1,6 +1,8 @@
 import { App } from '#utils/app';
 import { createNumberedList } from '#utils/helpers';
 import {
+	type BaseExtractor,
+	type ExtractorResolvable,
 	type GuildNodeCreateOptions,
 	type GuildQueue,
 	Player,
@@ -10,8 +12,10 @@ import {
 	type Track,
 	type TrackSource,
 } from 'discord-player';
+import { buildTrackFromSearch, DeezerExtractor, searchOneTrack } from 'discord-player-deezer';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { EmbedBuilder } from 'discord.js';
+import { type Readable } from 'stream';
 
 export * as Player from '#utils/player';
 
@@ -21,57 +25,6 @@ export interface StreamSource {
 	replaceRegExp: string | RegExp;
 	/** Icon name matches TrackSource. */
 	trackSource: TrackSource;
-}
-
-export class Search {
-	private readonly ctx: App.CommandContext | App.AutocompleteInteractionContext;
-	private readonly input: string;
-
-	constructor(ctx: App.CommandContext | App.AutocompleteInteractionContext, input: string) {
-		this.ctx = ctx;
-		this.input = input.trim();
-	}
-
-	/**
-	 * Returns the user input without the requested search engine.
-	 */
-	get query(): string {
-		for (const streamSource of streamSources()) {
-			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`)) {
-				return this.input.replace(streamSource.replaceRegExp, '').trim();
-			}
-		}
-
-		return this.input;
-	}
-
-	/**
-	 * Returns the search engine the user requests.
-	 */
-	get searchOptions(): SearchOptions {
-		for (const streamSource of streamSources()) {
-			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`)) {
-				return {
-					requestedBy: this.ctx.member.user,
-					searchEngine: streamSource.searchQueryType,
-					fallbackSearchEngine: QueryType.AUTO,
-				};
-			}
-		}
-
-		return {
-			requestedBy: this.ctx.member.user,
-			searchEngine: QueryType.AUTO,
-			fallbackSearchEngine: this.ctx.preferences.searchEngine,
-		};
-	}
-
-	/**
-	 * Returns search result
-	 */
-	async getResult(): Promise<SearchResult> {
-		return await client.search(this.query, this.searchOptions);
-	}
 }
 
 export const client = new Player(App.client);
@@ -185,4 +138,102 @@ export function createQueuedEmbed(
 									: `${position.toString()}\u2002|\u2002${track.duration}`,
 						}
 		);
+}
+export async function requestBridgeFrom(
+	track: Track,
+	sourceExtractor: BaseExtractor | null,
+	targetExtractor: ExtractorResolvable
+): Promise<Readable | string> {
+	if (
+		targetExtractor instanceof DeezerExtractor &&
+		client.extractors.get(DeezerExtractor.identifier)
+	) {
+		const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
+
+		if (track.durationMS) {
+			deezerSearchParams.push(
+				`dur_min:"${(track.durationMS / 1000 - 1).toString()}"`,
+				`dur_max:"${(track.durationMS / 1000 + 1).toString()}"`
+			);
+		}
+
+		const deezerTrack = await searchOneTrack(deezerSearchParams.join(' '));
+
+		if (deezerTrack) {
+			const tracks = buildTrackFromSearch(deezerTrack, client, track.requestedBy);
+
+			if (tracks.length) {
+				const stream = await client.extractors.requestBridgeFrom(
+					tracks[0],
+					sourceExtractor,
+					targetExtractor
+				);
+
+				if (!stream) {
+					throw new Error('Failed to create stream');
+				}
+
+				return stream as Readable | string;
+			}
+		}
+	}
+
+	const stream = await client.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
+
+	if (!stream) {
+		throw new Error('Failed to create stream');
+	}
+
+	return stream as Readable | string;
+}
+
+export class Search {
+	private readonly ctx: App.CommandContext | App.AutocompleteInteractionContext;
+	private readonly input: string;
+
+	constructor(ctx: App.CommandContext | App.AutocompleteInteractionContext, input: string) {
+		this.ctx = ctx;
+		this.input = input.trim();
+	}
+
+	/**
+	 * Returns the user input without the requested search engine.
+	 */
+	get query(): string {
+		for (const streamSource of streamSources()) {
+			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`)) {
+				return this.input.replace(streamSource.replaceRegExp, '').trim();
+			}
+		}
+
+		return this.input;
+	}
+
+	/**
+	 * Returns the search engine the user requests.
+	 */
+	get searchOptions(): SearchOptions {
+		for (const streamSource of streamSources()) {
+			if (this.input.toLowerCase().endsWith(` ${streamSource.name.toLowerCase()}`)) {
+				return {
+					requestedBy: this.ctx.member.user,
+					searchEngine: streamSource.searchQueryType,
+					fallbackSearchEngine: QueryType.AUTO,
+				};
+			}
+		}
+
+		return {
+			requestedBy: this.ctx.member.user,
+			searchEngine: QueryType.AUTO,
+			fallbackSearchEngine: this.ctx.preferences.searchEngine,
+		};
+	}
+
+	/**
+	 * Returns search result
+	 */
+	async getResult(): Promise<SearchResult> {
+		return await client.search(this.query, this.searchOptions);
+	}
 }
