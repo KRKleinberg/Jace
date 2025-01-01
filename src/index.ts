@@ -21,12 +21,6 @@ if (process.env.DEEZER_KEY) {
 		decryptionKey: process.env.DEEZER_KEY,
 	});
 }
-if (process.env.YOUTUBE_COOKIE != null /* && process.env.YOUTUBE_OAUTH*/) {
-	await Player.client.extractors.register(YoutubeiExtractor, {
-		// authentication: process.env.YOUTUBE_OAUTH,
-		cookie: process.env.YOUTUBE_COOKIE,
-	});
-}
 await Player.client.extractors.register(SoundCloudExtractor, {});
 await Player.client.extractors.register(AppleMusicExtractor, {
 	async createStream(ext, _url, track) {

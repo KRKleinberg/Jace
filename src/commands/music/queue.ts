@@ -1,5 +1,5 @@
 import { App } from '#utils/app';
-import { createNumberedList, trunicate } from '#utils/helpers';
+import { createNumberedList } from '#utils/helpers';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
@@ -29,19 +29,20 @@ export const command: App.Command = {
 		}
 
 		try {
+			const queuedTracks = queue.tracks.map(
+				(track) => `[**${track.cleanTitle}**](${track.url}) by **${track.author}**`
+			);
+
+			queuedTracks.unshift(
+				`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
+					currentTrack.author
+				}**\n\n`
+			);
+
 			const embed = new EmbedBuilder()
 				.setColor(ctx.preferences.color)
 				.setTitle('Queue')
-				.setDescription(
-					trunicate(
-						`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
-							currentTrack.author
-						}**\n\n${createNumberedList(
-							queue.tracks.map((track) => `[**${track.cleanTitle}**](${track.url}) by **${track.author}**`)
-						)}`,
-						4096
-					)
-				);
+				.setDescription(createNumberedList(queuedTracks, 4096));
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
