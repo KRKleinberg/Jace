@@ -29,20 +29,17 @@ export const command: App.Command = {
 		}
 
 		try {
+			const nowPlaying = `**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
+				currentTrack.author
+			}**\n\n`;
 			const queuedTracks = queue.tracks.map(
 				(track) => `[**${track.cleanTitle}**](${track.url}) by **${track.author}**`
-			);
-
-			queuedTracks.unshift(
-				`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
-					currentTrack.author
-				}**\n\n`
 			);
 
 			const embed = new EmbedBuilder()
 				.setColor(ctx.preferences.color)
 				.setTitle('Queue')
-				.setDescription(createNumberedList(queuedTracks, 4096));
+				.setDescription(`${nowPlaying}${createNumberedList(queuedTracks, 4096 - nowPlaying.length)}`);
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
