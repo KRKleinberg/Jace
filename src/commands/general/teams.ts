@@ -1,18 +1,15 @@
 import { App } from '#utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Splits voice channel members into two teams'),
-	async execute({ command, member, preferences }) {
-		if (member.voice.channel == null)
-			return await App.respond(command, '❌ | You are not in a voice channel');
+	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
+	async run(ctx) {
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+		}
 
 		try {
-			const voiceMembers = member.voice.channel.members
+			const voiceMembers = ctx.member.voice.channel.members
 				.filter((member) => !member.user.bot)
 				.map((voiceMember) => ({ voiceMember, sort: Math.random() }))
 				.sort((a, b) => a.sort - b.sort)
@@ -36,13 +33,13 @@ export const command: App.Command = {
 						value: voiceMembers[Math.floor(Math.random() * voiceMembers.length)].toString(),
 					},
 				])
-				.setColor(preferences.color);
+				.setColor(ctx.preferences.color);
 
-			return await App.respond(command, { embeds: [embed] });
+			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not display teams');
+			return await App.respond(ctx, 'Could not display teams', App.ResponseType.AppError);
 		}
 	},
 };

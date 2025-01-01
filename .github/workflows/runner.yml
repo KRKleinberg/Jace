@@ -23,6 +23,7 @@ jobs:
           DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ENV: ${{ secrets.ENV }}
+          MONGODB_COLLECTION_NAME: ${{ secrets.MONGODB_COLLECTION_NAME }}
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
           YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }}
           YOUTUBE_OAUTH: ${{ secrets.YOUTUBE_OAUTH }}
