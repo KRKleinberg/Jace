@@ -144,11 +144,15 @@ export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string
 			.setThumbnail(track.thumbnail);
 	}
 }
-export function createQueuedEmbed(queue: GuildQueue, searchResult: SearchResult): EmbedBuilder {
+export function createQueuedEmbed(
+	queue: GuildQueue,
+	searchResult: SearchResult,
+	next?: boolean
+): EmbedBuilder {
 	const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 	const track = searchResult.tracks[0];
 	const playlist = searchResult.playlist;
-	const position = queue.tracks.toArray().length;
+	const position = next ? (queue.size === 0 ? 0 : 1) : queue.tracks.size;
 
 	return new EmbedBuilder()
 		.setColor(ctx.preferences.color)
