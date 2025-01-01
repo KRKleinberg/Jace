@@ -1,6 +1,7 @@
 import { App } from '#utils/app';
 import { trunicate } from '#utils/helpers';
 import { Player } from '#utils/player';
+import { useMetadata } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
@@ -58,9 +59,11 @@ export const command: App.Command = {
 		);
 
 		const queue = Player.client.nodes.create(ctx.guild, {
-			metadata: ctx,
 			...Player.queueOptions,
 		});
+		const [, setMetadata] = useMetadata(ctx.guild);
+
+		setMetadata(ctx);
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
