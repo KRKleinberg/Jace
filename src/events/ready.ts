@@ -33,6 +33,14 @@ export const event: App.Event = {
 				],
 			});
 
+			// Prevent crashes on uncaught exceptions and unhandled promise rejections
+			process.on('uncaughtException', (error) => {
+				console.error(`EXCEPTION CAUGHT: ${error}\n` + `EXCEPTION ORIGIN: ${error.stack ?? 'Unknown'}`);
+			});
+			process.on('unhandledRejection', (reason, promise) => {
+				console.error('UNHANDLED REJECTION:', promise, 'REASON:', reason);
+			});
+
 			// Log Start
 			console.log(
 				`${App.client.user?.tag ?? 'UNDEFINED_TAG'} is online! Prefix set as "${preferences.prefix}"`
