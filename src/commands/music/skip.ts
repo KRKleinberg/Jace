@@ -1,36 +1,39 @@
 import { App } from '#utils/app';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
 	aliases: ['fs'],
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Skips the current track'),
-	async execute({ command, member }) {
+	data: new SlashCommandBuilder().setDescription('Skips the current track'),
+	async run(ctx) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 
-		if (member.voice.channel == null)
-			return await App.respond(command, '❌ | You are not in a voice channel');
-		if (currentTrack == null)
-			return await App.respond(command, '❌ | There are no tracks in the queue');
-		if (member.voice.channel !== queue?.channel)
-			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+		}
+		if (!currentTrack) {
+			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
+		}
+		if (ctx.member.voice.channel !== queue.channel) {
+			return await App.respond(
+				ctx,
+				'You are not in the same voice channel as the app',
+				App.ResponseType.UserError
+			);
+		}
 
 		try {
 			queue.node.skip();
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not skip the track');
+			return await App.respond(ctx, 'Could not skip the track', App.ResponseType.AppError);
 		}
 
 		return await App.respond(
-			command,
-			`⏭️ | Skipped **${currentTrack.cleanTitle}** by **${currentTrack.author}**`
+			ctx,
+			`⏭️\u2002Skipped _${currentTrack.cleanTitle}_ by _${currentTrack.author}_`
 		);
 	},
 };

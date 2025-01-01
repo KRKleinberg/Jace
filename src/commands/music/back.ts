@@ -1,41 +1,43 @@
 import { App } from '#utils/app';
 import { useHistory, useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Plays the previous track'),
-	async execute({ command, member }) {
+	data: new SlashCommandBuilder().setDescription('Plays the previous track'),
+	async run(ctx) {
 		const history = useHistory();
 		const queue = useQueue();
 
-		if (member.voice.channel == null)
-			return await App.respond(command, '❌ | You are not in a voice channel');
-		if (member.voice.channel !== history?.queue.channel)
-			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
-		if (history.isEmpty()) {
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+		}
+		if (ctx.member.voice.channel !== queue?.channel) {
+			return await App.respond(
+				ctx,
+				'You are not in the same voice channel as the app',
+				App.ResponseType.UserError
+			);
+		}
+		if (history?.isEmpty()) {
 			try {
-				await queue?.node.seek(0);
+				await queue.node.seek(0);
 			} catch (error) {
 				console.error(error);
 
-				return await App.respond(command, '⚠️ | Could not go back a track');
+				return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
 			}
 
-			return await App.respond(command, '⏮️ | Restarting track');
+			return await App.respond(ctx, '⏮️\u2002Restarting track');
 		}
 
 		try {
-			await history.previous(true);
+			await history?.previous(true);
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not go back a track');
+			return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
 		}
 
-		return await App.respond(command, '⏮️ | Playing previous track');
+		return await App.respond(ctx, '⏮️\u2002Playing previous track');
 	},
 };

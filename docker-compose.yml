@@ -7,6 +7,7 @@ services:
       - DISCORD_APP_ID
       - DISCORD_BOT_TOKEN
       - ENV
+      - MONGODB_COLLECTION_NAME
       - MONGODB_URL
       - YOUTUBE_COOKIE
       - YOUTUBE_OAUTH

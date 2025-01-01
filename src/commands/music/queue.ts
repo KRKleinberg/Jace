@@ -1,50 +1,53 @@
 import { App } from '#utils/app';
-import { Str } from '@supercharge/strings';
+import { createNumberedList, trunicate } from '#utils/helpers';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
 	aliases: ['q'],
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Displays the queue'),
-	async execute({ command, member, preferences }) {
+	data: new SlashCommandBuilder().setDescription('Displays the queue'),
+	async run(ctx) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 
-		if (member.voice.channel == null)
-			return await App.respond(command, '❌ | You are not in a voice channel');
-		if (currentTrack == null)
-			return await App.respond(command, '❌ | There are no tracks in the queue');
-		if (member.voice.channel !== queue?.channel)
-			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+		}
+		if (!currentTrack) {
+			return await App.respond(
+				ctx,
+				'You are not in the same voice channel as the app',
+				App.ResponseType.UserError
+			);
+		}
+		if (ctx.member.voice.channel !== queue.channel) {
+			return App.respond(
+				ctx,
+				'You are not in the same voice channel as the app',
+				App.ResponseType.UserError
+			);
+		}
 
 		try {
 			const embed = new EmbedBuilder()
-				.setColor(preferences.color)
+				.setColor(ctx.preferences.color)
 				.setTitle('Queue')
 				.setDescription(
-					Str(
+					trunicate(
 						`**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${
 							currentTrack.author
-						}**\n\n${queue.tracks
-							.map(
-								(track, index) =>
-									`**${(index + 1).toString()}.** [**${track.cleanTitle}**](${track.url}) by **${track.author}**`
-							)
-							.join('\n')}`
+						}**\n\n${createNumberedList(
+							queue.tracks.map((track) => `[**${track.cleanTitle}**](${track.url}) by **${track.author}**`)
+						)}`,
+						4096
 					)
-						.limit(4093, '...')
-						.toString()
 				);
 
-			return await App.respond(command, { embeds: [embed] });
+			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not display the queue');
+			return await App.respond(ctx, 'Could not display the queue', App.ResponseType.AppError);
 		}
 	},
 };

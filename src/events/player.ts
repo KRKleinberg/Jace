@@ -1,15 +1,10 @@
 import { App } from '#utils/app';
 import { Player } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
-import {
-	ChannelType,
-	type AnySelectMenuInteraction,
-	type ChatInputCommandInteraction,
-	type Message,
-} from 'discord.js';
+import { ChannelType } from 'discord.js';
 
 export const event: App.Event = {
-	execute() {
+	run() {
 		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 			console.log(message);
 		}); */
@@ -19,29 +14,35 @@ export const event: App.Event = {
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
-			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
-
-			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
+			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			console.error(error);
 
-			try {
-				if (!queue.isPlaying()) await queue.node.play();
-			} catch (error) {
-				console.error(error);
+			if (ctx.command.channel?.type === ChannelType.GuildText) {
+				await ctx.command.channel.sendTyping();
+			}
+
+			if (!queue.isPlaying()) {
+				try {
+					await queue.node.play();
+				} catch (error) {
+					console.error(error);
+				}
 			}
 
 			await App.respond(
-				command,
-				`⚠️ | There was an error playing **${track.cleanTitle}** by **${track.author}**`,
-				{ channelSend: true }
+				ctx,
+				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+				App.ResponseType.AppError
 			);
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
-			const command = queue.metadata as Message | ChatInputCommandInteraction | AnySelectMenuInteraction;
+			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			if (command.channel?.type === ChannelType.GuildText) await command.channel.sendTyping();
+			if (ctx.command.channel?.type === ChannelType.GuildText) {
+				await ctx.command.channel.sendTyping();
+			}
 
 			const lyricsResults = await Player.client.lyrics.search({
 				trackName: track.cleanTitle,
@@ -51,63 +52,89 @@ export const event: App.Event = {
 
 			if (lyricsResults.length && lyricsResult.syncedLyrics) {
 				try {
+					const waitLyric = '▫\u2002▫\u2002▫';
+					const waitLyricBold = '▪\u2002▪\u2002▪';
+					const endLyric = 'END_OF_LYRICS';
 					const syncedLyrics = queue.syncedLyrics(lyricsResult);
-					const syncedVerses = lyricsResult.syncedLyrics
-						.split('\n')
-						.filter((verse) => verse.slice(11).length !== 0);
-					const response = await App.respond(
-						command,
-						`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${syncedVerses[0].slice(11)}\n${syncedVerses[1].slice(11)}`,
-						{
-							channelSend: true,
+					const syncedVerses = lyricsResult.syncedLyrics.split('\n').map((verse, index, array) => {
+						if (index === array.length - 1) {
+							return `${verse.slice(0, 11)}${endLyric}`;
+						} else if (verse.slice(11).length === 0) {
+							return `${verse.slice(0, 11)}${waitLyric}`;
+						} else {
+							return verse;
 						}
-					);
+					});
+					const lyrics = [waitLyricBold, syncedVerses[0].slice(11)];
+					const embed = Player.createPlayEmbed(queue, track, lyrics);
+					const response = await App.respond(ctx, { embeds: [embed] });
+					const interval = setInterval(async () => {
+						const embed = Player.createPlayEmbed(queue, track, lyrics);
 
+						await response.edit({
+							embeds: [embed],
+						});
+
+						if (queue.currentTrack != track) {
+							clearInterval(interval);
+						}
+					}, 5000);
+
+					syncedLyrics.load(syncedVerses.join('\n'));
 					syncedLyrics.onChange(async (currentVerse, timestamp) => {
 						try {
 							const currentVerseIndex = syncedVerses.findIndex((verse) =>
 								verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
 							);
 
-							const lyrics = [
-								currentVerseIndex !== syncedVerses.length - 1
-									? `**${currentVerse}**`
-									: syncedVerses[currentVerseIndex - 1].slice(11),
-								currentVerseIndex !== syncedVerses.length - 1
-									? syncedVerses[currentVerseIndex + 1].slice(11)
-									: `**${currentVerse}**`,
-							];
+							if (currentVerseIndex === syncedVerses.length - 2) {
+								lyrics[0] = syncedVerses[currentVerseIndex - 1].slice(11);
+								lyrics[1] = `**${currentVerse}**`;
+							} else if (currentVerse === endLyric) {
+								lyrics[0] = syncedVerses[currentVerseIndex - 2].slice(11);
+								lyrics[1] = syncedVerses[currentVerseIndex - 1].slice(11);
+							} else {
+								lyrics[0] = `**${currentVerse === waitLyric ? waitLyricBold : currentVerse}**`;
+								lyrics[1] = syncedVerses[currentVerseIndex + 1].slice(11);
+							}
 
-							if (currentVerseIndex === syncedVerses.length - 1)
-								setTimeout(
-									async () => await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`),
-									10_000
-								);
+							const embed = Player.createPlayEmbed(queue, track, lyrics);
 
-							await response.edit(
-								`🎵 | Playing **${track.cleanTitle}** by **${track.author}**\n-—**⁘**—-\n${lyrics.join('\n')}`
-							);
+							await response.edit({
+								embeds: [embed],
+							});
 						} catch {
 							try {
-								await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`);
+								await response.edit(`🎵\u2002Playing **${track.cleanTitle}** by **${track.author}**`);
 							} catch (error) {
 								console.error(error);
 							}
 						}
 					});
-
+					syncedLyrics.onUnsubscribe(async () => {
+						const embed = Player.createPlayEmbed(queue, track);
+						await response.edit({ embeds: [embed] });
+					});
 					syncedLyrics.subscribe();
-
-					syncedLyrics.onUnsubscribe(
-						async () => await response.edit(`🎵 | Playing **${track.cleanTitle}** by **${track.author}**`)
-					);
-				} catch {
-					// Do nothing.
+				} catch (error) {
+					console.error(error);
 				}
-			} else
-				await App.respond(command, `🎵 | Playing **${track.cleanTitle}** by **${track.author}**`, {
-					channelSend: true,
-				});
+			} else {
+				const embed = Player.createPlayEmbed(queue, track);
+				const response = await App.respond(ctx, { embeds: [embed] });
+
+				const interval = setInterval(async () => {
+					const embed = Player.createPlayEmbed(queue, track);
+
+					await response.edit({
+						embeds: [embed],
+					});
+
+					if (queue.currentTrack != track) {
+						clearInterval(interval);
+					}
+				}, 5000);
+			}
 		});
 	},
 };

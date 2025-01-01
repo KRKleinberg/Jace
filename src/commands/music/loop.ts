@@ -1,12 +1,9 @@
 import { App } from '#utils/app';
 import { QueueRepeatMode, useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
 	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
 		.setDescription('Sets loop mode')
 		.addStringOption((option) =>
 			option
@@ -20,11 +17,11 @@ export const command: App.Command = {
 					{ name: 'Autoplay', value: 'autoplay' }
 				)
 		),
-	async execute({ command, member, args }) {
+	async run(ctx) {
 		const input =
-			command.type === InteractionType.ApplicationCommand
-				? command.options.getString('mode')
-				: args[0]?.toLowerCase();
+			ctx.command.type === InteractionType.ApplicationCommand
+				? ctx.command.options.getString('mode')
+				: ctx.args[0]?.toLowerCase();
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
 		const repeatModes = [
@@ -46,13 +43,22 @@ export const command: App.Command = {
 			},
 		];
 
-		if (member.voice.channel == null)
-			return await App.respond(command, '❌ | You are not in a voice channel');
-		if (currentTrack == null)
-			return await App.respond(command, '❌ | There are no tracks in the queue');
-		if (member.voice.channel !== queue?.channel)
-			return await App.respond(command, '❌ | You are not in the same voice channel as the app');
-		if (!queue.isPlaying()) return await App.respond(command, '❌ | There are no tracks playing');
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channnel', App.ResponseType.UserError);
+		}
+		if (!currentTrack) {
+			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
+		}
+		if (ctx.member.voice.channel !== queue.channel) {
+			return await App.respond(
+				ctx,
+				'You are not in the same voice channel as the app',
+				App.ResponseType.UserError
+			);
+		}
+		if (!queue.isPlaying()) {
+			return await App.respond(ctx, 'There are no tracks playing', App.ResponseType.UserError);
+		}
 
 		try {
 			switch (input) {
@@ -71,19 +77,22 @@ export const command: App.Command = {
 					queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);
 					break;
 				default:
-					if (queue.repeatMode === QueueRepeatMode.OFF) queue.setRepeatMode(QueueRepeatMode.TRACK);
-					else queue.setRepeatMode(QueueRepeatMode.OFF);
+					if (queue.repeatMode === QueueRepeatMode.OFF) {
+						queue.setRepeatMode(QueueRepeatMode.TRACK);
+					} else {
+						queue.setRepeatMode(QueueRepeatMode.OFF);
+					}
 					break;
 			}
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not set loop mode');
+			return await App.respond(ctx, 'Could not set loop mode', App.ResponseType.AppError);
 		}
 
 		return await App.respond(
-			command,
-			`${repeatModes[queue.repeatMode].icon} | ${repeatModes[queue.repeatMode].name}`
+			ctx,
+			`${repeatModes[queue.repeatMode].icon}\u2002${repeatModes[queue.repeatMode].name}`
 		);
 	},
 };

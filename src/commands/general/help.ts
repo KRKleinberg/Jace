@@ -1,39 +1,32 @@
 import { App } from '#utils/app';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
 	aliases: ['h'],
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Displays a list of commands'),
-	async execute({ command, preferences }) {
+	data: new SlashCommandBuilder().setDescription('Displays a list of commands'),
+	async run(ctx) {
 		try {
 			const fields = App.commands.map((command) => {
 				return {
-					name:
-						command.aliases?.length != null
-							? `${command.data.name} (${command.aliases.join(', ')})`
-							: command.data.name,
-					value:
-						command.data.options.length > 0
-							? `${command.data.description}
-				Input: \`${command.data.options.map((option) => option.toJSON().name).join(', ')}\``
-							: command.data.description,
+					name: command.aliases?.length
+						? `${command.data.name} (${command.aliases.join(', ')})`
+						: command.data.name,
+					value: command.data.options.length
+						? `${command.data.description}\nInput: \`${command.data.options.map((option) => option.toJSON().name).join(', ')}\`\n${command.help ?? ''}`
+						: `${command.data.description}\n${command.help ?? ''}`,
 				};
 			});
 			const embed = new EmbedBuilder()
-				.setColor(preferences.color)
+				.setColor(ctx.preferences.color)
 				.setTitle('Commands')
-				.setDescription(`Prefix: **${preferences.prefix}**`)
+				.setDescription(`Prefix: **${ctx.preferences.prefix}**`)
 				.addFields(fields);
 
-			return await App.respond(command, { embeds: [embed] });
+			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not display commands');
+			return await App.respond(ctx, 'Could not display commands', App.ResponseType.AppError);
 		}
 	},
 };

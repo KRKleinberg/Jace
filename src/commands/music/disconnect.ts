@@ -1,15 +1,11 @@
 import { App } from '#utils/app';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
-import { basename } from 'path';
-import { fileURLToPath } from 'url';
 
 export const command: App.Command = {
 	aliases: ['dc', 'stop'],
-	data: new SlashCommandBuilder()
-		.setName(basename(fileURLToPath(import.meta.url), '.js').toLowerCase())
-		.setDescription('Disconnects from the voice channel'),
-	async execute({ command }) {
+	data: new SlashCommandBuilder().setDescription('Disconnects from the voice channel'),
+	async run(ctx) {
 		const queue = useQueue();
 
 		try {
@@ -17,9 +13,9 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error(error);
 
-			return await App.respond(command, '⚠️ | Could not disconnect');
+			return await App.respond(ctx, 'Could not disconnect', App.ResponseType.AppError);
 		}
 
-		return await App.respond(command, `🔌 | Disconnected`);
+		return await App.respond(ctx, '🔌\u2002Disconnected');
 	},
 };

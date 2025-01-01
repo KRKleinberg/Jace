@@ -1,7 +1,8 @@
-export * as Data from '#utils/data';
 import { type QueryType } from 'discord-player';
 import { type ColorResolvable } from 'discord.js';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+
+export * as Data from '#utils/data';
 
 export interface Preferences {
 	/** The prefix to use with prefix commands. */
@@ -18,30 +19,51 @@ export interface Document {
 	preferences: Preferences;
 }
 
-export const client = new MongoClient(process.env.MONGODB_URL!, {
+if (!process.env.ENV) {
+	throw new Error('Environment variable "ENV" is not set!');
+}
+if (!process.env.MONGODB_COLLECTION_NAME) {
+	throw new Error('Environment variable "MONGODB_COLLECTION_NAME" is not set!');
+}
+if (!process.env.MONGODB_URL) {
+	throw new Error('Environment variable "MONGODB_URL" is not set!');
+}
+
+const client = new MongoClient(process.env.MONGODB_URL, {
 	serverApi: {
 		version: ServerApiVersion.v1,
 		strict: true,
 		deprecationErrors: true,
 	},
 });
+export const collection = client
+	.db(process.env.MONGODB_COLLECTION_NAME)
+	.collection<Document>(process.env.ENV);
 
-export async function getPreferences(id?: {
+export async function getPreferences(discordId?: {
 	userId?: string;
 	guildId?: string;
 }): Promise<Required<Preferences>> {
-	const collection = client.db(process.env.npm_package_name).collection<Document>(process.env.ENV!);
+	const user = await collection.findOne({ discordId: discordId?.userId ?? '' });
+	const guild = await collection.findOne({ discordId: discordId?.guildId ?? '' });
+	const master = await collection.findOne({ discordId: '0' });
 
-	const user = id?.userId ? await collection.findOne({ discordId: id.userId }) : null;
-	const guild = id?.guildId ? await collection.findOne({ discordId: id.guildId }) : null;
-	const master = (await collection.findOne({ discordId: '0' }))!;
+	if (!master?.preferences.prefix) {
+		throw new Error('Master prefix is not set in database!');
+	}
+	if (!master.preferences.color) {
+		throw new Error('Master color is not set in database!');
+	}
+	if (!master.preferences.searchEngine) {
+		throw new Error('Master searchEngine is not set in database!');
+	}
 
 	return {
-		prefix: user?.preferences.prefix ?? guild?.preferences.prefix ?? master.preferences.prefix!,
-		color: user?.preferences.color ?? guild?.preferences.color ?? master.preferences.color!,
+		prefix: user?.preferences.prefix ?? guild?.preferences.prefix ?? master.preferences.prefix,
+		color: user?.preferences.color ?? guild?.preferences.color ?? master.preferences.color,
 		searchEngine:
 			user?.preferences.searchEngine ??
 			guild?.preferences.searchEngine ??
-			master.preferences.searchEngine!,
+			master.preferences.searchEngine,
 	};
 }
