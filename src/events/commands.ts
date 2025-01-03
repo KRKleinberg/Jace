@@ -1,7 +1,6 @@
 import { App } from '#utils/app';
 import { Data } from '#utils/data';
 import { Player } from '#utils/player';
-import { useMainPlayer } from 'discord-player';
 import { Events, type GuildMember } from 'discord.js';
 
 export const event: App.Event = {
@@ -23,9 +22,7 @@ export const event: App.Event = {
 						await message.channel.sendTyping();
 
 						try {
-							const client = useMainPlayer();
-
-							await client.context.provide({ guild }, async () => {
+							await Player.client.context.provide({ guild }, async () => {
 								try {
 									await prefixCommand.run({
 										command: message,
@@ -35,7 +32,7 @@ export const event: App.Event = {
 										preferences,
 									});
 								} catch (error) {
-									console.error(error);
+									console.error('Prefix Command Error:', error);
 
 									await App.respond(
 										{ command: message, preferences },
@@ -45,7 +42,7 @@ export const event: App.Event = {
 								}
 							});
 						} catch (error) {
-							console.error(error);
+							console.error('Player Context Error:', error);
 						}
 					}
 				}
@@ -66,7 +63,7 @@ export const event: App.Event = {
 						try {
 							await slashCommand.autocomplete({ command: interaction, args: [], guild, member, preferences });
 						} catch (error) {
-							console.error(error);
+							console.error('Autocomplete Error:', error);
 						}
 					}
 				} else if (interaction.isChatInputCommand()) {
@@ -80,7 +77,7 @@ export const event: App.Event = {
 								try {
 									await slashCommand.run({ command: interaction, args: [], guild, member, preferences });
 								} catch (error) {
-									console.error(error);
+									console.error('Slash Command Error:', error);
 
 									await App.respond(
 										{ command: interaction, preferences },
@@ -90,7 +87,7 @@ export const event: App.Event = {
 								}
 							});
 						} catch (error) {
-							console.error(error);
+							console.error('Player Context Error:', error);
 						}
 					}
 				}

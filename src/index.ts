@@ -15,48 +15,51 @@ if (!process.env.DISCORD_BOT_TOKEN) {
 }
 
 // Load player extractors
-if (process.env.DEEZER_KEY) {
-	await Player.client.extractors.register(DeezerExtractor, {
-		decryptionKey: process.env.DEEZER_KEY,
+{
+	if (process.env.DEEZER_KEY) {
+		await Player.client.extractors.register(DeezerExtractor, {
+			decryptionKey: process.env.DEEZER_KEY,
+		});
+	}
+	/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
+		await Player.client.extractors.register(YoutubeiExtractor, {
+			authentication: process.env.YOUTUBE_OAUTH,
+			cookie: process.env.YOUTUBE_COOKIE,
+		});
+	} */
+
+	await Player.client.extractors.register(SoundCloudExtractor, {});
+	await Player.client.extractors.register(AppleMusicExtractor, {
+		async createStream(ext, _url, track) {
+			const deezerExtractor = Player.client.extractors.get(DeezerExtractor.identifier);
+			const youtubeiExtractor = Player.client.extractors.get(YoutubeiExtractor.identifier);
+			const soundcloudExtractor = Player.client.extractors.get(SoundCloudExtractor.identifier);
+			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
+
+			if (!bridgeExtractor) {
+				throw new Error('No suitable extractors are registered to bridge from');
+			}
+
+			return Player.requestBridgeFrom(track, ext, bridgeExtractor);
+		},
+	});
+	await Player.client.extractors.register(SpotifyExtractor, {
+		async createStream(ext, url) {
+			const deezerExtractor = Player.client.extractors.get(DeezerExtractor.identifier);
+			const youtubeiExtractor = Player.client.extractors.get(YoutubeiExtractor.identifier);
+			const soundcloudExtractor = Player.client.extractors.get(SoundCloudExtractor.identifier);
+			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
+
+			if (!bridgeExtractor) {
+				throw new Error('No suitable extractors are registered to bridge from');
+			}
+
+			const searchResults = await Player.client.search(url, { searchEngine: 'spotifySong' });
+
+			return Player.requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
+		},
 	});
 }
-/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
-	await Player.client.extractors.register(YoutubeiExtractor, {
-		authentication: process.env.YOUTUBE_OAUTH,
-		cookie: process.env.YOUTUBE_COOKIE,
-	});
-} */
-await Player.client.extractors.register(SoundCloudExtractor, {});
-await Player.client.extractors.register(AppleMusicExtractor, {
-	async createStream(ext, _url, track) {
-		const deezerExtractor = Player.client.extractors.get(DeezerExtractor.identifier);
-		const youtubeiExtractor = Player.client.extractors.get(YoutubeiExtractor.identifier);
-		const soundcloudExtractor = Player.client.extractors.get(SoundCloudExtractor.identifier);
-		const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
-
-		if (!bridgeExtractor) {
-			throw new Error('No suitable extractors are registered to bridge from');
-		}
-
-		return Player.requestBridgeFrom(track, ext, bridgeExtractor);
-	},
-});
-await Player.client.extractors.register(SpotifyExtractor, {
-	async createStream(ext, url) {
-		const deezerExtractor = Player.client.extractors.get(DeezerExtractor.identifier);
-		const youtubeiExtractor = Player.client.extractors.get(YoutubeiExtractor.identifier);
-		const soundcloudExtractor = Player.client.extractors.get(SoundCloudExtractor.identifier);
-		const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
-
-		if (!bridgeExtractor) {
-			throw new Error('No suitable extractors are registered to bridge from');
-		}
-
-		const searchResults = await Player.client.search(url, { searchEngine: 'spotifySong' });
-
-		return Player.requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
-	},
-});
 
 // Load commands
 {
