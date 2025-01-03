@@ -87,10 +87,10 @@ export const event: App.Event = {
 								verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
 							);
 
-							if (currentVerseIndex === syncedVerses.length - 2) {
+							if (syncedVerses[currentVerseIndex + 1].includes(endLyric)) {
 								lyrics[0] = syncedVerses[currentVerseIndex - 1].slice(11);
 								lyrics[1] = `**${currentVerse}**`;
-							} else if (currentVerse === endLyric) {
+							} else if (currentVerse.includes(endLyric)) {
 								lyrics[0] = syncedVerses[currentVerseIndex - 2].slice(11);
 								lyrics[1] = syncedVerses[currentVerseIndex - 1].slice(11);
 							} else {
