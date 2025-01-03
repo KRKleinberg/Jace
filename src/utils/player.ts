@@ -133,8 +133,8 @@ export function createQueuedEmbed(
 					? { text: playlist.author.name }
 					: null
 				: position === 0
-					? { text: `▶\u2002|\u2002${track.duration || '--:--'}` }
-					: { text: `${position.toString()}\u2002|\u2002${track.duration || '--:--'}` }
+					? { text: `▶\u2002|\u2002${track.durationMS ? track.duration : '--:--'}` }
+					: { text: `${position.toString()}\u2002|\u2002${track.durationMS ? track.duration : '--:--'}` }
 		);
 }
 export async function requestBridgeFrom(

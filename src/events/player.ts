@@ -65,7 +65,7 @@ export const event: App.Event = {
 							return verse;
 						}
 					});
-					const lyrics = [waitLyricBold, syncedVerses[0].slice(11)];
+					let lyrics: string[] | undefined = [waitLyricBold, syncedVerses[0].slice(11)];
 					const embed = Player.createPlayEmbed(queue, track, lyrics);
 					const response = await App.respond(ctx, { embeds: [embed] }, App.ResponseType.Channel);
 					const interval = setInterval(async () => {
@@ -87,15 +87,26 @@ export const event: App.Event = {
 								verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
 							);
 
-							if (syncedVerses[currentVerseIndex + 1].includes(endLyric)) {
-								lyrics[0] = syncedVerses[currentVerseIndex - 1].slice(11);
-								lyrics[1] = `**${currentVerse}**`;
+							if (syncedVerses[currentVerseIndex + 1]?.includes(endLyric)) {
+								lyrics = [syncedVerses[currentVerseIndex - 1].slice(11), `**${currentVerse}**`];
 							} else if (currentVerse.includes(endLyric)) {
-								lyrics[0] = syncedVerses[currentVerseIndex - 2].slice(11);
-								lyrics[1] = syncedVerses[currentVerseIndex - 1].slice(11);
+								lyrics = [
+									syncedVerses[currentVerseIndex - 2].slice(11),
+									syncedVerses[currentVerseIndex - 1].slice(11),
+								];
+
+								setTimeout(() => {
+									lyrics = undefined;
+
+									syncedLyrics.unsubscribe();
+								}, 5000);
+							} else if (currentVerse && syncedVerses[currentVerseIndex + 1]) {
+								lyrics = [
+									`**${currentVerse === waitLyric ? waitLyricBold : currentVerse}**`,
+									syncedVerses[currentVerseIndex + 1].slice(11),
+								];
 							} else {
-								lyrics[0] = `**${currentVerse === waitLyric ? waitLyricBold : currentVerse}**`;
-								lyrics[1] = syncedVerses[currentVerseIndex + 1].slice(11);
+								lyrics = undefined;
 							}
 
 							const embed = Player.createPlayEmbed(queue, track, lyrics);
@@ -103,16 +114,17 @@ export const event: App.Event = {
 							await response.edit({
 								embeds: [embed],
 							});
-						} catch {
-							try {
-								await response.edit(`🎵\u2002Playing **${track.cleanTitle}** by **${track.author}**`);
-							} catch (error) {
-								console.error(error);
-							}
+						} catch (error) {
+							console.error(error);
+
+							const embed = Player.createPlayEmbed(queue, track);
+
+							await response.edit({ embeds: [embed] });
 						}
 					});
 					syncedLyrics.onUnsubscribe(async () => {
 						const embed = Player.createPlayEmbed(queue, track);
+
 						await response.edit({ embeds: [embed] });
 					});
 					syncedLyrics.subscribe();
