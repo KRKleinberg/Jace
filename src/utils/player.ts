@@ -72,7 +72,10 @@ export const streamSources = (): StreamSource[] => {
 
 export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string[]) {
 	const ctx: App.CommandContext = queue.metadata as App.CommandContext;
-	const progressBar = queue.node.createProgressBar({ length: 24, timecodes: false });
+	const progressBar = queue.node.createProgressBar({
+		length: track.duration.length <= 5 ? 24 : 22,
+		timecodes: false,
+	});
 
 	if (queue.isPlaying() && queue.currentTrack === track) {
 		return new EmbedBuilder()
