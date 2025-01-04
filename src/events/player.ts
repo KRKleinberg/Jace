@@ -96,9 +96,9 @@ export const event: App.Event = {
 								];
 
 								setTimeout(() => {
-									lyrics = undefined;
-
-									syncedLyrics.unsubscribe();
+									if (queue.currentTrack === track) {
+										syncedLyrics.unsubscribe();
+									}
 								}, 5000);
 							} else if (currentVerse && syncedVerses[currentVerseIndex + 1]) {
 								lyrics = [
@@ -123,6 +123,8 @@ export const event: App.Event = {
 						}
 					});
 					syncedLyrics.onUnsubscribe(async () => {
+						lyrics = undefined;
+
 						const embed = Player.createPlayEmbed(queue, track);
 
 						await response.edit({ embeds: [embed] });
