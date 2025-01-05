@@ -10,13 +10,13 @@ export const event: App.Event = {
 		}); */
 
 		Player.client.events.on(GuildQueueEvent.Error, (_queue, error) => {
-			console.error(error);
+			console.error('Queue Error:', error);
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error(error);
+			console.error('Player Error:', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				await ctx.command.channel.sendTyping();
