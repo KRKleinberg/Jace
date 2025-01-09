@@ -11,6 +11,8 @@ export interface Preferences {
 	color?: ColorResolvable;
 	/** The search engine to search for tracks with. */
 	searchEngine?: (typeof QueryType)[keyof typeof QueryType];
+	/** The volume for the player. */
+	volume?: number;
 }
 export interface Document {
 	/** The User ID or Guild ID. Use '0' for master. */
@@ -57,6 +59,9 @@ export async function getPreferences(discordId?: {
 	if (!master.preferences.searchEngine) {
 		throw new Error('Master searchEngine is not set in database!');
 	}
+	if (!master.preferences.volume) {
+		throw new Error('Master volume is not set in database!');
+	}
 
 	return {
 		prefix: user?.preferences.prefix ?? guild?.preferences.prefix ?? master.preferences.prefix,
@@ -65,5 +70,6 @@ export async function getPreferences(discordId?: {
 			user?.preferences.searchEngine ??
 			guild?.preferences.searchEngine ??
 			master.preferences.searchEngine,
+		volume: guild?.preferences.volume ?? master.preferences.volume,
 	};
 }

@@ -30,6 +30,21 @@ export function createNumberedList(array: string[], charLimit?: number): string 
 		return list;
 	}
 }
+export function durationToMs(duration: string) {
+	const times = (n: number, t: number) => {
+		let tn = 1;
+		for (let i = 0; i < t; i++) {
+			tn *= n;
+		}
+		return t <= 0 ? 1e3 : tn * 1e3;
+	};
+
+	return duration
+		.split(':')
+		.reverse()
+		.map((m, i) => parseInt(m) * times(60, i))
+		.reduce((a, c) => a + c, 0);
+}
 export function getFilePaths(
 	/** The directory you are searching in. */
 	dir: string,

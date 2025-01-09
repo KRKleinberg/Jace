@@ -57,9 +57,12 @@ export const command: App.Command = {
 				? ctx.command.options.getString('query', true)
 				: ctx.args.join(' ')
 		);
-		
+
 		const player = useMainPlayer();
-		const queue = player.nodes.create(ctx.guild, Player.queueOptions);
+		const queue = player.nodes.create(ctx.guild, {
+			...Player.globalQueueOptions,
+			volume: Player.getVolume(ctx),
+		});
 		const [, setMetadata] = useMetadata(ctx.guild);
 
 		setMetadata(ctx);
