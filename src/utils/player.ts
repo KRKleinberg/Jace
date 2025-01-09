@@ -1,6 +1,11 @@
 import { App } from '#utils/app';
 import { createNumberedList } from '#utils/helpers';
 import {
+	AppleMusicExtractor,
+	SoundCloudExtractor,
+	SpotifyExtractor,
+} from '@discord-player/extractor';
+import {
 	type BaseExtractor,
 	type ExtractorResolvable,
 	type GuildNodeCreateOptions,
@@ -23,11 +28,10 @@ export interface StreamSource {
 	name: string;
 	searchQueryType: (typeof QueryType)[keyof typeof QueryType];
 	replaceRegExp: string | RegExp;
-	/** Icon name matches TrackSource. */
 	trackSource: TrackSource;
 }
 
-export const client = new Player(App.client);
+let client: Player;
 export const queueOptions: Omit<GuildNodeCreateOptions, 'metadata'> = {
 	selfDeaf: true,
 	leaveOnEmpty: true,
@@ -137,7 +141,57 @@ export function createQueuedEmbed(
 					: { text: `${position.toString()}\u2002|\u2002${track.durationMS ? track.duration : '--:--'}` }
 		);
 }
-export async function requestBridgeFrom(
+async function initializeExtractors() {
+	if (process.env.DEEZER_KEY) {
+		await client.extractors.register(DeezerExtractor, {
+			decryptionKey: process.env.DEEZER_KEY,
+		});
+	}
+	/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
+		await client.extractors.register(YoutubeiExtractor, {
+			authentication: process.env.YOUTUBE_OAUTH,
+			cookie: process.env.YOUTUBE_COOKIE,
+		});
+	} */
+
+	await client.extractors.register(SoundCloudExtractor, {});
+	await client.extractors.register(AppleMusicExtractor, {
+		async createStream(ext, _url, track) {
+			const deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
+			const youtubeiExtractor = client.extractors.get(YoutubeiExtractor.identifier);
+			const soundcloudExtractor = client.extractors.get(SoundCloudExtractor.identifier);
+			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
+
+			if (!bridgeExtractor) {
+				throw new Error('No suitable extractors are registered to bridge from');
+			}
+
+			return requestBridgeFrom(track, ext, bridgeExtractor);
+		},
+	});
+	await client.extractors.register(SpotifyExtractor, {
+		async createStream(ext, url) {
+			const deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
+			const youtubeiExtractor = client.extractors.get(YoutubeiExtractor.identifier);
+			const soundcloudExtractor = client.extractors.get(SoundCloudExtractor.identifier);
+			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
+
+			if (!bridgeExtractor) {
+				throw new Error('No suitable extractors are registered to bridge from');
+			}
+
+			const searchResults = await client.search(url, { searchEngine: 'spotifySong' });
+
+			return requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
+		},
+	});
+}
+export async function initializePlayer() {
+	client = new Player(App.client);
+
+	await initializeExtractors();
+}
+async function requestBridgeFrom(
 	track: Track,
 	sourceExtractor: BaseExtractor | null,
 	targetExtractor: ExtractorResolvable
@@ -150,8 +204,8 @@ export async function requestBridgeFrom(
 
 		if (track.durationMS) {
 			deezerSearchParams.push(
-				`dur_min:"${(track.durationMS / 1000 - 1).toString()}"`,
-				`dur_max:"${(track.durationMS / 1000 + 1).toString()}"`
+				`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
+				`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
 			);
 		}
 

@@ -1,9 +1,11 @@
 export * as App from '#utils/app';
 import { type Data } from '#utils/data';
+import { getFilePaths } from '#utils/helpers';
 import {
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
+	basename,
 	ChannelType,
 	type ChatInputCommandInteraction,
 	Client,
@@ -81,6 +83,29 @@ export const client = new Client({
 });
 export const commands = new Collection<string, Command>();
 
+export async function initializeCommands() {
+	const commandFiles = getFilePaths('./dist/commands/', '.js', './dist/utils/');
+
+	for (const commandFile of commandFiles) {
+		const { command } = (await import(commandFile)) as { command: Command };
+
+		const commandName =
+			command.data.name || command.data.setName(basename(commandFile, '.js').toLowerCase()).name;
+
+		commands.set(commandName, command);
+	}
+}
+export async function initializeEvents() {
+	{
+		const eventFiles = getFilePaths('./dist/events', '.js', './dist/utls/');
+
+		for (const eventFile of eventFiles) {
+			const { event } = (await import(eventFile)) as { event: Event };
+
+			await event.run();
+		}
+	}
+}
 function createResponse<T extends ResponseContext>(
 	ctx: T,
 	message: string,
@@ -108,7 +133,6 @@ function createResponse<T extends ResponseContext>(
 
 	return response;
 }
-
 export async function respond(
 	ctx: ResponseContext,
 	message: string | BaseMessageOptions,

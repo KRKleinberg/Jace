@@ -1,7 +1,7 @@
 import { App } from '#utils/app';
 import { trunicate } from '#utils/helpers';
 import { Player } from '#utils/player';
-import { useMetadata } from 'discord-player';
+import { useMainPlayer, useMetadata } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
@@ -57,8 +57,9 @@ export const command: App.Command = {
 				? ctx.command.options.getString('query', true)
 				: ctx.args.join(' ')
 		);
-
-		const queue = Player.client.nodes.create(ctx.guild, Player.queueOptions);
+		
+		const player = useMainPlayer();
+		const queue = player.nodes.create(ctx.guild, Player.queueOptions);
 		const [, setMetadata] = useMetadata(ctx.guild);
 
 		setMetadata(ctx);
