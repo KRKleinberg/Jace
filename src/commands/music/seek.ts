@@ -4,7 +4,6 @@ import { useQueue, useTimeline } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
-	aliases: ['skipto'],
 	data: new SlashCommandBuilder()
 		.setDescription('Seeks to a given time on a the currently playing track')
 		.addStringOption((option) =>
@@ -13,7 +12,7 @@ export const command: App.Command = {
 	async run(ctx) {
 		const queue = useQueue();
 		const timeline = useTimeline();
-		const track = useTimeline()?.track;
+		const currentTrack = useTimeline()?.track;
 		const position = durationToMs(
 			ctx.command.type === InteractionType.ApplicationCommand
 				? ctx.command.options.getString('time', true)
@@ -23,7 +22,7 @@ export const command: App.Command = {
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
 		}
-		if (!track) {
+		if (!currentTrack || !timeline) {
 			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
 		}
 		if (ctx.member.voice.channel !== queue?.channel) {
@@ -33,13 +32,10 @@ export const command: App.Command = {
 				App.ResponseType.UserError
 			);
 		}
-		if (!timeline) {
-			return await App.respond(ctx, 'There are no tracks playing', App.ResponseType.UserError);
-		}
 		if (!position) {
 			return await App.respond(ctx, 'Please enter a valid time to seek to', App.ResponseType.UserError);
 		}
-		if (track.durationMS <= position) {
+		if (currentTrack.durationMS <= position) {
 			try {
 				queue.node.skip();
 			} catch (error) {
@@ -48,7 +44,10 @@ export const command: App.Command = {
 				return await App.respond(ctx, 'Could not skip the track', App.ResponseType.AppError);
 			}
 
-			return await App.respond(ctx, `⏭️\u2002Skipped _${track.cleanTitle}_ by _${track.author}_`);
+			return await App.respond(
+				ctx,
+				`⏭️\u2002Skipped _${currentTrack.cleanTitle}_ by _${currentTrack.author}_`
+			);
 		}
 
 		const currentTime = timeline.timestamp.current.value;

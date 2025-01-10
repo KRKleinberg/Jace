@@ -23,7 +23,6 @@ export const command: App.Command = {
 				? ctx.command.options.getString('mode')
 				: ctx.args[0]?.toLowerCase();
 		const queue = useQueue();
-		const currentTrack = queue?.currentTrack;
 		const repeatModes = [
 			{
 				name: 'Off',
@@ -46,7 +45,7 @@ export const command: App.Command = {
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channnel', App.ResponseType.UserError);
 		}
-		if (!currentTrack) {
+		if (!queue || queue.isEmpty()) {
 			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
 		}
 		if (ctx.member.voice.channel !== queue.channel) {

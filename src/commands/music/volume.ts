@@ -5,15 +5,15 @@ import { useQueue } from 'discord-player';
 import { InteractionType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
+	aliases: ['vol'],
 	data: new SlashCommandBuilder()
-		.setDescription('Sets the volume for the server')
+		.setDescription('Displays or sets the volume for the server')
 		.addIntegerOption((option) =>
 			option
 				.setName('volume')
-				.setDescription('The volume between 5% and 100%')
+				.setDescription('The volume to set between 5% and 100%')
 				.setMinValue(5)
 				.setMaxValue(100)
-				.setRequired(true)
 		)
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	async run(ctx) {
@@ -35,16 +35,19 @@ export const command: App.Command = {
 			);
 		}
 		if (!volume) {
-			return await App.respond(
-				ctx,
-				'Please enter a volume between 5% and 100%',
-				App.ResponseType.UserError
-			);
+			if (queue?.node.volume) {
+				return await App.respond(
+					ctx,
+					`${Player.convertVolume(queue.node.volume, 'readable') < 50 ? '🔉' : '🔊'}\u2002Volume set to _${Player.convertVolume(queue.node.volume, 'readable').toString()}%_`
+				);
+			} else {
+				return await App.respond(ctx, 'Could not display volume', App.ResponseType.AppError);
+			}
 		}
 
 		try {
-			if (queue?.isPlaying) {
-				queue.node.setVolume(Player.getVolume(ctx, volume));
+			if (queue) {
+				queue.node.setVolume(Player.convertVolume(volume, 'queue'));
 			}
 		} catch (error) {
 			console.error(error);

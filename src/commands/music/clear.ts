@@ -7,12 +7,11 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder().setDescription('Clears the queue'),
 	async run(ctx) {
 		const queue = useQueue();
-		const currentTrack = queue?.currentTrack;
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
 		}
-		if (!currentTrack) {
+		if (!queue || queue.isEmpty()) {
 			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
 		}
 		if (ctx.member.voice.channel !== queue.channel) {

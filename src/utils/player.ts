@@ -141,10 +141,10 @@ export function createQueuedEmbed(
 					: { text: `${position.toString()}\u2002|\u2002${track.durationMS ? track.duration : '--:--'}` }
 		);
 }
-export function getVolume(ctx: App.CommandContext, volume?: number): number {
-	const volumeDenominator = 10;
+export function convertVolume(volume: number, convertTo: 'readable' | 'queue'): number {
+	const multiplier = convertTo === 'readable' ? 10 : 0.1;
 
-	return volume ? volume / volumeDenominator : ctx.preferences.volume / volumeDenominator;
+	return volume * multiplier;
 }
 async function initializeExtractors() {
 	const player = useMainPlayer();
