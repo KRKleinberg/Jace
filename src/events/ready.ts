@@ -1,6 +1,5 @@
 import { App } from '#utils/app';
 import { Data } from '#utils/data';
-import { Player } from '#utils/player';
 import { ActivityType, Events, REST, Routes } from 'discord.js';
 
 export const event: App.Event = {
@@ -34,7 +33,7 @@ export const event: App.Event = {
 				],
 			});
 
-			// Prevent crashes on uncaught exceptions and unhandled promise rejections
+			/* // Prevent crashes on uncaught exceptions and unhandled promise rejections
 			process.on('uncaughtException', async (error) => {
 				console.error(`EXCEPTION CAUGHT: ${error}\n` + `EXCEPTION ORIGIN: ${error.stack ?? 'Unknown'}`);
 
@@ -48,7 +47,7 @@ export const event: App.Event = {
 				// Reset player and events
 				await Player.initializePlayer();
 				await App.initializeEvents();
-			});
+			}); */
 
 			// Log Start
 			console.log(
