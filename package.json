@@ -24,7 +24,7 @@
 		"#utils/*": "./dist/utils/*.js"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.17.0",
+		"@eslint/js": "^9.18.0",
 		"@types/node": "^22.10.5",
 		"eslint": "^9.18.0",
 		"ffmpeg-static": "^5.2.0",
