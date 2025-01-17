@@ -34,7 +34,7 @@
 		"typescript-eslint": "^8.20.0"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^7.0.0",
+		"@discord-player/extractor": "^7.1.0",
 		"discord-player": "^7.0.0",
 		"discord-player-deezer": "^2.1.0",
 		"discord-player-youtubei": "^1.3.7",
