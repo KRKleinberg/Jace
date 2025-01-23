@@ -218,6 +218,8 @@ async function requestBridgeFrom(
 			);
 		}
 
+		console.log(deezerSearchParams.join(' '));
+
 		const deezerTrack = await searchOneTrack(deezerSearchParams.join(' '));
 
 		if (deezerTrack) {

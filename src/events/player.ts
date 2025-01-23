@@ -40,6 +40,8 @@ export const event: App.Event = {
 		});
 
 		player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
+			console.log(track);
+
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
