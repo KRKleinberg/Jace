@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.18.0",
-		"@types/node": "^22.10.7",
+		"@types/node": "^22.10.9",
 		"eslint": "^9.18.0",
 		"ffmpeg-static": "^5.2.0",
 		"globals": "^15.14.0",
@@ -34,7 +34,7 @@
 		"typescript-eslint": "^8.21.0"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^7.0.0",
+		"@discord-player/extractor": "^7.1.0",
 		"discord-player": "^7.1.0",
 		"discord-player-deezer": "^2.1.0",
 		"discord-player-youtubei": "^1.4.1",
