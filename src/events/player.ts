@@ -34,8 +34,8 @@ export const event: App.Event = {
 
 			await App.respond(
 				ctx,
-				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-				App.ResponseType.AppError
+				`⚠️\u2002There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+				App.ResponseType.Channel
 			);
 		});
 
