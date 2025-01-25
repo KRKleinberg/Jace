@@ -1,7 +1,7 @@
 import { App } from '#utils/app';
 import { Data } from '#utils/data';
 import { Player } from '#utils/player';
-import { ActivityType, Events, REST, Routes } from 'discord.js';
+import { Events, REST, Routes } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
@@ -24,15 +24,6 @@ export const event: App.Event = {
 			} catch (error) {
 				console.error(error);
 			}
-
-			App.client.user?.setPresence({
-				activities: [
-					{
-						name: `📻 | ${(await Data.getPreferences()).prefix}help | v${process.env.npm_package_version ?? '--.--.--'}`,
-						type: ActivityType.Custom,
-					},
-				],
-			});
 
 			// Prevent crashes on uncaught exceptions and unhandled promise rejections
 			process.on('uncaughtException', async (error) => {

@@ -1,7 +1,8 @@
 export * as App from '#utils/app';
-import { type Data } from '#utils/data';
+import { Data } from '#utils/data';
 import { getFilePaths } from '#utils/helpers';
 import {
+	ActivityType,
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
@@ -80,6 +81,14 @@ export const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.MessageContent,
 	],
+	presence: {
+		activities: [
+			{
+				name: `📻 | ${(await Data.getPreferences()).prefix}help | v${process.env.npm_package_version ?? '--.--.--'}`,
+				type: ActivityType.Custom,
+			},
+		],
+	},
 });
 export const commands = new Collection<string, Command>();
 
