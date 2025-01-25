@@ -161,7 +161,7 @@ async function initializeExtractors() {
 		});
 	} */
 
-	await player.extractors.register(SoundCloudExtractor, {});
+	// await player.extractors.register(SoundCloudExtractor, {});
 	await player.extractors.register(AppleMusicExtractor, {
 		async createStream(ext, _url, track) {
 			const deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
