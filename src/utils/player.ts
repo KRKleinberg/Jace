@@ -244,13 +244,11 @@ async function requestBridgeFrom(
 				return stream as Readable | string;
 			}
 		}
+	} else {
+		throw new Error('Failed to create stream');
 	}
 
 	const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
-
-	if (!stream) {
-		throw new Error('Failed to create stream');
-	}
 
 	return stream as Readable | string;
 }
