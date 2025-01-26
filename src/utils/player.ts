@@ -39,6 +39,8 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 	leaveOnEnd: true,
 	leaveOnEndCooldown: 300000,
 };
+export const progressBarLength = (track?: Track): number =>
+	!track || track.duration.length <= 5 ? 24 : 22;
 const streamSources = (): StreamSource[] => {
 	const player = useMainPlayer();
 	const streamSources: StreamSource[] = [
@@ -77,7 +79,7 @@ const streamSources = (): StreamSource[] => {
 export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string[]) {
 	const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 	const progressBar = queue.node.createProgressBar({
-		length: track.duration.length <= 5 ? 24 : 22,
+		length: progressBarLength(track),
 		timecodes: false,
 	});
 

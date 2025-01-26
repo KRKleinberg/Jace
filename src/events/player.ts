@@ -34,8 +34,8 @@ export const event: App.Event = {
 
 			await App.respond(
 				ctx,
-				`⚠️\u2002There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-				App.ResponseType.Channel
+				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+				App.ResponseType.PlayerError
 			);
 		});
 
@@ -70,17 +70,42 @@ export const event: App.Event = {
 					let lyrics: string[] | undefined = [waitLyricBold, syncedVerses[0].slice(11)];
 					const embed = Player.createPlayEmbed(queue, track, lyrics);
 					const response = await App.respond(ctx, { embeds: [embed] }, App.ResponseType.Channel);
-					const interval = setInterval(async () => {
-						const embed = Player.createPlayEmbed(queue, track, lyrics);
 
-						await response.edit({
-							embeds: [embed],
-						});
+					let index = 1;
+					const interval = setInterval(
+						async () => {
+							if (queue.currentTrack != track) {
+								clearInterval(interval);
+							}
 
-						if (queue.currentTrack != track) {
-							clearInterval(interval);
-						}
-					}, 5000);
+							const timestamp = queue.node.getTimestamp();
+
+							if (timestamp) {
+								const progressBarIndex = Math.round(
+									(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+								);
+
+								if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+									index = progressBarIndex;
+
+									const embed = Player.createPlayEmbed(queue, track);
+
+									await response.edit({
+										embeds: [embed],
+									});
+								}
+							} else {
+								const embed = Player.createPlayEmbed(queue, track);
+
+								await response.edit({
+									embeds: [embed],
+								});
+							}
+						},
+						track.durationMS / Player.progressBarLength(track) > 3000
+							? track.durationMS / Player.progressBarLength(track)
+							: 3000
+					);
 
 					syncedLyrics.load(syncedVerses.join('\n'));
 					syncedLyrics.onChange(async (currentVerse, timestamp) => {
@@ -139,17 +164,41 @@ export const event: App.Event = {
 				const embed = Player.createPlayEmbed(queue, track);
 				const response = await App.respond(ctx, { embeds: [embed] }, App.ResponseType.Channel);
 
-				const interval = setInterval(async () => {
-					const embed = Player.createPlayEmbed(queue, track);
+				let index = 1;
+				const interval = setInterval(
+					async () => {
+						if (queue.currentTrack != track) {
+							clearInterval(interval);
+						}
 
-					await response.edit({
-						embeds: [embed],
-					});
+						const timestamp = queue.node.getTimestamp();
 
-					if (queue.currentTrack != track) {
-						clearInterval(interval);
-					}
-				}, 5000);
+						if (timestamp) {
+							const progressBarIndex = Math.round(
+								(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+							);
+
+							if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+								index = progressBarIndex;
+
+								const embed = Player.createPlayEmbed(queue, track);
+
+								await response.edit({
+									embeds: [embed],
+								});
+							}
+						} else {
+							const embed = Player.createPlayEmbed(queue, track);
+
+							await response.edit({
+								embeds: [embed],
+							});
+						}
+					},
+					track.durationMS / Player.progressBarLength(track) > 1000
+						? track.durationMS / Player.progressBarLength(track)
+						: 1000
+				);
 			}
 		});
 	},

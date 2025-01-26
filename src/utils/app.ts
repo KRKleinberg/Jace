@@ -72,6 +72,7 @@ export enum ResponseType {
 	Reply,
 	AppError,
 	UserError,
+	PlayerError,
 }
 
 export const client = new Client({
@@ -123,6 +124,7 @@ function createResponse<T extends ResponseContext>(
 	const embed = new EmbedBuilder();
 
 	switch (type) {
+		case ResponseType.PlayerError:
 		case ResponseType.AppError:
 			embed.setColor('Orange').setDescription(`⚠️\u2002**${message}**`);
 			break;
