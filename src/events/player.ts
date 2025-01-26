@@ -88,23 +88,23 @@ export const event: App.Event = {
 								if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
 									index = progressBarIndex;
 
-									const embed = Player.createPlayEmbed(queue, track);
+									const embed = Player.createPlayEmbed(queue, track, lyrics);
 
 									await response.edit({
 										embeds: [embed],
 									});
 								}
 							} else {
-								const embed = Player.createPlayEmbed(queue, track);
+								const embed = Player.createPlayEmbed(queue, track, lyrics);
 
 								await response.edit({
 									embeds: [embed],
 								});
 							}
 						},
-						track.durationMS / Player.progressBarLength(track) > 3000
+						track.durationMS / Player.progressBarLength(track) > 5000
 							? track.durationMS / Player.progressBarLength(track)
-							: 3000
+							: 5000
 					);
 
 					syncedLyrics.load(syncedVerses.join('\n'));
