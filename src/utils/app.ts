@@ -6,7 +6,6 @@ import {
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
-	basename,
 	ChannelType,
 	type ChatInputCommandInteraction,
 	Client,
@@ -21,6 +20,7 @@ import {
 	type Message,
 	type SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
+import { basename } from 'path';
 import { type EventEmitter } from 'stream';
 
 export type Response = Message | InteractionResponse;
