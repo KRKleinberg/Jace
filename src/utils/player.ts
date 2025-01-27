@@ -32,6 +32,7 @@ interface StreamSource {
 	trackSource: TrackSource;
 }
 
+const bridgeExtractors = [DeezerExtractor, YoutubeiExtractor, SoundCloudExtractor];
 export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volume'> = {
 	selfDeaf: true,
 	leaveOnEmpty: true,
@@ -41,7 +42,7 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 };
 export const progressBarLength = (track?: Track): number =>
 	!track || track.duration.length <= 5 ? 24 : 22;
-const streamSources = (): StreamSource[] => {
+export const streamSources = (): StreamSource[] => {
 	const player = useMainPlayer();
 	const streamSources: StreamSource[] = [
 		{
@@ -50,12 +51,7 @@ const streamSources = (): StreamSource[] => {
 			replaceRegExp: / apple music/gi,
 			trackSource: 'apple_music',
 		},
-		{
-			name: 'SoundCloud',
-			searchQueryType: QueryType.SOUNDCLOUD_SEARCH,
-			replaceRegExp: / soundcloud/gi,
-			trackSource: 'soundcloud',
-		},
+
 		{
 			name: 'Spotify',
 			searchQueryType: QueryType.SPOTIFY_SEARCH,
@@ -64,6 +60,14 @@ const streamSources = (): StreamSource[] => {
 		},
 	];
 
+	if (player.extractors.get(SoundCloudExtractor.identifier)) {
+		streamSources.push({
+			name: 'SoundCloud',
+			searchQueryType: QueryType.SOUNDCLOUD_SEARCH,
+			replaceRegExp: / soundcloud/gi,
+			trackSource: 'soundcloud',
+		});
+	}
 	if (player.extractors.get(YoutubeiExtractor.identifier)) {
 		streamSources.push({
 			name: 'YouTube',
@@ -148,6 +152,25 @@ export function convertVolume(volume: number, convertTo: 'readable' | 'queue'): 
 
 	return volume * multiplier;
 }
+async function getBridgeExtractor() {
+	const player = useMainPlayer();
+
+	if (
+		!bridgeExtractors.every((extractor) => player.extractors.get(extractor.identifier) !== undefined)
+	) {
+		await initializeExtractors();
+	}
+
+	const bridgeExtractor = bridgeExtractors
+		.map((bridgeExtractor) => player.extractors.get(bridgeExtractor.identifier))
+		.find((bridgeExtractor) => bridgeExtractor !== undefined);
+
+	if (!bridgeExtractor) {
+		throw new Error('No suitable extractors are registered to bridge from');
+	}
+
+	return bridgeExtractor;
+}
 async function initializeExtractors() {
 	const player = useMainPlayer();
 
@@ -166,29 +189,14 @@ async function initializeExtractors() {
 	// await player.extractors.register(SoundCloudExtractor, {});
 	await player.extractors.register(AppleMusicExtractor, {
 		async createStream(ext, _url, track) {
-			const deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
-			const youtubeiExtractor = player.extractors.get(YoutubeiExtractor.identifier);
-			const soundcloudExtractor = player.extractors.get(SoundCloudExtractor.identifier);
-			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
-
-			if (!bridgeExtractor) {
-				throw new Error('No suitable extractors are registered to bridge from');
-			}
+			const bridgeExtractor = await getBridgeExtractor();
 
 			return requestBridgeFrom(track, ext, bridgeExtractor);
 		},
 	});
 	await player.extractors.register(SpotifyExtractor, {
 		async createStream(ext, url) {
-			const deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
-			const youtubeiExtractor = player.extractors.get(YoutubeiExtractor.identifier);
-			const soundcloudExtractor = player.extractors.get(SoundCloudExtractor.identifier);
-			const bridgeExtractor = deezerExtractor ?? youtubeiExtractor ?? soundcloudExtractor;
-
-			if (!bridgeExtractor) {
-				throw new Error('No suitable extractors are registered to bridge from');
-			}
-
+			const bridgeExtractor = await getBridgeExtractor();
 			const searchResults = await player.search(url, { searchEngine: 'spotifySong' });
 
 			return requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
@@ -208,12 +216,6 @@ async function requestBridgeFrom(
 	const player = useMainPlayer();
 
 	if (targetExtractor instanceof DeezerExtractor) {
-		if (!player.extractors.get(DeezerExtractor.identifier)) {
-			console.log('Deezer extractor not registered, initializing...');
-
-			await initializeExtractors();
-		}
-
 		const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
 		const deezerFallbackSearchParams = [
 			`track:"${track.cleanTitle}"`,
@@ -259,7 +261,13 @@ async function requestBridgeFrom(
 			}
 		}
 	} else {
-		throw new Error('Failed to create stream');
+		const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
+
+		if (!stream) {
+			throw new Error('Failed to create stream');
+		}
+
+		return stream as Readable | string;
 	}
 
 	const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);

@@ -6,8 +6,7 @@ import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
 	aliases: ['pn'],
-	help:
-		'_To search with a specific streaming service, end your search with **apple music**, **soundcloud**, **spotify**, or **youtube**_',
+	help: `_To search with a specific streaming service, end your search with ${new Intl.ListFormat('en', { type: 'disjunction' }).format(Player.streamSources().map((streamSource) => `**${streamSource.name.toLowerCase()}**`))}_`,
 	data: new SlashCommandBuilder()
 		.setDescription('Adds a song or playlist to the top of the queue')
 		.addStringOption((option) =>
