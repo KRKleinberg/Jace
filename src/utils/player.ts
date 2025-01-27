@@ -214,10 +214,7 @@ async function requestBridgeFrom(
 			await initializeExtractors();
 		}
 
-		const deezerSearchParams = [
-			`track:"${track.cleanTitle}"`,
-			`artist:"${track.author.split(', ')[0]}"`,
-		];
+		const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
 		const deezerFallbackSearchParams = [
 			`track:"${track.cleanTitle}"`,
 			`artist:"${track.author.split(', ')[0]}"`,
