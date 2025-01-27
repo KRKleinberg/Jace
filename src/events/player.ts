@@ -7,9 +7,9 @@ export const event: App.Event = {
 	run() {
 		const player = useMainPlayer();
 
-		player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
+		/* player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 			console.log(message);
-		});
+		}); */
 
 		player.events.on(GuildQueueEvent.Error, (_queue, error) => {
 			console.error('Queue Error:', error);

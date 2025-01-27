@@ -207,10 +207,13 @@ async function requestBridgeFrom(
 ): Promise<Readable | string> {
 	const player = useMainPlayer();
 
-	if (
-		targetExtractor instanceof DeezerExtractor &&
-		player.extractors.get(DeezerExtractor.identifier)
-	) {
+	if (targetExtractor instanceof DeezerExtractor) {
+		if (!player.extractors.get(DeezerExtractor.identifier)) {
+			console.log('Deezer extractor not registered, initializing...');
+
+			await initializeExtractors();
+		}
+
 		const deezerSearchParams = [
 			`track:"${track.cleanTitle}"`,
 			`artist:"${track.author.split(', ')[0]}"`,
@@ -226,8 +229,6 @@ async function requestBridgeFrom(
 				`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
 			);
 		}
-
-		console.log(deezerSearchParams.join(' '));
 
 		const deezerSearch = await searchOneTrack(deezerSearchParams.join(' '));
 		const deezerTrack =
