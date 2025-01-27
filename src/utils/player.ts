@@ -211,7 +211,14 @@ async function requestBridgeFrom(
 		targetExtractor instanceof DeezerExtractor &&
 		player.extractors.get(DeezerExtractor.identifier)
 	) {
-		const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
+		const deezerSearchParams = [
+			`track:"${track.cleanTitle}"`,
+			`artist:"${track.author.split(', ')[0]}"`,
+		];
+		const deezerFallbackSearchParams = [
+			`track:"${track.cleanTitle}"`,
+			`artist:"${track.author.split(', ')[0]}"`,
+		];
 
 		if (track.durationMS) {
 			deezerSearchParams.push(
@@ -220,7 +227,14 @@ async function requestBridgeFrom(
 			);
 		}
 
-		const deezerTrack = await searchOneTrack(deezerSearchParams.join(' '));
+		console.log(deezerSearchParams.join(' '));
+
+		const deezerSearch = await searchOneTrack(deezerSearchParams.join(' '));
+		const deezerTrack =
+			deezerSearch?.data[0].title === track.cleanTitle &&
+			deezerSearch.data[0].artist.name.split(', ')[0] === track.author.split(', ')[0]
+				? deezerSearch
+				: await searchOneTrack(deezerFallbackSearchParams.join(' '));
 
 		if (deezerTrack) {
 			const tracks = buildTrackFromSearch(deezerTrack, player, track.requestedBy);
