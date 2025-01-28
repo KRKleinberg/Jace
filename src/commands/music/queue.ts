@@ -1,6 +1,5 @@
 import { App } from '#utils/app';
 import { createNumberedList } from '#utils/helpers';
-import { Player } from '#utils/player';
 import { useQueue } from 'discord-player';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
@@ -24,9 +23,6 @@ export const command: App.Command = {
 				App.ResponseType.UserError
 			);
 		}
-
-		await Player.initializePlayer();
-		await App.initializeEvents();
 
 		try {
 			const nowPlaying = `**Now Playing:**\n[**${currentTrack.cleanTitle}**](${currentTrack.url}) by **${

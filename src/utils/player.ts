@@ -8,6 +8,7 @@ import {
 import {
 	type BaseExtractor,
 	type ExtractorResolvable,
+	type ExtractorStreamable,
 	type GuildNodeCreateOptions,
 	type GuildQueue,
 	Player,
@@ -25,6 +26,7 @@ import { type Readable } from 'stream';
 
 export * as Player from '#utils/player';
 
+// INTERFACES
 interface StreamSource {
 	name: string;
 	searchQueryType: (typeof QueryType)[keyof typeof QueryType];
@@ -32,7 +34,9 @@ interface StreamSource {
 	trackSource: TrackSource;
 }
 
+// VARIABLES
 const bridgeExtractors = [DeezerExtractor, YoutubeiExtractor, SoundCloudExtractor];
+
 export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volume'> = {
 	selfDeaf: true,
 	leaveOnEmpty: true,
@@ -40,8 +44,10 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 	leaveOnEnd: true,
 	leaveOnEndCooldown: 300000,
 };
+
 export const progressBarLength = (track?: Track): number =>
 	!track || track.duration.length <= 5 ? 24 : 22;
+
 export const streamSources = (): StreamSource[] => {
 	const player = useMainPlayer();
 	const streamSources: StreamSource[] = [
@@ -80,6 +86,7 @@ export const streamSources = (): StreamSource[] => {
 	return streamSources;
 };
 
+// FUNCTIONS
 export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string[]) {
 	const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 	const progressBar = queue.node.createProgressBar({
@@ -110,6 +117,7 @@ export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string
 			.setThumbnail(track.thumbnail);
 	}
 }
+
 export function createQueuedEmbed(
 	queue: GuildQueue,
 	searchResult: SearchResult,
@@ -147,19 +155,93 @@ export function createQueuedEmbed(
 					: { text: `${position.toString()}\u2002|\u2002${track.durationMS ? track.duration : '--:--'}` }
 		);
 }
+
 export function convertVolume(volume: number, convertTo: 'readable' | 'queue'): number {
 	const multiplier = convertTo === 'readable' ? 10 : 0.1;
 
 	return volume * multiplier;
 }
-async function getBridgeExtractor() {
-	const player = useMainPlayer();
 
-	if (
-		!bridgeExtractors.every((extractor) => player.extractors.get(extractor.identifier) !== undefined)
-	) {
+async function bridgeFromDeezer(
+	track: Track,
+	sourceExtractor: BaseExtractor | null
+): Promise<ExtractorStreamable | null> {
+	const player = useMainPlayer();
+	let deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
+
+	if (!deezerExtractor) {
 		await initializeExtractors();
+
+		deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
+
+		if (!deezerExtractor) {
+			throw new Error('Deezer extractor is not registered');
+		}
 	}
+
+	const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
+
+	console.log('deezerSearchParams:', deezerSearchParams);
+
+	const deezerFallbackSearchParams = [
+		`track:"${track.cleanTitle}"`,
+		`artist:"${track.author.split(', ')[0]}"`,
+	];
+
+	console.log('deezerFallbackSearchParams:', deezerFallbackSearchParams);
+
+	if (track.durationMS) {
+		deezerSearchParams.push(
+			`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
+			`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
+		);
+	}
+
+	console.log('deezerSearchParams:', deezerSearchParams);
+
+	const deezerSearch = await searchOneTrack(deezerSearchParams.join(' '));
+
+	console.log('deezerSearch:', deezerSearch);
+
+	const deezerTrack =
+		deezerSearch?.data[0].title === track.cleanTitle &&
+		deezerSearch.data[0].artist.name.split(', ')[0] === track.author.split(', ')[0]
+			? deezerSearch
+			: await searchOneTrack(deezerFallbackSearchParams.join(' '));
+	console.log('deezerTrack:', deezerTrack);
+
+	if (deezerTrack) {
+		const tracks = buildTrackFromSearch(deezerTrack, player, track.requestedBy);
+
+		console.log('tracks:', tracks);
+
+		if (tracks.length) {
+			const stream = await player.extractors.requestBridgeFrom(
+				tracks[0],
+				sourceExtractor,
+				deezerExtractor
+			);
+
+			console.log('stream:', stream);
+
+			track.bridgedExtractor = deezerExtractor;
+			track.bridgedTrack = tracks[0];
+
+			if (!track.durationMS) {
+				track.duration = tracks[0].duration;
+			}
+
+			console.log('track:', track);
+
+			return stream;
+		}
+	}
+
+	return null;
+}
+
+function getBridgeExtractor() {
+	const player = useMainPlayer();
 
 	const bridgeExtractor = bridgeExtractors
 		.map((bridgeExtractor) => player.extractors.get(bridgeExtractor.identifier))
@@ -171,8 +253,9 @@ async function getBridgeExtractor() {
 
 	return bridgeExtractor;
 }
-async function initializeExtractors() {
-	const player = useMainPlayer();
+
+export async function initializeExtractors(player = useMainPlayer()) {
+	await player.extractors.unregisterAll();
 
 	if (process.env.DEEZER_KEY) {
 		await player.extractors.register(DeezerExtractor, {
@@ -189,25 +272,27 @@ async function initializeExtractors() {
 	// await player.extractors.register(SoundCloudExtractor, {});
 	await player.extractors.register(AppleMusicExtractor, {
 		async createStream(ext, _url, track) {
-			const bridgeExtractor = await getBridgeExtractor();
+			const bridgeExtractor = getBridgeExtractor();
 
 			return requestBridgeFrom(track, ext, bridgeExtractor);
 		},
 	});
 	await player.extractors.register(SpotifyExtractor, {
 		async createStream(ext, url) {
-			const bridgeExtractor = await getBridgeExtractor();
+			const bridgeExtractor = getBridgeExtractor();
 			const searchResults = await player.search(url, { searchEngine: 'spotifySong' });
 
 			return requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
 		},
 	});
 }
-export async function initializePlayer() {
-	new Player(App.client);
 
-	await initializeExtractors();
+export async function initializePlayer() {
+	const player = new Player(App.client);
+
+	await initializeExtractors(player);
 }
+
 async function requestBridgeFrom(
 	track: Track,
 	sourceExtractor: BaseExtractor | null,
@@ -216,65 +301,43 @@ async function requestBridgeFrom(
 	const player = useMainPlayer();
 
 	if (targetExtractor instanceof DeezerExtractor) {
-		const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
-		const deezerFallbackSearchParams = [
-			`track:"${track.cleanTitle}"`,
-			`artist:"${track.author.split(', ')[0]}"`,
-		];
+		try {
+			const stream = await bridgeFromDeezer(track, sourceExtractor);
 
-		if (track.durationMS) {
-			deezerSearchParams.push(
-				`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
-				`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
-			);
-		}
+			if (!stream) {
+				throw new Error('Failed to create stream');
+			}
 
-		const deezerSearch = await searchOneTrack(deezerSearchParams.join(' '));
-		const deezerTrack =
-			deezerSearch?.data[0].title === track.cleanTitle &&
-			deezerSearch.data[0].artist.name.split(', ')[0] === track.author.split(', ')[0]
-				? deezerSearch
-				: await searchOneTrack(deezerFallbackSearchParams.join(' '));
+			return stream as Readable | string;
+		} catch (error) {
+			console.error(error);
 
-		if (deezerTrack) {
-			const tracks = buildTrackFromSearch(deezerTrack, player, track.requestedBy);
+			await initializeExtractors();
 
-			if (tracks.length) {
-				const stream = await player.extractors.requestBridgeFrom(
-					tracks[0],
-					sourceExtractor,
-					targetExtractor
-				);
+			try {
+				const stream = await bridgeFromDeezer(track, sourceExtractor);
 
 				if (!stream) {
 					throw new Error('Failed to create stream');
 				}
 
-				track.bridgedExtractor = targetExtractor;
-				track.bridgedTrack = tracks[0];
-
-				if (!track.durationMS) {
-					track.duration = tracks[0].duration;
-				}
-
 				return stream as Readable | string;
+			} catch (error) {
+				console.error(error);
 			}
 		}
-	} else {
-		const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
-
-		if (!stream) {
-			throw new Error('Failed to create stream');
-		}
-
-		return stream as Readable | string;
 	}
 
 	const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
 
+	if (!stream) {
+		throw new Error('Failed to create stream');
+	}
+
 	return stream as Readable | string;
 }
 
+// CLASSES
 export class Search {
 	private readonly ctx: App.CommandContext | App.AutocompleteInteractionContext;
 	private readonly input: string;

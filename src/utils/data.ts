@@ -4,6 +4,7 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 
 export * as Data from '#utils/data';
 
+// INTERFACES
 export interface Preferences {
 	/** The prefix to use with prefix commands. */
 	prefix?: string;
@@ -14,6 +15,7 @@ export interface Preferences {
 	/** The volume for the player. */
 	volume?: number;
 }
+
 export interface Document {
 	/** The User ID or Guild ID. Use '0' for master. */
 	discordId: string;
@@ -21,6 +23,7 @@ export interface Document {
 	preferences: Preferences;
 }
 
+// CHECK ENV VARIABLES
 if (!process.env.ENV) {
 	throw new Error('Environment variable "ENV" is not set!');
 }
@@ -31,6 +34,7 @@ if (!process.env.MONGODB_URL) {
 	throw new Error('Environment variable "MONGODB_URL" is not set!');
 }
 
+// VARIABLES
 const client = new MongoClient(process.env.MONGODB_URL, {
 	serverApi: {
 		version: ServerApiVersion.v1,
@@ -38,10 +42,12 @@ const client = new MongoClient(process.env.MONGODB_URL, {
 		deprecationErrors: true,
 	},
 });
+
 export const collection = client
 	.db(process.env.MONGODB_COLLECTION_NAME)
 	.collection<Document>(process.env.ENV);
 
+// FUNCTIONS
 export async function getPreferences(discordId?: {
 	userId?: string;
 	guildId?: string;

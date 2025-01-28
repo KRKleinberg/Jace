@@ -30,6 +30,7 @@ export function createNumberedList(array: string[], charLimit?: number): string 
 		return list;
 	}
 }
+
 export function durationToMs(duration: string) {
 	const times = (n: number, t: number) => {
 		let tn = 1;
@@ -45,6 +46,7 @@ export function durationToMs(duration: string) {
 		.map((m, i) => parseInt(m) * times(60, i))
 		.reduce((a, c) => a + c, 0);
 }
+
 export function getFilePaths(
 	/** The directory you are searching in. */
 	dir: string,
@@ -69,6 +71,7 @@ export function getFilePaths(
 
 	return results;
 }
+
 export function trunicate(text: string, length: number, end?: string) {
 	if (text.length < length) {
 		return text;
