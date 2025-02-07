@@ -11,7 +11,6 @@ export const command: App.Command = {
 
 		// REMOVE LATER
 		await Player.initializePlayer();
-		await App.initializeEvents();
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);

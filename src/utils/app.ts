@@ -117,11 +117,11 @@ export async function initializeCommands() {
 
 		commands.set(commandName, command);
 	}
+
+	console.log('Commands initialized');
 }
 
-export async function initializeEvents() {
-	const player = useMainPlayer();
-
+export async function initializeEvents(player = useMainPlayer()) {
 	client.removeAllListeners();
 	player.removeAllListeners();
 
@@ -132,6 +132,8 @@ export async function initializeEvents() {
 
 		await event.run();
 	}
+
+	console.log('Events initialized');
 }
 
 function createResponse<T extends ResponseContext>(

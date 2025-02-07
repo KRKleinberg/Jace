@@ -204,7 +204,8 @@ async function bridgeFromDeezer(
 	console.log('deezerSearch:', deezerSearch);
 
 	const deezerTrack =
-		deezerSearch?.data[0].title === track.cleanTitle &&
+		deezerSearch?.data.length &&
+		deezerSearch.data[0].title === track.cleanTitle &&
 		deezerSearch.data[0].artist.name.split(', ')[0] === track.author.split(', ')[0]
 			? deezerSearch
 			: await searchOneTrack(deezerFallbackSearchParams.join(' '));
@@ -285,12 +286,28 @@ export async function initializeExtractors(player = useMainPlayer()) {
 			return requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
 		},
 	});
+
+	console.log('Extractors initialized');
 }
 
 export async function initializePlayer() {
-	const player = new Player(App.client);
+	try {
+		useMainPlayer();
 
-	await initializeExtractors(player);
+		const player = new Player(App.client);
+
+		await initializeExtractors(player);
+
+		console.log('Player initialized');
+
+		await App.initializeEvents(player);
+	} catch {
+		const player = new Player(App.client);
+
+		await initializeExtractors(player);
+
+		console.log('Player initialized');
+	}
 }
 
 async function requestBridgeFrom(
