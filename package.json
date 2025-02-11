@@ -38,7 +38,7 @@
 		"discord-player": "^7.1.0",
 		"discord-player-deezer": "^2.4.0",
 		"discord-player-youtubei": "^1.4.2",
-		"discord.js": "^14.17.3",
+		"discord.js": "^14.18.0",
 		"mongodb": "^6.13.0"
 	}
 }
