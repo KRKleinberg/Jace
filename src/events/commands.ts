@@ -1,6 +1,6 @@
 import { App } from '#utils/app';
 import { Data } from '#utils/data';
-import { useMainPlayer } from 'discord-player';
+import { Player } from '#utils/player';
 import { Events, type GuildMember } from 'discord.js';
 
 export const event: App.Event = {
@@ -22,8 +22,7 @@ export const event: App.Event = {
 						await message.channel.sendTyping();
 
 						try {
-							const player = useMainPlayer();
-							await player.context.provide({ guild }, async () => {
+							await Player.client.context.provide({ guild }, async () => {
 								try {
 									await prefixCommand.run({
 										command: message,
@@ -74,8 +73,7 @@ export const event: App.Event = {
 						await interaction.deferReply();
 
 						try {
-							const player = useMainPlayer();
-							await player.context.provide({ guild }, async () => {
+							await Player.client.context.provide({ guild }, async () => {
 								try {
 									await slashCommand.run({ command: interaction, args: [], guild, member, preferences });
 								} catch (error) {

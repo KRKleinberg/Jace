@@ -1,7 +1,7 @@
 export * as App from '#utils/app';
 import { Data } from '#utils/data';
 import { getFilePaths } from '#utils/helpers';
-import { useMainPlayer } from 'discord-player';
+import { Player } from '#utils/player';
 import {
 	ActivityType,
 	type AnySelectMenuInteraction,
@@ -121,9 +121,9 @@ export async function initializeCommands() {
 	console.log('Commands initialized');
 }
 
-export async function initializeEvents(player = useMainPlayer()) {
+export async function initializeEvents() {
 	client.removeAllListeners();
-	player.removeAllListeners();
+	Player.client.removeAllListeners();
 
 	const eventFiles = getFilePaths('./dist/events', '.js', './dist/utls/');
 

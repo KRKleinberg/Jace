@@ -1,4 +1,4 @@
-import { App } from '#utils/app';
+import { App, initializeEvents } from '#utils/app';
 import { createNumberedList } from '#utils/helpers';
 import {
 	AppleMusicExtractor,
@@ -17,9 +17,8 @@ import {
 	type SearchResult,
 	type Track,
 	type TrackSource,
-	useMainPlayer,
 } from 'discord-player';
-import { buildTrackFromSearch, DeezerExtractor, searchOneTrack } from 'discord-player-deezer';
+import { buildTrackFromSearch, DeezerExtractor, isUrl, search } from 'discord-player-deezer';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { EmbedBuilder } from 'discord.js';
 import { type Readable } from 'stream';
@@ -45,11 +44,11 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 	leaveOnEndCooldown: 300000,
 };
 
+export let client: Player;
 export const progressBarLength = (track?: Track): number =>
 	!track || track.duration.length <= 5 ? 24 : 22;
 
 export const streamSources = (): StreamSource[] => {
-	const player = useMainPlayer();
 	const streamSources: StreamSource[] = [
 		{
 			name: 'Apple Music',
@@ -66,7 +65,7 @@ export const streamSources = (): StreamSource[] => {
 		},
 	];
 
-	if (player.extractors.get(SoundCloudExtractor.identifier)) {
+	if (client.extractors.get(SoundCloudExtractor.identifier)) {
 		streamSources.push({
 			name: 'SoundCloud',
 			searchQueryType: QueryType.SOUNDCLOUD_SEARCH,
@@ -74,7 +73,7 @@ export const streamSources = (): StreamSource[] => {
 			trackSource: 'soundcloud',
 		});
 	}
-	if (player.extractors.get(YoutubeiExtractor.identifier)) {
+	if (client.extractors.get(YoutubeiExtractor.identifier)) {
 		streamSources.push({
 			name: 'YouTube',
 			searchQueryType: QueryType.YOUTUBE_SEARCH,
@@ -166,13 +165,12 @@ async function bridgeFromDeezer(
 	track: Track,
 	sourceExtractor: BaseExtractor | null
 ): Promise<ExtractorStreamable | null> {
-	const player = useMainPlayer();
-	let deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
+	let deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
 
 	if (!deezerExtractor) {
 		await initializeExtractors();
 
-		deezerExtractor = player.extractors.get(DeezerExtractor.identifier);
+		deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
 
 		if (!deezerExtractor) {
 			throw new Error('Deezer extractor is not registered');
@@ -185,7 +183,7 @@ async function bridgeFromDeezer(
 
 	const deezerFallbackSearchParams = [
 		`track:"${track.cleanTitle}"`,
-		`artist:"${track.author.split(', ')[0]}"`,
+		`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
 	];
 
 	console.log('deezerFallbackSearchParams:', deezerFallbackSearchParams);
@@ -199,53 +197,50 @@ async function bridgeFromDeezer(
 
 	console.log('deezerSearchParams:', deezerSearchParams);
 
-	const deezerSearch = await searchOneTrack(deezerSearchParams.join(' '));
+	const deezerSearch = await search(deezerSearchParams.join(' '), 1);
 
 	console.log('deezerSearch:', deezerSearch);
 
 	const deezerTrack =
-		deezerSearch?.data.length &&
+		deezerSearch.data.length &&
 		deezerSearch.data[0].title === track.cleanTitle &&
-		deezerSearch.data[0].artist.name.split(', ')[0] === track.author.split(', ')[0]
+		deezerSearch.data[0].artist.name.split(', ')[0].split(' & ')[0] ===
+			track.author.split(', ')[0].split(' & ')[0]
 			? deezerSearch
-			: await searchOneTrack(deezerFallbackSearchParams.join(' '));
+			: await search(deezerFallbackSearchParams.join(' '), 1);
 	console.log('deezerTrack:', deezerTrack);
 
-	if (deezerTrack) {
-		const tracks = buildTrackFromSearch(deezerTrack, player, track.requestedBy);
+	const tracks = buildTrackFromSearch(deezerTrack, client, track.requestedBy);
 
-		console.log('tracks:', tracks);
+	console.log('tracks:', tracks);
 
-		if (tracks.length) {
-			const stream = await player.extractors.requestBridgeFrom(
-				tracks[0],
-				sourceExtractor,
-				deezerExtractor
-			);
+	if (tracks.length) {
+		const stream = await client.extractors.requestBridgeFrom(
+			tracks[0],
+			sourceExtractor,
+			deezerExtractor
+		);
 
-			console.log('stream:', stream);
+		console.log('stream:', stream);
 
-			track.bridgedExtractor = deezerExtractor;
-			track.bridgedTrack = tracks[0];
+		track.bridgedExtractor = deezerExtractor;
+		track.bridgedTrack = tracks[0];
 
-			if (!track.durationMS) {
-				track.duration = tracks[0].duration;
-			}
-
-			console.log('track:', track);
-
-			return stream;
+		if (!track.durationMS) {
+			track.duration = tracks[0].duration;
 		}
+
+		console.log('track:', track);
+
+		return stream;
 	}
 
 	return null;
 }
 
 function getBridgeExtractor() {
-	const player = useMainPlayer();
-
 	const bridgeExtractor = bridgeExtractors
-		.map((bridgeExtractor) => player.extractors.get(bridgeExtractor.identifier))
+		.map((bridgeExtractor) => client.extractors.get(bridgeExtractor.identifier))
 		.find((bridgeExtractor) => bridgeExtractor !== undefined);
 
 	if (!bridgeExtractor) {
@@ -255,13 +250,17 @@ function getBridgeExtractor() {
 	return bridgeExtractor;
 }
 
-export async function initializeExtractors(player = useMainPlayer()) {
-	await player.extractors.unregisterAll();
+export async function initializeExtractors() {
+	await client.extractors.unregisterAll();
 
 	if (process.env.DEEZER_KEY) {
-		await player.extractors.register(DeezerExtractor, {
+		const deezerExt = await client.extractors.register(DeezerExtractor, {
 			decryptionKey: process.env.DEEZER_KEY,
 		});
+
+		if (deezerExt) {
+			deezerExt.priority = 0;
+		}
 	}
 	/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
 		await client.extractors.register(YoutubeiExtractor, {
@@ -270,43 +269,44 @@ export async function initializeExtractors(player = useMainPlayer()) {
 		});
 	} */
 
-	// await player.extractors.register(SoundCloudExtractor, {});
-	await player.extractors.register(AppleMusicExtractor, {
+	// await client.extractors.register(SoundCloudExtractor, {});
+	const appleMusicExt = await client.extractors.register(AppleMusicExtractor, {
 		async createStream(ext, _url, track) {
 			const bridgeExtractor = getBridgeExtractor();
 
 			return requestBridgeFrom(track, ext, bridgeExtractor);
 		},
 	});
-	await player.extractors.register(SpotifyExtractor, {
+
+	if (appleMusicExt) {
+		appleMusicExt.priority = 1;
+	}
+
+	const spotifyExt = await client.extractors.register(SpotifyExtractor, {
 		async createStream(ext, url) {
 			const bridgeExtractor = getBridgeExtractor();
-			const searchResults = await player.search(url, { searchEngine: 'spotifySong' });
+			const searchResults = await client.search(url, { searchEngine: 'spotifySong' });
 
 			return requestBridgeFrom(searchResults.tracks[0], ext, bridgeExtractor);
 		},
 	});
 
+	if (spotifyExt) {
+		spotifyExt.priority = 2;
+	}
+
 	console.log('Extractors initialized');
 }
 
 export async function initializePlayer() {
-	try {
-		useMainPlayer();
+	client = new Player(App.client);
 
-		const player = new Player(App.client);
+	console.log('Player initialized');
 
-		await initializeExtractors(player);
+	await initializeExtractors();
 
-		console.log('Player initialized');
-
-		await App.initializeEvents(player);
-	} catch {
-		const player = new Player(App.client);
-
-		await initializeExtractors(player);
-
-		console.log('Player initialized');
+	if (App.client.isReady()) {
+		await initializeEvents();
 	}
 }
 
@@ -315,8 +315,6 @@ async function requestBridgeFrom(
 	sourceExtractor: BaseExtractor | null,
 	targetExtractor: ExtractorResolvable
 ): Promise<Readable | string> {
-	const player = useMainPlayer();
-
 	if (targetExtractor instanceof DeezerExtractor) {
 		try {
 			const stream = await bridgeFromDeezer(track, sourceExtractor);
@@ -345,7 +343,7 @@ async function requestBridgeFrom(
 		}
 	}
 
-	const stream = await player.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
+	const stream = await client.extractors.requestBridgeFrom(track, sourceExtractor, targetExtractor);
 
 	if (!stream) {
 		throw new Error('Failed to create stream');
@@ -401,9 +399,23 @@ export class Search {
 	/**
 	 * Returns search result
 	 */
-	async getResult(): Promise<SearchResult> {
-		const player = useMainPlayer();
+	async getResult(autocomplete?: boolean): Promise<SearchResult> {
+		if (autocomplete) {
+			const searchOptions = this.searchOptions;
 
-		return await player.search(this.query, this.searchOptions);
+			searchOptions.searchEngine = `ext:${DeezerExtractor.identifier}`;
+			searchOptions.fallbackSearchEngine = QueryType.AUTO;
+
+			if (isUrl(this.query)) {
+				searchOptions.searchEngine = QueryType.AUTO;
+				searchOptions.fallbackSearchEngine = QueryType.AUTO;
+			}
+
+			console.log(searchOptions);
+
+			return await client.search(this.query, searchOptions);
+		}
+		console.log(this.searchOptions);
+		return await client.search(this.query, this.searchOptions);
 	}
 }

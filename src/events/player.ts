@@ -1,21 +1,19 @@
 import { App } from '#utils/app';
 import { Player } from '#utils/player';
-import { GuildQueueEvent, useMainPlayer, Util } from 'discord-player';
+import { GuildQueueEvent, Util } from 'discord-player';
 import { ChannelType } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
-		const player = useMainPlayer();
-
-		/* player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
+		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 			console.log(message);
 		}); */
 
-		player.events.on(GuildQueueEvent.Error, (_queue, error) => {
+		Player.client.events.on(GuildQueueEvent.Error, (_queue, error) => {
 			console.error('Queue Error:', error);
 		});
 
-		player.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
+		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			console.error('Player Error:', error);
@@ -39,14 +37,14 @@ export const event: App.Event = {
 			);
 		});
 
-		player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
+		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				await ctx.command.channel.sendTyping();
 			}
 
-			const lyricsResults = await player.lyrics.search({
+			const lyricsResults = await Player.client.lyrics.search({
 				trackName: track.cleanTitle,
 				artistName: track.author,
 			});

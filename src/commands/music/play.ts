@@ -1,7 +1,7 @@
 import { App } from '#utils/app';
 import { trunicate } from '#utils/helpers';
 import { Player } from '#utils/player';
-import { useMainPlayer, useMetadata } from 'discord-player';
+import { useMetadata } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
@@ -20,7 +20,7 @@ export const command: App.Command = {
 		const search = new Player.Search(ctx, ctx.command.options.getString('query', true));
 
 		if (search.query.length) {
-			const searchResult = await search.getResult();
+			const searchResult = await search.getResult(true);
 
 			await ctx.command.respond(
 				searchResult.playlist
@@ -57,8 +57,7 @@ export const command: App.Command = {
 				: ctx.args.join(' ')
 		);
 
-		const player = useMainPlayer();
-		const queue = player.nodes.create(ctx.guild, {
+		const queue = Player.client.nodes.create(ctx.guild, {
 			...Player.globalQueueOptions,
 			volume: Player.convertVolume(ctx.preferences.volume, 'queue'),
 		});
