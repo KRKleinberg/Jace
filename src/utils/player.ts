@@ -411,11 +411,9 @@ export class Search {
 				searchOptions.fallbackSearchEngine = QueryType.AUTO;
 			}
 
-			console.log(searchOptions);
-
 			return await client.search(this.query, searchOptions);
 		}
-		console.log(this.searchOptions);
+
 		return await client.search(this.query, this.searchOptions);
 	}
 }
