@@ -26,9 +26,9 @@
 	"devDependencies": {
 		"@eslint/js": "^9.20.0",
 		"@types/node": "^22.13.1",
-		"eslint": "^9.20.0",
+		"eslint": "^9.20.1",
 		"ffmpeg-static": "^5.2.0",
-		"globals": "^15.14.0",
+		"globals": "^15.15.0",
 		"prettier": "^3.5.0",
 		"typescript": "^5.7.3",
 		"typescript-eslint": "^8.24.0"
