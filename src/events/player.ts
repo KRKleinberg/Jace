@@ -9,8 +9,32 @@ export const event: App.Event = {
 			console.log(message);
 		}); */
 
-		Player.client.events.on(GuildQueueEvent.Error, (_queue, error) => {
+		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
+			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
+
 			console.error('Queue Error:', error);
+
+			if (ctx.command.channel?.type === ChannelType.GuildText) {
+				await ctx.command.channel.sendTyping();
+			}
+
+			if (!queue.channel && ctx.member.voice.channel) {
+				try {
+					await queue.connect(ctx.member.voice.channel);
+				} catch (error) {
+					console.error(error);
+				}
+			}
+
+			if (!queue.isPlaying()) {
+				try {
+					await queue.node.play();
+				} catch (error) {
+					console.error(error);
+				}
+			}
+
+			await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
