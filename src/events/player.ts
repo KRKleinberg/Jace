@@ -18,7 +18,7 @@ export const event: App.Event = {
 				await ctx.command.channel.sendTyping();
 			}
 
-			if (!queue.channel && ctx.member.voice.channel) {
+			if (ctx.member.voice.channel) {
 				try {
 					await queue.connect(ctx.member.voice.channel);
 				} catch (error) {
