@@ -29,7 +29,7 @@
 		"eslint": "^9.20.1",
 		"ffmpeg-static": "^5.2.0",
 		"globals": "^15.15.0",
-		"prettier": "^3.5.0",
+		"prettier": "^3.5.1",
 		"typescript": "^5.7.3",
 		"typescript-eslint": "^8.24.0"
 	},
