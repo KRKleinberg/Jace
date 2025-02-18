@@ -169,7 +169,6 @@ async function bridgeFromDeezer(track: Track): Promise<ExtractorStreamable | nul
 	}
 
 	const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
-
 	const deezerFallbackSearchParams = [
 		`track:"${track.cleanTitle}"`,
 		`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
@@ -182,28 +181,39 @@ async function bridgeFromDeezer(track: Track): Promise<ExtractorStreamable | nul
 		);
 	}
 
-	const deezerSearch = await search(deezerSearchParams.join(' '), 5);
+	const searchResults = buildTrackFromSearch(
+		await search(deezerSearchParams.join(' '), 5),
+		client,
+		track.requestedBy
+	);
+	const fallbackSearchResults = buildTrackFromSearch(
+		await search(deezerFallbackSearchParams.join(' '), 5),
+		client,
+		track.requestedBy
+	);
+	const bridgedTrack =
+		searchResults.find(
+			(searchResult) =>
+				searchResult.cleanTitle === track.cleanTitle &&
+				searchResult.author.split(', ')[0].split(' & ')[0] === track.author.split(', ')[0].split(' & ')[0]
+		) ??
+		searchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+		fallbackSearchResults.find(
+			(searchResult) =>
+				searchResult.cleanTitle === track.cleanTitle &&
+				searchResult.author.split(', ')[0].split(' & ')[0] === track.author.split(', ')[0].split(' & ')[0]
+		) ??
+		fallbackSearchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+		fallbackSearchResults[0];
 
-	const deezerTrack =
-		deezerSearch.data.length &&
-		deezerSearch.data[0].title === track.cleanTitle &&
-		deezerSearch.data[0].artist.name.split(', ')[0].split(' & ')[0] ===
-			track.author.split(', ')[0].split(' & ')[0]
-			? deezerSearch
-			: await search(deezerFallbackSearchParams.join(' '), 5);
-
-	const tracks = buildTrackFromSearch(deezerTrack, client, track.requestedBy);
-
-	if (tracks.length) {
-		const stream = await deezerExtractor.stream(
-			tracks.find((deezerTrack) => deezerTrack.cleanTitle === track.cleanTitle) ?? tracks[0]
-		);
+	if (bridgedTrack.url) {
+		const stream = await deezerExtractor.stream(bridgedTrack);
 
 		track.bridgedExtractor = deezerExtractor;
-		track.bridgedTrack = tracks[0];
+		track.bridgedTrack = bridgedTrack;
 
 		if (!track.durationMS) {
-			track.duration = tracks[0].duration;
+			track.duration = bridgedTrack.duration;
 		}
 
 		return stream;

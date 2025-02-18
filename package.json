@@ -1,6 +1,6 @@
 {
 	"name": "jace",
-	"version": "8.2.0-dev.6",
+	"version": "8.2.0-dev.7",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
