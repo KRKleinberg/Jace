@@ -18,22 +18,6 @@ export const event: App.Event = {
 				await ctx.command.channel.sendTyping();
 			}
 
-			if (ctx.member.voice.channel) {
-				try {
-					await queue.connect(ctx.member.voice.channel);
-				} catch (error) {
-					console.error(error);
-				}
-			}
-
-			if (!queue.isPlaying()) {
-				try {
-					await queue.node.play();
-				} catch (error) {
-					console.error(error);
-				}
-			}
-
 			await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 		});
 
@@ -48,7 +32,7 @@ export const event: App.Event = {
 
 			if (!queue.isPlaying()) {
 				try {
-					await queue.node.play();
+					queue.node.resume();
 				} catch (error) {
 					console.error(error);
 				}

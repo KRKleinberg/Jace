@@ -29,16 +29,14 @@ export const event: App.Event = {
 			process.on('uncaughtException', async (error) => {
 				console.error(`EXCEPTION CAUGHT: ${error}\n` + `EXCEPTION ORIGIN: ${error.stack ?? 'Unknown'}`);
 
-				// Reset player and events
+				// Reset player
 				await Player.initializePlayer();
-				await App.initializeEvents();
 			});
 			process.on('unhandledRejection', async (reason, promise) => {
 				console.error('UNHANDLED REJECTION:', promise, 'REASON:', reason);
 
-				// Reset player and events
+				// Reset player
 				await Player.initializePlayer();
-				await App.initializeEvents();
 			});
 
 			// Log Start

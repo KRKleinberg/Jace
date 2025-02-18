@@ -161,20 +161,11 @@ export function convertVolume(volume: number, convertTo: 'readable' | 'queue'): 
 	return volume * multiplier;
 }
 
-async function bridgeFromDeezer(
-	track: Track,
-	sourceExtractor: BaseExtractor | null
-): Promise<ExtractorStreamable | null> {
-	let deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
+async function bridgeFromDeezer(track: Track): Promise<ExtractorStreamable | null> {
+	const deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
 
 	if (!deezerExtractor) {
-		await initializeExtractors();
-
-		deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
-
-		if (!deezerExtractor) {
-			throw new Error('Deezer extractor is not registered');
-		}
+		throw new Error('Deezer extractor is not registered');
 	}
 
 	const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
@@ -191,7 +182,7 @@ async function bridgeFromDeezer(
 		);
 	}
 
-	const deezerSearch = await search(deezerSearchParams.join(' '), 1);
+	const deezerSearch = await search(deezerSearchParams.join(' '), 5);
 
 	const deezerTrack =
 		deezerSearch.data.length &&
@@ -199,15 +190,13 @@ async function bridgeFromDeezer(
 		deezerSearch.data[0].artist.name.split(', ')[0].split(' & ')[0] ===
 			track.author.split(', ')[0].split(' & ')[0]
 			? deezerSearch
-			: await search(deezerFallbackSearchParams.join(' '), 1);
+			: await search(deezerFallbackSearchParams.join(' '), 5);
 
 	const tracks = buildTrackFromSearch(deezerTrack, client, track.requestedBy);
 
 	if (tracks.length) {
-		const stream = await client.extractors.requestBridgeFrom(
-			tracks[0],
-			sourceExtractor,
-			deezerExtractor
+		const stream = await deezerExtractor.stream(
+			tracks.find((deezerTrack) => deezerTrack.cleanTitle === track.cleanTitle) ?? tracks[0]
 		);
 
 		track.bridgedExtractor = deezerExtractor;
@@ -254,7 +243,8 @@ export async function initializeExtractors() {
 		});
 	} */
 
-	// await client.extractors.register(SoundCloudExtractor, {});
+	/* await client.extractors.register(SoundCloudExtractor, {}); */
+
 	const appleMusicExt = await client.extractors.register(AppleMusicExtractor, {
 		async createStream(ext, _url, track) {
 			const bridgeExtractor = getBridgeExtractor();
@@ -302,7 +292,7 @@ async function requestBridgeFrom(
 ): Promise<Readable | string> {
 	if (targetExtractor instanceof DeezerExtractor) {
 		try {
-			const stream = await bridgeFromDeezer(track, sourceExtractor);
+			const stream = await bridgeFromDeezer(track);
 
 			if (!stream) {
 				throw new Error('Failed to create stream');
@@ -311,20 +301,6 @@ async function requestBridgeFrom(
 			return stream as Readable | string;
 		} catch (error) {
 			console.error(error);
-
-			await initializeExtractors();
-
-			try {
-				const stream = await bridgeFromDeezer(track, sourceExtractor);
-
-				if (!stream) {
-					throw new Error('Failed to create stream');
-				}
-
-				return stream as Readable | string;
-			} catch (error) {
-				console.error(error);
-			}
 		}
 	}
 
