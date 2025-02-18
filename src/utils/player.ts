@@ -374,8 +374,10 @@ export class Search {
 		if (autocomplete) {
 			const searchOptions = this.searchOptions;
 
-			searchOptions.searchEngine = `ext:${DeezerExtractor.identifier}`;
-			searchOptions.fallbackSearchEngine = QueryType.AUTO;
+			if (searchOptions.searchEngine === QueryType.AUTO) {
+				searchOptions.searchEngine = `ext:${DeezerExtractor.identifier}`;
+				searchOptions.fallbackSearchEngine = QueryType.AUTO;
+			}
 
 			if (isUrl(this.query)) {
 				searchOptions.searchEngine = QueryType.AUTO;
