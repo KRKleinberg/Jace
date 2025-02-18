@@ -179,14 +179,10 @@ async function bridgeFromDeezer(
 
 	const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
 
-	console.log('deezerSearchParams:', deezerSearchParams);
-
 	const deezerFallbackSearchParams = [
 		`track:"${track.cleanTitle}"`,
 		`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
 	];
-
-	console.log('deezerFallbackSearchParams:', deezerFallbackSearchParams);
 
 	if (track.durationMS) {
 		deezerSearchParams.push(
@@ -195,11 +191,7 @@ async function bridgeFromDeezer(
 		);
 	}
 
-	console.log('deezerSearchParams:', deezerSearchParams);
-
 	const deezerSearch = await search(deezerSearchParams.join(' '), 1);
-
-	console.log('deezerSearch:', deezerSearch);
 
 	const deezerTrack =
 		deezerSearch.data.length &&
@@ -208,11 +200,8 @@ async function bridgeFromDeezer(
 			track.author.split(', ')[0].split(' & ')[0]
 			? deezerSearch
 			: await search(deezerFallbackSearchParams.join(' '), 1);
-	console.log('deezerTrack:', deezerTrack);
 
 	const tracks = buildTrackFromSearch(deezerTrack, client, track.requestedBy);
-
-	console.log('tracks:', tracks);
 
 	if (tracks.length) {
 		const stream = await client.extractors.requestBridgeFrom(
@@ -221,16 +210,12 @@ async function bridgeFromDeezer(
 			deezerExtractor
 		);
 
-		console.log('stream:', stream);
-
 		track.bridgedExtractor = deezerExtractor;
 		track.bridgedTrack = tracks[0];
 
 		if (!track.durationMS) {
 			track.duration = tracks[0].duration;
 		}
-
-		console.log('track:', track);
 
 		return stream;
 	}
