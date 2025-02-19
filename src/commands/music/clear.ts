@@ -10,7 +10,9 @@ export const command: App.Command = {
 		const queue = useQueue();
 
 		// REMOVE LATER
-		await Player.initializePlayer();
+		{
+			await Player.initializePlayer();
+		}
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
