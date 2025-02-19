@@ -182,32 +182,44 @@ async function bridgeFromDeezer(track: Track): Promise<ExtractorStreamable | nul
 		);
 	}
 
-	const searchResults = buildTrackFromSearch(
-		await search(deezerSearchParams.join(' '), 5),
-		client,
-		track.requestedBy
-	);
-	const fallbackSearchResults = buildTrackFromSearch(
-		await search(deezerFallbackSearchParams.join(' '), 5),
-		client,
-		track.requestedBy
-	);
-	const bridgedTrack =
-		searchResults.find(
-			(searchResult) =>
-				searchResult.cleanTitle === track.cleanTitle &&
-				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-		) ??
-		searchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
-		fallbackSearchResults.find(
-			(searchResult) =>
-				searchResult.cleanTitle === track.cleanTitle &&
-				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-		) ??
-		fallbackSearchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
-		fallbackSearchResults[0];
+	let searchResults: Track[] | undefined;
+	let fallbackSearchResults: Track[] | undefined;
 
-	if (bridgedTrack.url) {
+	try {
+		searchResults = buildTrackFromSearch(
+			await search(deezerSearchParams.join(' '), 5),
+			client,
+			track.requestedBy
+		);
+	} catch {
+		// No results, do nothing
+	}
+	try {
+		fallbackSearchResults = buildTrackFromSearch(
+			await search(deezerFallbackSearchParams.join(' '), 5),
+			client,
+			track.requestedBy
+		);
+	} catch {
+		// No results, do nothing
+	}
+
+	const bridgedTrack =
+		searchResults?.find(
+			(searchResult) =>
+				searchResult.cleanTitle === track.cleanTitle &&
+				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+		) ??
+		searchResults?.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+		fallbackSearchResults?.find(
+			(searchResult) =>
+				searchResult.cleanTitle === track.cleanTitle &&
+				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+		) ??
+		fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+		fallbackSearchResults?.[0];
+
+	if (bridgedTrack) {
 		const stream = await deezerExtractor.stream(bridgedTrack);
 
 		track.bridgedExtractor = deezerExtractor;
