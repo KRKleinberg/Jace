@@ -97,6 +97,13 @@ export const command: App.Command = {
 		const playlist = searchResult.playlist;
 
 		if (searchResult.isEmpty()) {
+			if (
+				searchResult.queryType.includes('youtube') &&
+				!Player.streamSources().find((streamSource) => streamSource.searchQueryType?.includes('youtube'))
+			) {
+				return await App.respond(ctx, `YouTube is not supported`, App.ResponseType.UserError);
+			}
+
 			return await App.respond(ctx, 'No results found', App.ResponseType.UserError);
 		}
 

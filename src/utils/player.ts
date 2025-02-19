@@ -14,11 +14,11 @@ import {
 	Player,
 	QueryType,
 	type SearchOptions,
+	type SearchQueryType,
 	type SearchResult,
 	type Track,
-	type TrackSource,
 } from 'discord-player';
-import { buildTrackFromSearch, DeezerExtractor, isUrl, search } from 'discord-player-deezer';
+import { buildTrackFromSearch, DeezerExtractor, search } from 'discord-player-deezer';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
 import { EmbedBuilder } from 'discord.js';
 import { type Readable } from 'stream';
@@ -28,9 +28,8 @@ export * as Player from '#utils/player';
 // INTERFACES
 interface StreamSource {
 	name: string;
-	searchQueryType: (typeof QueryType)[keyof typeof QueryType];
+	searchQueryType: SearchQueryType | `ext:${string}` | undefined;
 	replaceRegExp: string | RegExp;
-	trackSource: TrackSource;
 }
 
 // VARIABLES
@@ -51,26 +50,29 @@ export const progressBarLength = (track?: Track): number =>
 export const streamSources = (): StreamSource[] => {
 	const streamSources: StreamSource[] = [
 		{
-			name: 'Apple Music',
-			searchQueryType: QueryType.APPLE_MUSIC_SEARCH,
-			replaceRegExp: / apple music/gi,
-			trackSource: 'apple_music',
-		},
-
-		{
 			name: 'Spotify',
 			searchQueryType: QueryType.SPOTIFY_SEARCH,
 			replaceRegExp: / spotify/gi,
-			trackSource: 'spotify',
+		},
+		{
+			name: 'Apple Music',
+			searchQueryType: QueryType.APPLE_MUSIC_SEARCH,
+			replaceRegExp: / apple music/gi,
 		},
 	];
 
+	if (client.extractors.get(DeezerExtractor.identifier)) {
+		streamSources.push({
+			name: 'Deezer',
+			searchQueryType: `ext:${DeezerExtractor.identifier}`,
+			replaceRegExp: / deezer/gi,
+		});
+	}
 	if (client.extractors.get(SoundCloudExtractor.identifier)) {
 		streamSources.push({
 			name: 'SoundCloud',
 			searchQueryType: QueryType.SOUNDCLOUD_SEARCH,
 			replaceRegExp: / soundcloud/gi,
-			trackSource: 'soundcloud',
 		});
 	}
 	if (client.extractors.get(YoutubeiExtractor.identifier)) {
@@ -78,7 +80,6 @@ export const streamSources = (): StreamSource[] => {
 			name: 'YouTube',
 			searchQueryType: QueryType.YOUTUBE_SEARCH,
 			replaceRegExp: / youtube/gi,
-			trackSource: 'youtube',
 		});
 	}
 
@@ -195,13 +196,13 @@ async function bridgeFromDeezer(track: Track): Promise<ExtractorStreamable | nul
 		searchResults.find(
 			(searchResult) =>
 				searchResult.cleanTitle === track.cleanTitle &&
-				searchResult.author.split(', ')[0].split(' & ')[0] === track.author.split(', ')[0].split(' & ')[0]
+				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 		) ??
 		searchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
 		fallbackSearchResults.find(
 			(searchResult) =>
 				searchResult.cleanTitle === track.cleanTitle &&
-				searchResult.author.split(', ')[0].split(' & ')[0] === track.author.split(', ')[0].split(' & ')[0]
+				searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 		) ??
 		fallbackSearchResults.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
 		fallbackSearchResults[0];
@@ -243,7 +244,7 @@ export async function initializeExtractors() {
 		});
 
 		if (deezerExt) {
-			deezerExt.priority = 0;
+			deezerExt.priority = 1;
 		}
 	}
 	/* if (process.env.YOUTUBE_COOKIE && process.env.YOUTUBE_OAUTH) {
@@ -264,7 +265,7 @@ export async function initializeExtractors() {
 	});
 
 	if (appleMusicExt) {
-		appleMusicExt.priority = 1;
+		appleMusicExt.priority = 2;
 	}
 
 	const spotifyExt = await client.extractors.register(SpotifyExtractor, {
@@ -277,7 +278,7 @@ export async function initializeExtractors() {
 	});
 
 	if (spotifyExt) {
-		spotifyExt.priority = 2;
+		spotifyExt.priority = 3;
 	}
 
 	console.log('Extractors initialized');
@@ -373,16 +374,6 @@ export class Search {
 	async getResult(autocomplete?: boolean): Promise<SearchResult> {
 		if (autocomplete) {
 			const searchOptions = this.searchOptions;
-
-			if (searchOptions.searchEngine === QueryType.AUTO) {
-				searchOptions.searchEngine = `ext:${DeezerExtractor.identifier}`;
-				searchOptions.fallbackSearchEngine = QueryType.AUTO;
-			}
-
-			if (isUrl(this.query)) {
-				searchOptions.searchEngine = QueryType.AUTO;
-				searchOptions.fallbackSearchEngine = QueryType.AUTO;
-			}
 
 			return await client.search(this.query, searchOptions);
 		}

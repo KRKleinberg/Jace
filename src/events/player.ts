@@ -82,30 +82,34 @@ export const event: App.Event = {
 						async () => {
 							if (queue.currentTrack != track) {
 								clearInterval(interval);
-							}
 
-							const timestamp = queue.node.getTimestamp();
+								const embed = Player.createPlayEmbed(queue, track);
 
-							if (timestamp) {
-								const progressBarIndex = Math.round(
-									(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
-								);
+								await response.edit({ embeds: [embed] });
+							} else {
+								const timestamp = queue.node.getTimestamp();
 
-								if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
-									index = progressBarIndex;
+								if (timestamp) {
+									const progressBarIndex = Math.round(
+										(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+									);
 
+									if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+										index = progressBarIndex;
+
+										const embed = Player.createPlayEmbed(queue, track, lyrics);
+
+										await response.edit({
+											embeds: [embed],
+										});
+									}
+								} else {
 									const embed = Player.createPlayEmbed(queue, track, lyrics);
 
 									await response.edit({
 										embeds: [embed],
 									});
 								}
-							} else {
-								const embed = Player.createPlayEmbed(queue, track, lyrics);
-
-								await response.edit({
-									embeds: [embed],
-								});
 							}
 						},
 						track.durationMS / Player.progressBarLength(track) > 5000
