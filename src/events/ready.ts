@@ -22,7 +22,7 @@ export const event: App.Event = {
 					body: App.commands.map((command) => command.data),
 				});
 			} catch (error) {
-				console.error(error);
+				console.error('Application Command Setup Error:', error);
 			}
 
 			// Prevent crashes on uncaught exceptions and unhandled promise rejections

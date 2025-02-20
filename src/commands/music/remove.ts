@@ -41,7 +41,7 @@ export const command: App.Command = {
 		try {
 			queue.removeTrack(track);
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Remove Track Error:', error);
 
 			return await App.respond(ctx, 'Could not remove that track', App.ResponseType.AppError);
 		}

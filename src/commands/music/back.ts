@@ -23,7 +23,7 @@ export const command: App.Command = {
 			try {
 				await timeline?.setPosition(0);
 			} catch (error) {
-				console.error(error);
+				console.error('Seek Error:', error);
 
 				return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
 			}
@@ -34,7 +34,7 @@ export const command: App.Command = {
 		try {
 			await history.previous(true);
 		} catch (error) {
-			console.error(error);
+			console.error('History Error:', error);
 
 			return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
 		}

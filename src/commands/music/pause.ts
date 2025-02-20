@@ -21,7 +21,7 @@ export const command: App.Command = {
 		try {
 			queue.node.pause();
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Pause Error:', error);
 
 			return await App.respond(ctx, 'Could not pause the player', App.ResponseType.AppError);
 		}

@@ -31,7 +31,7 @@ export const command: App.Command = {
 		try {
 			queue.clear();
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Clear Error:', error);
 
 			return await App.respond(ctx, 'Could not clear the queue', App.ResponseType.AppError);
 		}

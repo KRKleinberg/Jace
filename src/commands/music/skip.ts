@@ -26,7 +26,7 @@ export const command: App.Command = {
 		try {
 			queue.node.skip();
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Skip Error:', error);
 
 			return await App.respond(ctx, 'Could not skip the track', App.ResponseType.AppError);
 		}

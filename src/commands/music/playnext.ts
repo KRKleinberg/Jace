@@ -85,7 +85,7 @@ export const command: App.Command = {
 						`▶️\u2002Resumed _${queue.currentTrack.cleanTitle}_ by _${queue.currentTrack.author}_`
 					);
 				} catch (error) {
-					console.error(error);
+					console.error('Queue Resume Error:', error);
 				}
 			}
 
@@ -113,7 +113,7 @@ export const command: App.Command = {
 			try {
 				await queue.connect(ctx.member.voice.channel);
 			} catch (error) {
-				console.error(error);
+				console.error('Voice Connect Error:', error);
 
 				queue.tasksQueue.release();
 
@@ -124,7 +124,7 @@ export const command: App.Command = {
 		try {
 			queue.insertTrack(track);
 		} catch (error) {
-			console.error(error);
+			console.error('Insert Track Error:', error);
 
 			queue.tasksQueue.release();
 
@@ -136,7 +136,7 @@ export const command: App.Command = {
 				await queue.node.play();
 			}
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Play Error:', error);
 
 			return await App.respond(ctx, 'Could not play this track', App.ResponseType.AppError);
 		} finally {
@@ -148,7 +148,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
-			console.error(error);
+			console.error('Queued Embed Error:', error);
 
 			return await App.respond(
 				ctx,

@@ -50,7 +50,7 @@ export const command: App.Command = {
 				queue.node.setVolume(Player.convertVolume(volume, 'queue'));
 			}
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Set Volume Error:', error);
 
 			return await App.respond(ctx, 'Could not set volume', App.ResponseType.AppError);
 		}
@@ -62,7 +62,7 @@ export const command: App.Command = {
 				{ upsert: true }
 			);
 		} catch (error) {
-			console.error(error);
+			console.error('Database Update Error:', error);
 		}
 
 		return await App.respond(

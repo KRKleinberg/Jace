@@ -11,7 +11,7 @@ export const command: App.Command = {
 		try {
 			queue?.delete();
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Delete Error:', error);
 
 			return await App.respond(ctx, 'Could not disconnect', App.ResponseType.AppError);
 		}

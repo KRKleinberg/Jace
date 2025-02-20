@@ -27,7 +27,7 @@ export const command: App.Command = {
 						await queue?.connect(ctx.member.voice.channel);
 					}
 				} catch (error) {
-					console.error(error);
+					console.error('Queue Connect Error:', error);
 
 					queue?.tasksQueue.release();
 
@@ -40,7 +40,7 @@ export const command: App.Command = {
 					queue?.addTrack(tracks);
 				}
 			} catch (error) {
-				console.error(error);
+				console.error('Queue Add Error', error);
 
 				queue?.tasksQueue.release();
 
@@ -52,7 +52,7 @@ export const command: App.Command = {
 					await queue?.node.play();
 				}
 			} catch (error) {
-				console.error(error);
+				console.error('Queue Play Error', error);
 
 				return await App.respond(ctx, 'Could not play this track', App.ResponseType.AppError);
 			} finally {

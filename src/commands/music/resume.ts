@@ -29,7 +29,7 @@ export const command: App.Command = {
 		try {
 			queue.node.resume();
 		} catch (error) {
-			console.error(error);
+			console.error('Queue Resume Error:', error);
 
 			return await App.respond(ctx, 'Could not resume the player', App.ResponseType.AppError);
 		}

@@ -40,7 +40,7 @@ export const command: App.Command = {
 		try {
 			queue.node.skipTo(track);
 		} catch (error) {
-			console.error(error);
+			console.error('Queue SkipTo Error:', error);
 
 			return await App.respond(ctx, 'Could not jump to that track', App.ResponseType.AppError);
 		}

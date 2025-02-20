@@ -34,7 +34,7 @@ export const event: App.Event = {
 				try {
 					queue.node.resume();
 				} catch (error) {
-					console.error(error);
+					console.error('Queue Resume Error:', error);
 				}
 			}
 
@@ -152,7 +152,7 @@ export const event: App.Event = {
 								embeds: [embed],
 							});
 						} catch (error) {
-							console.error(error);
+							console.error('Synced Lyrics Change Error:', error);
 
 							const embed = Player.createPlayEmbed(queue, track);
 
@@ -168,7 +168,7 @@ export const event: App.Event = {
 					});
 					syncedLyrics.subscribe();
 				} catch (error) {
-					console.error(error);
+					console.error('Synced Lyrics Error:', error);
 				}
 			} else {
 				const embed = Player.createPlayEmbed(queue, track);

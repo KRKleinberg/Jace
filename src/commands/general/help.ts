@@ -24,7 +24,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
-			console.error(error);
+			console.error('Help Command Error:', error);
 
 			return await App.respond(ctx, 'Could not display commands', App.ResponseType.AppError);
 		}
