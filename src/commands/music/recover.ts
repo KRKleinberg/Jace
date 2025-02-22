@@ -24,6 +24,9 @@ export const command: App.Command = {
 			const queuedTracks = queue.tracks.toArray();
 
 			queue.delete();
+
+			await Player.initializeExtractors();
+
 			queue.revive();
 
 			if (!currentTrack) {
