@@ -10,17 +10,28 @@ export const command: App.Command = {
 		const queue = useQueue();
 
 		if (queue) {
+			const queueCtx: App.CommandContext = queue.metadata as App.CommandContext;
 			let currentTrack = queue.currentTrack;
+
+			if (ctx.member.voice.channel !== queueCtx.member.voice.channel) {
+				return await App.respond(
+					ctx,
+					'You are not in the same voice channel as the app',
+					App.ResponseType.UserError
+				);
+			}
+
+			const queuedTracks = queue.tracks.toArray();
 
 			queue.delete();
 			queue.revive();
 
 			if (!currentTrack) {
 				const search = new Player.Search(
-					ctx,
-					ctx.command.type === InteractionType.ApplicationCommand
-						? ctx.command.options.getString('query', true)
-						: ctx.args.join(' ')
+					queueCtx,
+					queueCtx.command.type === InteractionType.ApplicationCommand
+						? queueCtx.command.options.getString('query', true)
+						: queueCtx.args.join(' ')
 				);
 				try {
 					const searchResult = await search.getResult();
@@ -31,16 +42,14 @@ export const command: App.Command = {
 				}
 			}
 
-			const tracks: Track[] = queue.tracks.toArray().length
-				? [currentTrack, ...queue.tracks.toArray()]
-				: [currentTrack];
+			const tracks: Track[] = [currentTrack, ...queuedTracks];
 
 			await queue.tasksQueue.acquire().getTask();
 
 			if (!queue.connection) {
 				try {
-					if (ctx.member.voice.channel) {
-						await queue.connect(ctx.member.voice.channel);
+					if (queueCtx.member.voice.channel) {
+						await queue.connect(queueCtx.member.voice.channel);
 					}
 				} catch (error) {
 					console.error('Queue Connect Error -', error);
@@ -60,7 +69,7 @@ export const command: App.Command = {
 
 				queue.tasksQueue.release();
 
-				return App.respond(ctx, 'Could not add that track', App.ResponseType.AppError);
+				return await App.respond(ctx, 'Could not add that track', App.ResponseType.AppError);
 			}
 
 			try {
@@ -77,11 +86,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, '🔄️\u2002Attempted to recover the queue');
 		} else {
-			return App.respond(
-				ctx,
-				'No queue was found to recover. Try playing a song.',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'Queue does not exist', App.ResponseType.UserError);
 		}
 	},
 };
