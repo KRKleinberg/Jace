@@ -32,7 +32,7 @@ export const command: App.Command = {
 				App.ResponseType.UserError
 			);
 		}
-		if (!position) {
+		if (!position && position !== 0) {
 			return await App.respond(ctx, 'Please enter a valid time to seek to', App.ResponseType.UserError);
 		}
 		if (currentTrack.durationMS <= position) {
