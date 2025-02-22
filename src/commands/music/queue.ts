@@ -39,7 +39,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
-			console.error('Display Queue Error:', error);
+			console.error('Display Queue Error -', error);
 
 			return await App.respond(ctx, 'Could not display the queue', App.ResponseType.AppError);
 		}

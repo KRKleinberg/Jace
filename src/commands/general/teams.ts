@@ -37,7 +37,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
-			console.error('Teams Command Error:', error);
+			console.error('Teams Command Error -', error);
 
 			return await App.respond(ctx, 'Could not display teams', App.ResponseType.AppError);
 		}

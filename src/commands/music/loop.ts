@@ -84,7 +84,7 @@ export const command: App.Command = {
 					break;
 			}
 		} catch (error) {
-			console.error('Queue Repeat Mode Error:', error);
+			console.error('Queue Repeat Mode Error -', error);
 
 			return await App.respond(ctx, 'Could not set loop mode', App.ResponseType.AppError);
 		}

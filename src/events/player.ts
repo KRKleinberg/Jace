@@ -12,7 +12,7 @@ export const event: App.Event = {
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Queue Error:', error);
+			console.error('Queue Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				await ctx.command.channel.sendTyping();
@@ -24,7 +24,7 @@ export const event: App.Event = {
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Player Error:', error);
+			console.error('Player Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				await ctx.command.channel.sendTyping();
@@ -34,7 +34,7 @@ export const event: App.Event = {
 				try {
 					queue.node.resume();
 				} catch (error) {
-					console.error('Queue Resume Error:', error);
+					console.error('Queue Resume Error -', error);
 				}
 			}
 
@@ -152,7 +152,7 @@ export const event: App.Event = {
 								embeds: [embed],
 							});
 						} catch (error) {
-							console.error('Synced Lyrics Change Error:', error);
+							console.error('Synced Lyrics Change Error -', error);
 
 							const embed = Player.createPlayEmbed(queue, track);
 
@@ -168,7 +168,7 @@ export const event: App.Event = {
 					});
 					syncedLyrics.subscribe();
 				} catch (error) {
-					console.error('Synced Lyrics Error:', error);
+					console.error('Synced Lyrics Error -', error);
 				}
 			} else {
 				const embed = Player.createPlayEmbed(queue, track);

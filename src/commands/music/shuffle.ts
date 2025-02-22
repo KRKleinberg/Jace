@@ -25,7 +25,7 @@ export const command: App.Command = {
 		try {
 			queue.tracks.shuffle();
 		} catch (error) {
-			console.error('Queue Shuffle Error:', error);
+			console.error('Queue Shuffle Error -', error);
 
 			return await App.respond(ctx, 'Could not shuffle the queue', App.ResponseType.AppError);
 		}

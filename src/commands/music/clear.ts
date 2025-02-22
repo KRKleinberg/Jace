@@ -1,5 +1,4 @@
 import { App } from '#utils/app';
-import { Player } from '#utils/player';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -8,11 +7,6 @@ export const command: App.Command = {
 	data: new SlashCommandBuilder().setDescription('Clears the queue'),
 	async run(ctx) {
 		const queue = useQueue();
-
-		// REMOVE LATER
-		{
-			await Player.initializePlayer();
-		}
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
@@ -31,7 +25,7 @@ export const command: App.Command = {
 		try {
 			queue.clear();
 		} catch (error) {
-			console.error('Queue Clear Error:', error);
+			console.error('Queue Clear Error -', error);
 
 			return await App.respond(ctx, 'Could not clear the queue', App.ResponseType.AppError);
 		}

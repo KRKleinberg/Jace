@@ -50,13 +50,6 @@ export const command: App.Command = {
 		}
 	},
 	async run(ctx) {
-		const search = new Player.Search(
-			ctx,
-			ctx.command.type === InteractionType.ApplicationCommand
-				? ctx.command.options.getString('query', true)
-				: ctx.args.join(' ')
-		);
-
 		const queue = Player.client.nodes.create(ctx.guild, {
 			...Player.globalQueueOptions,
 			volume: Player.convertVolume(ctx.preferences.volume, 'queue'),
@@ -64,6 +57,13 @@ export const command: App.Command = {
 		const [, setMetadata] = useMetadata(ctx.guild);
 
 		setMetadata(ctx);
+
+		const search = new Player.Search(
+			ctx,
+			ctx.command.type === InteractionType.ApplicationCommand
+				? ctx.command.options.getString('query', true)
+				: ctx.args.join(' ')
+		);
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
@@ -85,7 +85,7 @@ export const command: App.Command = {
 						`▶️\u2002Resumed _${queue.currentTrack.cleanTitle}_ by _${queue.currentTrack.author}_`
 					);
 				} catch (error) {
-					console.error('Queue Resume Error:', error);
+					console.error('Queue Resume Error -', error);
 				}
 			}
 
@@ -113,7 +113,7 @@ export const command: App.Command = {
 			try {
 				await queue.connect(ctx.member.voice.channel);
 			} catch (error) {
-				console.error('Voice Connect Error:', error);
+				console.error('Voice Connect Error -', error);
 
 				queue.tasksQueue.release();
 
@@ -124,7 +124,7 @@ export const command: App.Command = {
 		try {
 			queue.insertTrack(track);
 		} catch (error) {
-			console.error('Insert Track Error:', error);
+			console.error('Queue Insert Error -', error);
 
 			queue.tasksQueue.release();
 
@@ -136,7 +136,7 @@ export const command: App.Command = {
 				await queue.node.play();
 			}
 		} catch (error) {
-			console.error('Queue Play Error:', error);
+			console.error('Queue Play Error -', error);
 
 			return await App.respond(ctx, 'Could not play this track', App.ResponseType.AppError);
 		} finally {
@@ -148,7 +148,7 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {
-			console.error('Queued Embed Error:', error);
+			console.error('Queued Embed Error -', error);
 
 			return await App.respond(
 				ctx,

@@ -1,6 +1,5 @@
 import { App } from '#utils/app';
 import { Data } from '#utils/data';
-import { Player } from '#utils/player';
 import { Events, REST, Routes } from 'discord.js';
 
 export const event: App.Event = {
@@ -22,21 +21,15 @@ export const event: App.Event = {
 					body: App.commands.map((command) => command.data),
 				});
 			} catch (error) {
-				console.error('Application Command Setup Error:', error);
+				console.error('Application Command Setup Error -', error);
 			}
 
 			// Prevent crashes on uncaught exceptions and unhandled promise rejections
-			process.on('uncaughtException', async (error) => {
+			process.on('uncaughtException', (error) => {
 				console.error(`EXCEPTION CAUGHT: ${error}\n` + `EXCEPTION ORIGIN: ${error.stack ?? 'Unknown'}`);
-
-				// Reset player
-				await Player.initializePlayer();
 			});
 			process.on('unhandledRejection', async (reason, promise) => {
 				console.error('UNHANDLED REJECTION:', promise, 'REASON:', reason);
-
-				// Reset player
-				await Player.initializePlayer();
 			});
 
 			// Log Start

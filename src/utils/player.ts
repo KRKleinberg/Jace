@@ -323,7 +323,7 @@ async function requestBridgeFrom(
 
 			return stream as Readable | string;
 		} catch (error) {
-			console.error('Stream Error:', error);
+			console.error('Stream Error -', error);
 		}
 	}
 

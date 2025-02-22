@@ -18,10 +18,10 @@ export const event: App.Event = {
 						App.commands.get(input.toLowerCase()) ??
 						App.commands.find((command) => command.aliases?.includes(input.toLowerCase()));
 
-					if (prefixCommand) {
-						await message.channel.sendTyping();
+					try {
+						if (prefixCommand) {
+							await message.channel.sendTyping();
 
-						try {
 							await Player.client.context.provide({ guild }, async () => {
 								try {
 									await prefixCommand.run({
@@ -32,7 +32,7 @@ export const event: App.Event = {
 										preferences,
 									});
 								} catch (error) {
-									console.error('Prefix Command Error:', error);
+									console.error('Prefix Command Error -', error);
 
 									await App.respond(
 										{ command: message, preferences },
@@ -41,9 +41,9 @@ export const event: App.Event = {
 									);
 								}
 							});
-						} catch (error) {
-							console.error('Player Context Error:', error);
 						}
+					} catch (error) {
+						console.error('Prefix Command Error -', error);
 					}
 				}
 			}
@@ -63,21 +63,20 @@ export const event: App.Event = {
 						try {
 							await slashCommand.autocomplete({ command: interaction, args: [], guild, member, preferences });
 						} catch (error) {
-							console.error('Autocomplete Error:', error);
+							console.error('Autocomplete Error -', error);
 						}
 					}
 				} else if (interaction.isChatInputCommand()) {
 					const slashCommand = App.commands.get(interaction.commandName);
+					try {
+						if (slashCommand) {
+							await interaction.deferReply();
 
-					if (slashCommand) {
-						await interaction.deferReply();
-
-						try {
 							await Player.client.context.provide({ guild }, async () => {
 								try {
 									await slashCommand.run({ command: interaction, args: [], guild, member, preferences });
 								} catch (error) {
-									console.error('Slash Command Error:', error);
+									console.error('Slash Command Error -', error);
 
 									await App.respond(
 										{ command: interaction, preferences },
@@ -86,9 +85,9 @@ export const event: App.Event = {
 									);
 								}
 							});
-						} catch (error) {
-							console.error('Player Context Error:', error);
 						}
+					} catch (error) {
+						console.error('Slash Command Error -', error);
 					}
 				}
 			}
