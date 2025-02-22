@@ -13,7 +13,6 @@ export const command: App.Command = {
 			let currentTrack = queue.currentTrack;
 
 			queue.delete();
-
 			queue.revive();
 
 			if (!currentTrack) {
