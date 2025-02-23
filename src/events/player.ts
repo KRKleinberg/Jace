@@ -43,47 +43,34 @@ export const event: App.Event = {
 								? ctx.command.options.getString('query', true)
 								: ctx.args.join(' ')
 						);
-						try {
-							const searchResult = await search.getResult();
 
-							currentTrack = searchResult.tracks[0];
-						} catch (error) {
-							throw new Error(`Player Search Error - ${String(error)}`);
-						}
+						const searchResult = await search.getResult();
+
+						currentTrack = searchResult.tracks[0];
 					}
 
 					const tracks: Track[] = [currentTrack, ...queuedTracks];
 
-					await queue.tasksQueue.acquire().getTask();
+					try {
+						await queue.tasksQueue.acquire().getTask();
 
-					if (!queue.connection) {
-						try {
+						if (!queue.connection) {
 							if (ctx.member.voice.channel) {
 								await queue.connect(ctx.member.voice.channel);
 							}
-						} catch (error) {
-							console.error('Queue Connect Error -', error);
-
-							queue.tasksQueue.release();
 						}
-					}
 
-					try {
 						if (tracks.length) {
 							queue.addTrack(tracks);
 						}
-					} catch (error) {
-						console.error('Queue Add Error -', error);
 
-						queue.tasksQueue.release();
-					}
-
-					try {
 						if (!queue.isPlaying()) {
 							await queue.node.play();
 						}
 					} catch (error) {
-						console.error('Queue Play Error -', error);
+						console.error('Queue Recover Error -', error);
+
+						await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 					} finally {
 						queue.tasksQueue.release();
 					}
