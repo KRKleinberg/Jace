@@ -9,7 +9,7 @@ export const event: App.Event = {
 			console.log(message);
 		}); */
 
-		let errorCount = 0;
+		let queueErrorCount = 0;
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
@@ -24,8 +24,10 @@ export const event: App.Event = {
 			}
 
 			try {
-				if (errorCount < 3) {
-					errorCount++;
+				if (queueErrorCount < 3) {
+					queueErrorCount++;
+
+					console.log('Queue Error Count:', queueErrorCount);
 
 					let currentTrack = queue.currentTrack;
 					const queuedTracks = queue.tracks.toArray();
@@ -74,7 +76,11 @@ export const event: App.Event = {
 					} finally {
 						queue.tasksQueue.release();
 					}
+
+					queueErrorCount = 0;
 				} else {
+					console.log('Queue Error Count:', queueErrorCount);
+
 					await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 				}
 			} catch (error) {
