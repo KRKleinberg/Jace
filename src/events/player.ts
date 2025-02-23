@@ -1,7 +1,7 @@
 import { App } from '#utils/app';
 import { Player } from '#utils/player';
-import { GuildQueueEvent, Util } from 'discord-player';
-import { ChannelType } from 'discord.js';
+import { GuildQueueEvent, type Track, Util } from 'discord-player';
+import { ChannelType, InteractionType } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
@@ -9,16 +9,92 @@ export const event: App.Event = {
 			console.log(message);
 		}); */
 
+		let errorCount = 0;
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			console.error('Queue Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
-				await ctx.command.channel.sendTyping();
+				try {
+					await ctx.command.channel.sendTyping();
+				} catch (error) {
+					console.error('Channel Send Typing Error -', error);
+				}
 			}
 
-			await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
+			try {
+				if (errorCount < 3) {
+					errorCount++;
+
+					let currentTrack = queue.currentTrack;
+					const queuedTracks = queue.tracks.toArray();
+
+					queue.delete();
+
+					await Player.initializeExtractors();
+
+					queue.revive();
+
+					if (!currentTrack) {
+						const search = new Player.Search(
+							ctx,
+							ctx.command.type === InteractionType.ApplicationCommand
+								? ctx.command.options.getString('query', true)
+								: ctx.args.join(' ')
+						);
+						try {
+							const searchResult = await search.getResult();
+
+							currentTrack = searchResult.tracks[0];
+						} catch (error) {
+							throw new Error(`Player Search Error - ${String(error)}`);
+						}
+					}
+
+					const tracks: Track[] = [currentTrack, ...queuedTracks];
+
+					await queue.tasksQueue.acquire().getTask();
+
+					if (!queue.connection) {
+						try {
+							if (ctx.member.voice.channel) {
+								await queue.connect(ctx.member.voice.channel);
+							}
+						} catch (error) {
+							console.error('Queue Connect Error -', error);
+
+							queue.tasksQueue.release();
+						}
+					}
+
+					try {
+						if (tracks.length) {
+							queue.addTrack(tracks);
+						}
+					} catch (error) {
+						console.error('Queue Add Error -', error);
+
+						queue.tasksQueue.release();
+					}
+
+					try {
+						if (!queue.isPlaying()) {
+							await queue.node.play();
+						}
+					} catch (error) {
+						console.error('Queue Play Error -', error);
+					} finally {
+						queue.tasksQueue.release();
+					}
+				} else {
+					await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
+				}
+			} catch (error) {
+				console.error('Queue Recover Error -', error);
+
+				await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
+			}
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
