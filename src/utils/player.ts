@@ -383,13 +383,7 @@ export class Search {
 	/**
 	 * Returns search result
 	 */
-	async getResult(autocomplete?: boolean): Promise<SearchResult> {
-		if (autocomplete) {
-			const searchOptions = this.searchOptions;
-
-			return await client.search(this.query, searchOptions);
-		}
-
+	async getResult(): Promise<SearchResult> {
 		return await client.search(this.query, this.searchOptions);
 	}
 }

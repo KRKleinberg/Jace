@@ -20,7 +20,7 @@ export const command: App.Command = {
 		const search = new Player.Search(ctx, ctx.command.options.getString('query', true));
 
 		if (search.query.length) {
-			const searchResult = await search.getResult(true);
+			const searchResult = await search.getResult();
 
 			await ctx.command.respond(
 				searchResult.playlist
