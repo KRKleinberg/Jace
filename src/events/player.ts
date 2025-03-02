@@ -90,28 +90,79 @@ export const event: App.Event = {
 			}
 		});
 
+		let playerErrorCount = 0;
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Player Error -', error);
+			console.error(`Player Error -`, error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
-				await ctx.command.channel.sendTyping();
-			}
-
-			if (!queue.isPlaying()) {
 				try {
-					queue.node.resume();
+					await ctx.command.channel.sendTyping();
 				} catch (error) {
-					console.error('Queue Resume Error -', error);
+					console.error('Channel Send Typing Error -', error);
 				}
 			}
 
-			await App.respond(
-				ctx,
-				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-				App.ResponseType.PlayerError
-			);
+			try {
+				if (playerErrorCount < 3) {
+					playerErrorCount++;
+
+					console.log('Player Error Count:', playerErrorCount);
+
+					const queuedTracks = queue.tracks.toArray();
+
+					queue.delete();
+
+					await Player.initializeExtractors();
+
+					queue.revive();
+
+					const tracks: Track[] = [track, ...queuedTracks];
+
+					try {
+						await queue.tasksQueue.acquire().getTask();
+
+						if (!queue.connection) {
+							if (ctx.member.voice.channel) {
+								await queue.connect(ctx.member.voice.channel);
+							}
+						}
+
+						if (tracks.length) {
+							queue.addTrack(tracks);
+						}
+
+						if (!queue.isPlaying()) {
+							await queue.node.play();
+						}
+					} catch (error) {
+						console.error('Player Recover Error -', error);
+
+						await App.respond(ctx, `There was an error with the player`, App.ResponseType.PlayerError);
+					} finally {
+						queue.tasksQueue.release();
+					}
+
+					playerErrorCount = 0;
+				} else {
+					console.log('Player Error Count:', playerErrorCount);
+
+					await App.respond(
+						ctx,
+						`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+						App.ResponseType.PlayerError
+					);
+				}
+			} catch (error) {
+				console.error('Player Recover Error -', error);
+
+				await App.respond(
+					ctx,
+					`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+					App.ResponseType.PlayerError
+				);
+			}
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
