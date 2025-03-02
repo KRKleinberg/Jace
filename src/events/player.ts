@@ -9,7 +9,8 @@ export const event: App.Event = {
 			console.log(message);
 		}); */
 
-		let queueErrorCount = 0;
+		let errorCount = 0;
+		let isRecovering = false;
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
@@ -24,10 +25,12 @@ export const event: App.Event = {
 			}
 
 			try {
-				if (queueErrorCount < 3) {
-					queueErrorCount++;
+				if (errorCount < 3 && !isRecovering) {
+					isRecovering = true;
 
-					console.log('Queue Error Count:', queueErrorCount);
+					errorCount++;
+
+					console.log('Error Count:', errorCount);
 
 					let currentTrack = queue.currentTrack;
 					const queuedTracks = queue.tracks.toArray();
@@ -75,22 +78,25 @@ export const event: App.Event = {
 						await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 					} finally {
 						queue.tasksQueue.release();
+
+						isRecovering = false;
 					}
 
-					queueErrorCount = 0;
+					errorCount = 0;
 				} else {
-					console.log('Queue Error Count:', queueErrorCount);
+					console.log('Error Count:', errorCount);
 
 					await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 				}
 			} catch (error) {
 				console.error('Queue Recover Error -', error);
 
+				isRecovering = false;
+
 				await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 			}
 		});
 
-		let playerErrorCount = 0;
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
@@ -105,10 +111,12 @@ export const event: App.Event = {
 			}
 
 			try {
-				if (playerErrorCount < 3) {
-					playerErrorCount++;
+				if (errorCount < 3 && !isRecovering) {
+					isRecovering = true;
 
-					console.log('Player Error Count:', playerErrorCount);
+					errorCount++;
+
+					console.log('Error Count:', errorCount);
 
 					const queuedTracks = queue.tracks.toArray();
 
@@ -142,11 +150,13 @@ export const event: App.Event = {
 						await App.respond(ctx, `There was an error with the player`, App.ResponseType.PlayerError);
 					} finally {
 						queue.tasksQueue.release();
+
+						isRecovering = false;
 					}
 
-					playerErrorCount = 0;
+					errorCount = 0;
 				} else {
-					console.log('Player Error Count:', playerErrorCount);
+					console.log('Error Count:', errorCount);
 
 					await App.respond(
 						ctx,
@@ -156,6 +166,8 @@ export const event: App.Event = {
 				}
 			} catch (error) {
 				console.error('Player Recover Error -', error);
+
+				isRecovering = false;
 
 				await App.respond(
 					ctx,
