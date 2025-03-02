@@ -86,7 +86,7 @@ export const event: App.Event = {
 						console.log('No error for 10 seconds, resetting error count');
 
 						errorCount = 0;
-					}, 10000);
+					}, 30000);
 				} else {
 					console.log('Error Count:', errorCount);
 
@@ -162,7 +162,7 @@ export const event: App.Event = {
 						console.log('No error for 10 seconds, resetting error count');
 
 						errorCount = 0;
-					}, 10000);
+					}, 30000);
 				} else {
 					console.log('Error Count:', errorCount);
 
