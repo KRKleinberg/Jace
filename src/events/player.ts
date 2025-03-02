@@ -25,7 +25,7 @@ export const event: App.Event = {
 			}
 
 			try {
-				if (errorCount < 3 && !isRecovering) {
+				if (errorCount < 3 && !isRecovering && !queue.isPlaying()) {
 					isRecovering = true;
 
 					errorCount++;
@@ -82,7 +82,11 @@ export const event: App.Event = {
 						isRecovering = false;
 					}
 
-					errorCount = 0;
+					setTimeout(() => {
+						console.log('No error for 10 seconds, resetting error count');
+
+						errorCount = 0;
+					}, 10000);
 				} else {
 					console.log('Error Count:', errorCount);
 
@@ -111,7 +115,7 @@ export const event: App.Event = {
 			}
 
 			try {
-				if (errorCount < 3 && !isRecovering) {
+				if (errorCount < 3 && !isRecovering && !queue.isPlaying()) {
 					isRecovering = true;
 
 					errorCount++;
@@ -154,7 +158,11 @@ export const event: App.Event = {
 						isRecovering = false;
 					}
 
-					errorCount = 0;
+					setTimeout(() => {
+						console.log('No error for 10 seconds, resetting error count');
+
+						errorCount = 0;
+					}, 10000);
 				} else {
 					console.log('Error Count:', errorCount);
 
