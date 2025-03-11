@@ -19,14 +19,13 @@ jobs:
       - name: Run Container
         run: docker compose up -d --build
         env:
+          DEEZER_ARL: ${{ secrets.DEEZER_ARL }}
           DEEZER_KEY: ${{ secrets.DEEZER_KEY }}
           DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           ENV: ${{ secrets.ENV }}
           MONGODB_COLLECTION_NAME: ${{ secrets.MONGODB_COLLECTION_NAME }}
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
-          YOUTUBE_COOKIE: ${{ secrets.YOUTUBE_COOKIE }}
-          YOUTUBE_OAUTH: ${{ secrets.YOUTUBE_OAUTH }}
 
       - name: Cleanup Unused Images
         run: docker image prune -f
