@@ -17,7 +17,7 @@ export const command: App.Command = {
 				};
 			});
 			const embed = new EmbedBuilder()
-				.setColor(ctx.preferences.color)
+				.setColor(ctx.command.guild?.members.me?.displayHexColor ?? null)
 				.setTitle('Commands')
 				.setDescription(`Prefix: **${ctx.preferences.prefix}**`)
 				.addFields(fields);

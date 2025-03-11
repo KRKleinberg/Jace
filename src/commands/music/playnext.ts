@@ -6,13 +6,13 @@ import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
 	aliases: ['pn'],
-	help: `_To search with a specific streaming service, end your search with ${new Intl.ListFormat('en', { type: 'disjunction' }).format(Player.streamSources().map((streamSource) => `**${streamSource.name.toLowerCase()}**`))}_`,
+	help: `_To search with a specific streaming service, end your search with ${new Intl.ListFormat('en', { type: 'disjunction' }).format(Player.streamSources.map((streamSource) => `**${streamSource.name.toLowerCase()}**`))}_`,
 	data: new SlashCommandBuilder()
-		.setDescription('Adds a song or playlist to the top of the queue')
+		.setDescription('Adds a song to the top of the queue')
 		.addStringOption((option) =>
 			option
 				.setName('query')
-				.setDescription('The song or playlist to play next')
+				.setDescription('The song to play next')
 				.setAutocomplete(true)
 				.setRequired(true)
 		),
@@ -50,6 +50,10 @@ export const command: App.Command = {
 		}
 	},
 	async run(ctx) {
+		if (!ctx.member.voice.channel) {
+			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+		}
+
 		const queue = Player.client.nodes.create(ctx.guild, {
 			...Player.globalQueueOptions,
 			volume: Player.convertVolume(ctx.preferences.volume, 'queue'),
@@ -58,16 +62,6 @@ export const command: App.Command = {
 
 		setMetadata(ctx);
 
-		const search = new Player.Search(
-			ctx,
-			ctx.command.type === InteractionType.ApplicationCommand
-				? ctx.command.options.getString('query', true)
-				: ctx.args.join(' ')
-		);
-
-		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
-		}
 		if (queue.connection && ctx.member.voice.channel !== queue.channel) {
 			return await App.respond(
 				ctx,
@@ -75,6 +69,14 @@ export const command: App.Command = {
 				App.ResponseType.UserError
 			);
 		}
+
+		const search = new Player.Search(
+			ctx,
+			ctx.command.type === InteractionType.ApplicationCommand
+				? ctx.command.options.getString('query', true)
+				: ctx.args.join(' ')
+		);
+
 		if (!search.query.length) {
 			if (queue.currentTrack && queue.node.isPaused()) {
 				try {
@@ -93,21 +95,9 @@ export const command: App.Command = {
 		}
 
 		const searchResult = await search.getResult();
-		const track = searchResult.tracks[0];
-		const playlist = searchResult.playlist;
+		const entry = queue.tasksQueue.acquire();
 
-		if (searchResult.isEmpty()) {
-			if (
-				searchResult.queryType.includes('youtube') &&
-				!Player.streamSources().find((streamSource) => streamSource.searchQueryType?.includes('youtube'))
-			) {
-				return await App.respond(ctx, `YouTube is not supported`, App.ResponseType.UserError);
-			}
-
-			return await App.respond(ctx, 'No results found', App.ResponseType.UserError);
-		}
-
-		await queue.tasksQueue.acquire().getTask();
+		await entry.getTask();
 
 		if (!queue.connection) {
 			try {
@@ -115,21 +105,13 @@ export const command: App.Command = {
 			} catch (error) {
 				console.error('Voice Connect Error -', error);
 
-				queue.tasksQueue.release();
+				entry.release();
 
 				return await App.respond(ctx, 'Could not join your voice channel', App.ResponseType.AppError);
 			}
 		}
 
-		try {
-			queue.insertTrack(track);
-		} catch (error) {
-			console.error('Queue Insert Error -', error);
-
-			queue.tasksQueue.release();
-
-			return await App.respond(ctx, 'Could not add that track', App.ResponseType.AppError);
-		}
+		queue.insertTrack(searchResult.tracks[0]);
 
 		try {
 			if (!queue.isPlaying()) {
@@ -140,20 +122,11 @@ export const command: App.Command = {
 
 			return await App.respond(ctx, 'Could not play this track', App.ResponseType.AppError);
 		} finally {
-			queue.tasksQueue.release();
+			entry.release();
 		}
 
-		try {
-			const embed = Player.createQueuedEmbed(queue, searchResult, true);
+		const embed = Player.createQueuedEmbed(queue, searchResult);
 
-			return await App.respond(ctx, { embeds: [embed] });
-		} catch (error) {
-			console.error('Queued Embed Error -', error);
-
-			return await App.respond(
-				ctx,
-				playlist ? `⏳\u2002Loading your tracks` : `⏳\u2002Loading your track`
-			);
-		}
+		return await App.respond(ctx, { embeds: [embed] });
 	},
 };

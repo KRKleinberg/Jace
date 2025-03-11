@@ -1,16 +1,10 @@
 import { App } from '#utils/app';
 import { Player } from '#utils/player';
-import { GuildQueueEvent, type Track, Util } from 'discord-player';
-import { ChannelType, InteractionType } from 'discord.js';
+import { GuildQueueEvent, Util } from 'discord-player';
+import { ChannelType } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
-		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
-			console.log(message);
-		}); */
-
-		let errorCount = 0;
-		let isRecovering = false;
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
@@ -24,165 +18,31 @@ export const event: App.Event = {
 				}
 			}
 
-			try {
-				if (errorCount < 3 && !isRecovering && !queue.isPlaying()) {
-					isRecovering = true;
-
-					errorCount++;
-
-					console.log('Error Count:', errorCount);
-
-					let currentTrack = queue.currentTrack;
-					const queuedTracks = queue.tracks.toArray();
-
-					queue.delete();
-
-					await Player.initializeExtractors();
-
-					queue.revive();
-
-					if (!currentTrack) {
-						const search = new Player.Search(
-							ctx,
-							ctx.command.type === InteractionType.ApplicationCommand
-								? ctx.command.options.getString('query', true)
-								: ctx.args.join(' ')
-						);
-
-						const searchResult = await search.getResult();
-
-						currentTrack = searchResult.tracks[0];
-					}
-
-					const tracks: Track[] = [currentTrack, ...queuedTracks];
-
-					try {
-						await queue.tasksQueue.acquire().getTask();
-
-						if (!queue.connection) {
-							if (ctx.member.voice.channel) {
-								await queue.connect(ctx.member.voice.channel);
-							}
-						}
-
-						if (tracks.length) {
-							queue.addTrack(tracks);
-						}
-
-						if (!queue.isPlaying()) {
-							await queue.node.play();
-						}
-					} catch (error) {
-						console.error('Queue Recover Error -', error);
-
-						await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
-					} finally {
-						queue.tasksQueue.release();
-
-						isRecovering = false;
-					}
-
-					setTimeout(() => {
-						console.log('No error for 10 seconds, resetting error count');
-
-						errorCount = 0;
-					}, 30000);
-				} else {
-					console.log('Error Count:', errorCount);
-
-					await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
-				}
-			} catch (error) {
-				console.error('Queue Recover Error -', error);
-
-				isRecovering = false;
-
-				await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
-			}
+			await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error(`Player Error -`, error);
+			console.error('Player Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
+				await ctx.command.channel.sendTyping();
+			}
+
+			if (!queue.isPlaying()) {
 				try {
-					await ctx.command.channel.sendTyping();
+					queue.node.resume();
 				} catch (error) {
-					console.error('Channel Send Typing Error -', error);
+					console.error('Queue Resume Error -', error);
 				}
 			}
 
-			try {
-				if (errorCount < 3 && !isRecovering && !queue.isPlaying()) {
-					isRecovering = true;
-
-					errorCount++;
-
-					console.log('Error Count:', errorCount);
-
-					const queuedTracks = queue.tracks.toArray();
-
-					queue.delete();
-
-					await Player.initializeExtractors();
-
-					queue.revive();
-
-					const tracks: Track[] = [track, ...queuedTracks];
-
-					try {
-						await queue.tasksQueue.acquire().getTask();
-
-						if (!queue.connection) {
-							if (ctx.member.voice.channel) {
-								await queue.connect(ctx.member.voice.channel);
-							}
-						}
-
-						if (tracks.length) {
-							queue.addTrack(tracks);
-						}
-
-						if (!queue.isPlaying()) {
-							await queue.node.play();
-						}
-					} catch (error) {
-						console.error('Player Recover Error -', error);
-
-						await App.respond(ctx, `There was an error with the player`, App.ResponseType.PlayerError);
-					} finally {
-						queue.tasksQueue.release();
-
-						isRecovering = false;
-					}
-
-					setTimeout(() => {
-						console.log('No error for 10 seconds, resetting error count');
-
-						errorCount = 0;
-					}, 30000);
-				} else {
-					console.log('Error Count:', errorCount);
-
-					await App.respond(
-						ctx,
-						`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-						App.ResponseType.PlayerError
-					);
-				}
-			} catch (error) {
-				console.error('Player Recover Error -', error);
-
-				isRecovering = false;
-
-				await App.respond(
-					ctx,
-					`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-					App.ResponseType.PlayerError
-				);
-			}
+			await App.respond(
+				ctx,
+				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+				App.ResponseType.PlayerError
+			);
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
@@ -231,10 +91,10 @@ export const event: App.Event = {
 
 								if (timestamp) {
 									const progressBarIndex = Math.round(
-										(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+										(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
 									);
 
-									if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+									if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
 										index = progressBarIndex;
 
 										const embed = Player.createPlayEmbed(queue, track, lyrics);
@@ -252,8 +112,8 @@ export const event: App.Event = {
 								}
 							}
 						},
-						track.durationMS / Player.progressBarLength(track) > 5000
-							? track.durationMS / Player.progressBarLength(track)
+						track.durationMS / Player.getProgressBarLength(track) > 5000
+							? track.durationMS / Player.getProgressBarLength(track)
 							: 5000
 					);
 
@@ -325,10 +185,10 @@ export const event: App.Event = {
 
 						if (timestamp) {
 							const progressBarIndex = Math.round(
-								(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
 							);
 
-							if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
 								index = progressBarIndex;
 
 								const embed = Player.createPlayEmbed(queue, track);
@@ -345,8 +205,8 @@ export const event: App.Event = {
 							});
 						}
 					},
-					track.durationMS / Player.progressBarLength(track) > 1000
-						? track.durationMS / Player.progressBarLength(track)
+					track.durationMS / Player.getProgressBarLength(track) > 1000
+						? track.durationMS / Player.getProgressBarLength(track)
 						: 1000
 				);
 			}

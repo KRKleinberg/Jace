@@ -34,11 +34,7 @@ export const event: App.Event = {
 								} catch (error) {
 									console.error('Prefix Command Error -', error);
 
-									await App.respond(
-										{ command: message, preferences },
-										'Something went wrong',
-										App.ResponseType.AppError
-									);
+									await App.respond({ command: message }, 'Something went wrong', App.ResponseType.AppError);
 								}
 							});
 						}
@@ -68,6 +64,7 @@ export const event: App.Event = {
 					}
 				} else if (interaction.isChatInputCommand()) {
 					const slashCommand = App.commands.get(interaction.commandName);
+
 					try {
 						if (slashCommand) {
 							await interaction.deferReply();
@@ -78,11 +75,7 @@ export const event: App.Event = {
 								} catch (error) {
 									console.error('Slash Command Error -', error);
 
-									await App.respond(
-										{ command: interaction, preferences },
-										'Something went wrong',
-										App.ResponseType.AppError
-									);
+									await App.respond({ command: interaction }, 'Something went wrong', App.ResponseType.AppError);
 								}
 							});
 						}

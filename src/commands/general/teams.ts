@@ -33,7 +33,7 @@ export const command: App.Command = {
 						value: voiceMembers[Math.floor(Math.random() * voiceMembers.length)].toString(),
 					},
 				])
-				.setColor(ctx.preferences.color);
+				.setColor(ctx.command.guild?.members.me?.displayHexColor ?? null);
 
 			return await App.respond(ctx, { embeds: [embed] });
 		} catch (error) {

@@ -1,12 +1,11 @@
-export * as App from '#utils/app';
 import { Data } from '#utils/data';
 import { getFilePaths } from '#utils/helpers';
-import { Player } from '#utils/player';
 import {
 	ActivityType,
 	type AnySelectMenuInteraction,
 	type AutocompleteInteraction,
 	type BaseMessageOptions,
+	basename,
 	ChannelType,
 	type ChatInputCommandInteraction,
 	Client,
@@ -21,8 +20,9 @@ import {
 	type Message,
 	type SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
-import { basename } from 'path';
 import { type EventEmitter } from 'stream';
+
+export * as App from '#utils/app';
 
 // TYPES
 export type Response = Message | InteractionResponse;
@@ -37,25 +37,20 @@ export interface BaseCommandContext {
 	member: GuildMember;
 	preferences: Required<Data.Preferences>;
 }
-
 export interface AutocompleteInteractionContext extends BaseCommandContext {
 	command: AutocompleteInteraction;
 }
-
 export interface ChatInputCommandInteractionContext extends BaseCommandContext {
 	command: ChatInputCommandInteraction;
 }
-
 export interface MessageCommandContext extends BaseCommandContext {
 	command: Message;
 }
-
 export interface ResponseContext {
 	command:
 		| ChatInputCommandInteractionContext['command']
 		| MessageCommandContext['command']
 		| AnySelectMenuInteraction;
-	preferences: Required<Data.Preferences>;
 }
 
 export interface Command {
@@ -70,7 +65,6 @@ export interface Command {
 		ctx: ChatInputCommandInteractionContext | MessageCommandContext
 	) => Promise<Response | EventEmitter>;
 }
-
 export interface Event {
 	run: () => Promise<void> | void;
 }
@@ -105,7 +99,6 @@ export const client = new Client({
 
 export const commands = new Collection<string, Command>();
 
-// FUNCTIONS
 export async function initializeCommands() {
 	const commandFiles = getFilePaths('./dist/commands/', '.js', './dist/utils/');
 
@@ -122,9 +115,6 @@ export async function initializeCommands() {
 }
 
 export async function initializeEvents() {
-	client.removeAllListeners();
-	Player.client.removeAllListeners();
-
 	const eventFiles = getFilePaths('./dist/events', '.js', './dist/utls/');
 
 	for (const eventFile of eventFiles) {
@@ -152,7 +142,9 @@ function createResponse<T extends ResponseContext>(
 			embed.setColor('Red').setDescription(`❌\u2002**${message}**`);
 			break;
 		default:
-			embed.setColor(ctx.preferences.color).setDescription(`**${message}**`);
+			embed
+				.setColor(ctx.command.guild?.members.me?.displayHexColor ?? null)
+				.setDescription(`**${message}**`);
 			break;
 	}
 
@@ -169,11 +161,11 @@ export async function respond(
 	ctx: ResponseContext,
 	message: string | BaseMessageOptions,
 	type: ResponseType = ResponseType.Default
-): Promise<Response> {
+): Promise<Message | InteractionResponse> {
 	const response = typeof message === 'string' ? createResponse(ctx, message, type) : message;
 
 	if (type === ResponseType.Channel && ctx.command.channel?.type === ChannelType.GuildText) {
-		return ctx.command.channel.send(response);
+		return await ctx.command.channel.send(response);
 	} else if (ctx.command.type === InteractionType.ApplicationCommand) {
 		if (ctx.command.replied) {
 			return await ctx.command.editReply(response);
