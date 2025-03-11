@@ -33,7 +33,7 @@ export const command: App.Command = {
 			);
 
 			const embed = new EmbedBuilder()
-				.setColor(ctx.preferences.color)
+				.setColor(ctx.command.guild?.members.me?.displayHexColor ?? null)
 				.setTitle('Queue')
 				.setDescription(`${nowPlaying}${createNumberedList(queuedTracks, 4096 - nowPlaying.length)}`);
 

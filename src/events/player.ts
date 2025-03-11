@@ -5,17 +5,17 @@ import { ChannelType } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
-		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
-			console.log(message);
-		}); */
-
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Queue Error:', error);
+			console.error('Queue Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
-				await ctx.command.channel.sendTyping();
+				try {
+					await ctx.command.channel.sendTyping();
+				} catch (error) {
+					console.error('Channel Send Typing Error -', error);
+				}
 			}
 
 			await App.respond(ctx, `There was an error with the queue`, App.ResponseType.PlayerError);
@@ -24,7 +24,7 @@ export const event: App.Event = {
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Player Error:', error);
+			console.error('Player Error -', error);
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				await ctx.command.channel.sendTyping();
@@ -34,7 +34,7 @@ export const event: App.Event = {
 				try {
 					queue.node.resume();
 				} catch (error) {
-					console.error(error);
+					console.error('Queue Resume Error -', error);
 				}
 			}
 
@@ -82,34 +82,38 @@ export const event: App.Event = {
 						async () => {
 							if (queue.currentTrack != track) {
 								clearInterval(interval);
-							}
 
-							const timestamp = queue.node.getTimestamp();
+								const embed = Player.createPlayEmbed(queue, track);
 
-							if (timestamp) {
-								const progressBarIndex = Math.round(
-									(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
-								);
+								await response.edit({ embeds: [embed] });
+							} else {
+								const timestamp = queue.node.getTimestamp();
 
-								if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
-									index = progressBarIndex;
+								if (timestamp) {
+									const progressBarIndex = Math.round(
+										(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
+									);
 
+									if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
+										index = progressBarIndex;
+
+										const embed = Player.createPlayEmbed(queue, track, lyrics);
+
+										await response.edit({
+											embeds: [embed],
+										});
+									}
+								} else {
 									const embed = Player.createPlayEmbed(queue, track, lyrics);
 
 									await response.edit({
 										embeds: [embed],
 									});
 								}
-							} else {
-								const embed = Player.createPlayEmbed(queue, track, lyrics);
-
-								await response.edit({
-									embeds: [embed],
-								});
 							}
 						},
-						track.durationMS / Player.progressBarLength(track) > 5000
-							? track.durationMS / Player.progressBarLength(track)
+						track.durationMS / Player.getProgressBarLength(track) > 5000
+							? track.durationMS / Player.getProgressBarLength(track)
 							: 5000
 					);
 
@@ -148,7 +152,7 @@ export const event: App.Event = {
 								embeds: [embed],
 							});
 						} catch (error) {
-							console.error(error);
+							console.error('Synced Lyrics Change Error -', error);
 
 							const embed = Player.createPlayEmbed(queue, track);
 
@@ -164,7 +168,7 @@ export const event: App.Event = {
 					});
 					syncedLyrics.subscribe();
 				} catch (error) {
-					console.error(error);
+					console.error('Synced Lyrics Error -', error);
 				}
 			} else {
 				const embed = Player.createPlayEmbed(queue, track);
@@ -181,10 +185,10 @@ export const event: App.Event = {
 
 						if (timestamp) {
 							const progressBarIndex = Math.round(
-								(timestamp.current.value / timestamp.total.value) * Player.progressBarLength(track)
+								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
 							);
 
-							if (progressBarIndex > index && progressBarIndex <= Player.progressBarLength(track)) {
+							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
 								index = progressBarIndex;
 
 								const embed = Player.createPlayEmbed(queue, track);
@@ -201,8 +205,8 @@ export const event: App.Event = {
 							});
 						}
 					},
-					track.durationMS / Player.progressBarLength(track) > 1000
-						? track.durationMS / Player.progressBarLength(track)
+					track.durationMS / Player.getProgressBarLength(track) > 1000
+						? track.durationMS / Player.getProgressBarLength(track)
 						: 1000
 				);
 			}

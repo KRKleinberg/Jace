@@ -1,5 +1,4 @@
 import { type QueryType } from 'discord-player';
-import { type ColorResolvable } from 'discord.js';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
 export * as Data from '#utils/data';
@@ -8,8 +7,6 @@ export * as Data from '#utils/data';
 export interface Preferences {
 	/** The prefix to use with prefix commands. */
 	prefix?: string;
-	/** The color to use on embeds. */
-	color?: ColorResolvable;
 	/** The search engine to search for tracks with. */
 	searchEngine?: (typeof QueryType)[keyof typeof QueryType];
 	/** The volume for the player. */
@@ -59,9 +56,6 @@ export async function getPreferences(discordId?: {
 	if (!master?.preferences.prefix) {
 		throw new Error('Master prefix is not set in database!');
 	}
-	if (!master.preferences.color) {
-		throw new Error('Master color is not set in database!');
-	}
 	if (!master.preferences.searchEngine) {
 		throw new Error('Master searchEngine is not set in database!');
 	}
@@ -71,7 +65,6 @@ export async function getPreferences(discordId?: {
 
 	return {
 		prefix: user?.preferences.prefix ?? guild?.preferences.prefix ?? master.preferences.prefix,
-		color: user?.preferences.color ?? guild?.preferences.color ?? master.preferences.color,
 		searchEngine:
 			user?.preferences.searchEngine ??
 			guild?.preferences.searchEngine ??

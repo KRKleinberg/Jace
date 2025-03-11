@@ -1,11 +1,11 @@
 {
 	"name": "jace",
-	"version": "8.2.0-dev.7",
+	"version": "9.0.0-dev.0",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "node dist/index.js",
-		"test": "tsc && node --env-file=.env.local dist/index.js",
+		"start": "node --openssl-legacy-provider dist/index.js",
+		"test": "tsc && node --env-file=.env.local --openssl-legacy-provider dist/index.js",
 		"build": "tsc",
 		"build:watch": "tsc -w"
 	},
@@ -24,21 +24,20 @@
 		"#utils/*": "./dist/utils/*.js"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.20.0",
-		"@types/node": "^22.13.4",
-		"eslint": "^9.20.1",
+		"@eslint/js": "^9.22.0",
+		"@types/node": "^22.13.10",
+		"eslint": "^9.22.0",
 		"ffmpeg-static": "^5.2.0",
-		"globals": "^15.15.0",
-		"prettier": "^3.5.1",
-		"typescript": "^5.7.3",
-		"typescript-eslint": "^8.24.1"
+		"globals": "^16.0.0",
+		"prettier": "^3.5.3",
+		"typescript": "^5.8.2",
+		"typescript-eslint": "^8.26.1"
 	},
 	"dependencies": {
 		"@discord-player/extractor": "^7.1.0",
 		"discord-player": "^7.1.0",
-		"discord-player-deezer": "^2.4.0",
-		"discord-player-youtubei": "^1.4.2",
+		"discord-player-deezer": "^2.5.0-beta.1",
 		"discord.js": "^14.18.0",
-		"mongodb": "^6.13.0"
+		"mongodb": "^6.14.2"
 	}
 }
