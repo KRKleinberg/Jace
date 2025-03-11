@@ -3,12 +3,11 @@ services:
     build: .
     container_name: jace
     environment:
+      - DEEZER_ARL
       - DEEZER_KEY
       - DISCORD_APP_ID
       - DISCORD_BOT_TOKEN
       - ENV
       - MONGODB_COLLECTION_NAME
       - MONGODB_URL
-      - YOUTUBE_COOKIE
-      - YOUTUBE_OAUTH
     restart: always
