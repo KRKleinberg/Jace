@@ -37,7 +37,7 @@ export interface BaseCommandContext {
 	member: GuildMember;
 	preferences: Required<Data.Preferences>;
 }
-export interface AutocompleteInteractionContext extends BaseCommandContext {
+export interface AutocompleteInteractionContext extends Omit<BaseCommandContext, 'preferences'> {
 	command: AutocompleteInteraction;
 }
 export interface ChatInputCommandInteractionContext extends BaseCommandContext {

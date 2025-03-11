@@ -49,7 +49,6 @@ export const event: App.Event = {
 		App.client.on(Events.InteractionCreate, async (interaction) => {
 			const guild = interaction.guild;
 			const member = interaction.member as GuildMember | null;
-			const preferences = await Data.getPreferences({ userId: member?.user.id, guildId: guild?.id });
 
 			if (guild && member) {
 				if (interaction.isAutocomplete()) {
@@ -57,7 +56,7 @@ export const event: App.Event = {
 
 					if (slashCommand?.autocomplete) {
 						try {
-							await slashCommand.autocomplete({ command: interaction, args: [], guild, member, preferences });
+							await slashCommand.autocomplete({ command: interaction, args: [], guild, member });
 						} catch (error) {
 							console.error('Autocomplete Error -', error);
 						}
@@ -71,6 +70,8 @@ export const event: App.Event = {
 
 							await Player.client.context.provide({ guild }, async () => {
 								try {
+									const preferences = await Data.getPreferences({ userId: member.user.id, guildId: guild.id });
+
 									await slashCommand.run({ command: interaction, args: [], guild, member, preferences });
 								} catch (error) {
 									console.error('Slash Command Error -', error);
