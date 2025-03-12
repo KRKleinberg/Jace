@@ -223,7 +223,6 @@ export async function initializeExtractors() {
 	const deezerExt = await client.extractors.register(DeezerExtractor, {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		decryptor: NodeDecryptor,
 		async createStream(track, ext) {
 			console.log(track);
