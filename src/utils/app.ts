@@ -100,13 +100,13 @@ export const client = new Client({
 export const commands = new Collection<string, Command>();
 
 export async function initializeCommands() {
-	const commandFiles = getFilePaths('./dist/commands/', '.js', './dist/utils/');
+	const commandFiles = getFilePaths('./src/commands/', '.ts');
 
 	for (const commandFile of commandFiles) {
 		const { command } = (await import(commandFile)) as { command: Command };
 
 		const commandName =
-			command.data.name || command.data.setName(basename(commandFile, '.js').toLowerCase()).name;
+			command.data.name || command.data.setName(basename(commandFile, '.ts').toLowerCase()).name;
 
 		commands.set(commandName, command);
 	}
@@ -115,7 +115,7 @@ export async function initializeCommands() {
 }
 
 export async function initializeEvents() {
-	const eventFiles = getFilePaths('./dist/events', '.js', './dist/utls/');
+	const eventFiles = getFilePaths('./src/events/', '.ts');
 
 	for (const eventFile of eventFiles) {
 		const { event } = (await import(eventFile)) as { event: Event };

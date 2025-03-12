@@ -21,12 +21,6 @@ export default tseslint.config(
 	{
 		rules: {
 			'@typescript-eslint/no-misused-promises': 'off',
-			'@typescript-eslint/consistent-type-imports': [
-				'warn',
-				{
-					'fixStyle': 'inline-type-imports',
-				},
-			],
 			'curly': 'error',
 		},
 	}
