@@ -46,9 +46,11 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 				throw new Error('Deezer extractor is not registered');
 			}
 
-			const deezerSearchParams = [`track:"${track.cleanTitle}"`, `artist:"${track.author}"`];
+			const trackTitle = track.cleanTitle.substring(0, track.cleanTitle.indexOf(' (with '));
+
+			const deezerSearchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
 			const deezerFallbackSearchParams = [
-				`track:"${track.cleanTitle}"`,
+				`track:"${trackTitle}"`,
 				`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
 			];
 
@@ -84,18 +86,18 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 			const deezerTrack =
 				searchResults?.find(
 					(searchResult) =>
-						searchResult.cleanTitle === track.cleanTitle &&
+						searchResult.cleanTitle.includes(trackTitle) &&
 						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 				) ??
-				searchResults?.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+				searchResults?.find((searchResult) => searchResult.cleanTitle.includes(trackTitle)) ??
 				fallbackSearchResults?.find(
 					(searchResult) =>
-						searchResult.cleanTitle === track.cleanTitle &&
+						searchResult.cleanTitle.includes(trackTitle) &&
 						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 				) ??
-				fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle === track.cleanTitle) ??
+				fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle.includes(trackTitle)) ??
 				fallbackSearchResults?.[0];
-
+			console.log(deezerTrack);
 			if (deezerTrack) {
 				const stream = await deezerExtractor.stream(deezerTrack);
 
