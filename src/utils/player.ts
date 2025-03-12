@@ -46,56 +46,78 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 				throw new Error('Deezer extractor is not registered');
 			}
 
-			const trackTitle = track.cleanTitle.split(' (with ')[0]
-			const deezerSearchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
-			const deezerFallbackSearchParams = [
-				`track:"${trackTitle}"`,
-				`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
-			];
-
-			if (track.durationMS) {
-				deezerSearchParams.push(
-					`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
-					`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
-				);
-			}
-
-			let searchResults: Track[] | undefined;
-			let fallbackSearchResults: Track[] | undefined;
+			const trackTitle = track.cleanTitle.split(' (with ')[0];
+			let deezerTrack: Track | undefined;
 
 			try {
-				searchResults = buildTrackFromSearch(
-					await search(deezerSearchParams.join(' '), 5),
+				const searchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
+
+				if (track.durationMS) {
+					searchParams.push(
+						`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
+						`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
+					);
+				}
+
+				const searchResults = buildTrackFromSearch(
+					await search(searchParams.join(' '), 5),
 					client,
 					track.requestedBy
 				);
+
+				if (searchResults.length) {
+					deezerTrack =
+						searchResults.find(
+							(searchResult) =>
+								searchResult.cleanTitle === trackTitle &&
+								searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+						) ?? searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle);
+				}
 			} catch {
 				// No results, do nothing
 			}
 			try {
-				fallbackSearchResults = buildTrackFromSearch(
-					await search(deezerFallbackSearchParams.join(' '), 5),
-					client,
-					track.requestedBy
-				);
+				if (!deezerTrack) {
+					const searchParams = [
+						`track:"${trackTitle}"`,
+						`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
+					];
+					const searchResults = buildTrackFromSearch(
+						await search(searchParams.join(' '), 5),
+						client,
+						track.requestedBy
+					);
+
+					if (searchParams.length) {
+						deezerTrack =
+							searchResults.find(
+								(searchResult) =>
+									searchResult.cleanTitle === trackTitle &&
+									searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+							) ??
+							searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
+							searchResults[0];
+					}
+				}
 			} catch {
 				// No results, do nothing
 			}
+			try {
+				if (!deezerTrack) {
+					const searchParams = [trackTitle];
+					const searchResults = buildTrackFromSearch(
+						await search(searchParams.join(' '), 5),
+						client,
+						track.requestedBy
+					);
 
-			const deezerTrack =
-				searchResults?.find(
-					(searchResult) =>
-						searchResult.cleanTitle === trackTitle &&
-						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-				) ??
-				searchResults?.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
-				fallbackSearchResults?.find(
-					(searchResult) =>
-						searchResult.cleanTitle === trackTitle &&
-						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-				) ??
-				fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
-				fallbackSearchResults?.[0];
+					if (searchParams.length) {
+						deezerTrack = searchResults[0];
+					}
+				}
+			} catch {
+				// No results, do nothing
+			}
 
 			if (deezerTrack) {
 				const stream = await deezerExtractor.stream(deezerTrack);
