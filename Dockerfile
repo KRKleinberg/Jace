@@ -12,7 +12,5 @@ RUN npm install --omit=dev
 
 COPY . .
 
-RUN npm run build
-
 # Start the app.
 CMD ["npm", "start"]
