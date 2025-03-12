@@ -99,6 +99,7 @@ export const client = new Client({
 
 export const commands = new Collection<string, Command>();
 
+// FUNCTIONS
 export async function initializeCommands() {
 	const commandFiles = getFilePaths('./src/commands/', '.ts');
 
