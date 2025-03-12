@@ -165,7 +165,8 @@ export function createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string
 }
 
 export function convertVolume(volume: number, convertTo: 'readable' | 'queue'): number {
-	const multiplier = convertTo === 'readable' ? 10 : 0.1;
+	const factor = 0.1;
+	const multiplier = convertTo === 'readable' ? 1 / factor : factor;
 
 	return volume * multiplier;
 }
