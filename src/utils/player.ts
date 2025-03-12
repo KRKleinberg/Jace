@@ -46,8 +46,9 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 				throw new Error('Deezer extractor is not registered');
 			}
 
-			const trackTitle = track.cleanTitle.substring(0, track.cleanTitle.indexOf(' (with '));
-
+			const trackTitle = track.cleanTitle.includes(' (with ')
+				? track.cleanTitle.split(' (with ')[0]
+				: track.cleanTitle;
 			const deezerSearchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
 			const deezerFallbackSearchParams = [
 				`track:"${trackTitle}"`,
@@ -86,18 +87,18 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 			const deezerTrack =
 				searchResults?.find(
 					(searchResult) =>
-						searchResult.cleanTitle.includes(trackTitle) &&
+						searchResult.cleanTitle === trackTitle &&
 						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 				) ??
-				searchResults?.find((searchResult) => searchResult.cleanTitle.includes(trackTitle)) ??
+				searchResults?.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
 				fallbackSearchResults?.find(
 					(searchResult) =>
-						searchResult.cleanTitle.includes(trackTitle) &&
+						searchResult.cleanTitle === trackTitle &&
 						searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
 				) ??
-				fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle.includes(trackTitle)) ??
+				fallbackSearchResults?.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
 				fallbackSearchResults?.[0];
-			console.log(deezerTrack);
+
 			if (deezerTrack) {
 				const stream = await deezerExtractor.stream(deezerTrack);
 
@@ -227,11 +228,6 @@ export async function initializeExtractors() {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
 		decryptor: NodeDecryptor,
-		async createStream(track, ext) {
-			console.log(track);
-
-			return await ext.stream(track);
-		},
 	});
 	const appleMusicExt = await client.extractors.register(AppleMusicExtractor, {});
 	const spotifyExt = await client.extractors.register(SpotifyExtractor, {});
