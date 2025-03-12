@@ -46,9 +46,7 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 				throw new Error('Deezer extractor is not registered');
 			}
 
-			const trackTitle = track.cleanTitle.includes(' (with ')
-				? track.cleanTitle.split(' (with ')[0]
-				: track.cleanTitle;
+			const trackTitle = track.cleanTitle.split(' (with ')[0]
 			const deezerSearchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
 			const deezerFallbackSearchParams = [
 				`track:"${trackTitle}"`,
