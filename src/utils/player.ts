@@ -106,7 +106,7 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 				if (!deezerTrack) {
 					const searchParams = [trackTitle];
 					const searchResults = buildTrackFromSearch(
-						await search(searchParams.join(' '), 5),
+						await search(searchParams.join(' '), 1),
 						client,
 						track.requestedBy
 					);
