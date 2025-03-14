@@ -17,7 +17,7 @@ export const command: App.Command = {
 			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
 		}
 		if (ctx.member.voice.channel !== queue.channel) {
-			return App.respond(
+			return await App.respond(
 				ctx,
 				'You are not in the same voice channel as the app',
 				App.ResponseType.UserError
