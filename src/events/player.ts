@@ -5,10 +5,15 @@ import { ChannelType } from 'discord.js';
 
 export const event: App.Event = {
 	run() {
-		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
-			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
+		let errorCount = 0;
+		const errorCountReset = setTimeout(() => {
+			errorCount = 0;
+		}, 30_000);
 
+		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			console.error('Queue Error -', error);
+
+			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
 				try {
@@ -22,27 +27,64 @@ export const event: App.Event = {
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
+			console.error('Player Error -', error);
+			errorCount++;
+
 			const ctx: App.CommandContext = queue.metadata as App.CommandContext;
 
-			console.error('Player Error -', error);
-
 			if (ctx.command.channel?.type === ChannelType.GuildText) {
-				await ctx.command.channel.sendTyping();
-			}
-
-			if (!queue.isPlaying()) {
 				try {
-					queue.node.resume();
+					await ctx.command.channel.sendTyping();
 				} catch (error) {
-					console.error('Queue Resume Error -', error);
+					console.error('Channel Send Typing Error -', error);
 				}
 			}
 
-			await App.respond(
-				ctx,
-				`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-				App.ResponseType.PlayerError
-			);
+			if (errorCount <= 3) {
+				console.log('Player Error Count:', errorCount);
+
+				const queueChannel = queue.channel;
+				const queuedTracks = queue.tracks.toArray();
+
+				queue.delete();
+
+				await Player.initializeExtractors();
+
+				queue.revive();
+
+				const tracks = [track, ...queuedTracks];
+				const entry = queue.tasksQueue.acquire();
+
+				try {
+					await entry.getTask();
+
+					if (!queue.connection && queueChannel) {
+						await queue.connect(queueChannel);
+					}
+
+					if (queue.connection) {
+						queue.addTrack(tracks);
+					}
+
+					if (!queue.isPlaying()) {
+						await queue.node.play();
+					}
+				} catch (error) {
+					console.error('Queue Recovery Error -', error);
+				} finally {
+					entry.release();
+
+					errorCountReset.refresh();
+				}
+			} else {
+				errorCountReset.refresh();
+
+				await App.respond(
+					ctx,
+					`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+					App.ResponseType.PlayerError
+				);
+			}
 		});
 
 		Player.client.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
@@ -112,9 +154,9 @@ export const event: App.Event = {
 								}
 							}
 						},
-						track.durationMS / Player.getProgressBarLength(track) > 5000
+						track.durationMS / Player.getProgressBarLength(track) > 5_000
 							? track.durationMS / Player.getProgressBarLength(track)
-							: 5000
+							: 5_000
 					);
 
 					syncedLyrics.load(syncedVerses.join('\n'));
@@ -136,7 +178,7 @@ export const event: App.Event = {
 									if (queue.currentTrack === track) {
 										syncedLyrics.unsubscribe();
 									}
-								}, 5000);
+								}, 5_000);
 							} else if (currentVerse && syncedVerses[currentVerseIndex + 1]) {
 								lyrics = [
 									`**${currentVerse === waitLyric ? waitLyricBold : currentVerse}**`,
@@ -205,9 +247,9 @@ export const event: App.Event = {
 							});
 						}
 					},
-					track.durationMS / Player.getProgressBarLength(track) > 1000
+					track.durationMS / Player.getProgressBarLength(track) > 1_000
 						? track.durationMS / Player.getProgressBarLength(track)
-						: 1000
+						: 1_000
 				);
 			}
 		});

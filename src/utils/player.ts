@@ -35,9 +35,9 @@ export const client = new Player(App.client);
 export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volume'> = {
 	selfDeaf: true,
 	leaveOnEmpty: true,
-	leaveOnEmptyCooldown: 5000,
+	leaveOnEmptyCooldown: 5_000,
 	leaveOnEnd: true,
-	leaveOnEndCooldown: 300000,
+	leaveOnEndCooldown: 300_000,
 	async onBeforeCreateStream(track, queryType) {
 		const deezerExtractor = client.extractors.get(DeezerExtractor.identifier);
 
@@ -54,8 +54,8 @@ export const globalQueueOptions: Omit<GuildNodeCreateOptions, 'metadata' | 'volu
 
 				if (track.durationMS) {
 					searchParams.push(
-						`dur_min:"${(track.durationMS / 1000 - 2).toString()}"`,
-						`dur_max:"${(track.durationMS / 1000 + 2).toString()}"`
+						`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
+						`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
 					);
 				}
 
@@ -237,6 +237,10 @@ export function getProgressBarLength(track?: Track): number {
 }
 
 export async function initializeExtractors() {
+	if (!client.extractors.size) {
+		await client.extractors.unregisterAll();
+	}
+
 	if (!process.env.DEEZER_ARL) {
 		throw new Error('Missing DEEZER_ARL environment variable');
 	}
