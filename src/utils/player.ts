@@ -260,7 +260,7 @@ export async function initializeExtractors() {
 		deezerExt.priority = 1;
 	}
 	if (appleMusicExt) {
-		appleMusicExt.priority = 2;
+		appleMusicExt.priority = 4;
 	}
 	if (spotifyExt) {
 		spotifyExt.priority = 3;
