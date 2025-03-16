@@ -172,7 +172,12 @@ export const command: App.Command = {
 			entry.release();
 		}
 
-		const embed = Player.createQueuedEmbed(queue, searchResult);
+		const embed = Player.createQueuedEmbed(
+			queue,
+			searchResult,
+			ctx.command.type === InteractionType.ApplicationCommand &&
+				ctx.command.options.getSubcommand() === 'next'
+		);
 
 		return await App.respond(ctx, { embeds: [embed] });
 	},
