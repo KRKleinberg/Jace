@@ -126,7 +126,7 @@ export const event: App.Event = {
 					let index = 1;
 					const interval = setInterval(
 						async () => {
-							if (queue.currentTrack != track) {
+							if (queue.currentTrack !== track) {
 								clearInterval(interval);
 
 								const embed = Player.createPlayEmbed(queue, track);
