@@ -10,4 +10,6 @@ services:
       - ENV
       - MONGODB_COLLECTION_NAME
       - MONGODB_URL
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
     restart: always

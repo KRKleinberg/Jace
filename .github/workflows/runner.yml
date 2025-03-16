@@ -26,6 +26,8 @@ jobs:
           ENV: ${{ secrets.ENV }}
           MONGODB_COLLECTION_NAME: ${{ secrets.MONGODB_COLLECTION_NAME }}
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
       - name: Cleanup Unused Images
         run: docker image prune -f
