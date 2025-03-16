@@ -22,51 +22,39 @@ export const command: App.Command = {
 		.setDescription('Plays a song or playlist')
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName('auto')
-				.setDescription('Plays a song, album, or playlist')
-				.addStringOption((option) =>
-					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
-				)
-		)
-		.addSubcommand((subcommand) =>
-			subcommand
 				.setName('next')
 				.setDescription('Plays a song, album, or playlist at the top of the queue')
 				.addStringOption((option) =>
 					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
 				)
 		)
-		.addSubcommandGroup((subcommandGroup) =>
-			subcommandGroup
-				.setName('type')
-				.setDescription('Search type')
-				.addSubcommand((subcommand) =>
-					subcommand
-						.setName('album')
-						.setDescription('Plays an album')
-						.addStringOption((option) =>
-							option.setName('search').setDescription('The album to play').setAutocomplete(true).setRequired(true)
-						)
+
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('album')
+				.setDescription('Plays an album')
+				.addStringOption((option) =>
+					option.setName('search').setDescription('The album to play').setAutocomplete(true).setRequired(true)
 				)
-				.addSubcommand((subcommand) =>
-					subcommand
-						.setName('playlist')
-						.setDescription('Plays a playlist')
-						.addStringOption((option) =>
-							option
-								.setName('search')
-								.setDescription('The playlist to play')
-								.setAutocomplete(true)
-								.setRequired(true)
-						)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('playlist')
+				.setDescription('Plays a playlist')
+				.addStringOption((option) =>
+					option
+						.setName('search')
+						.setDescription('The playlist to play')
+						.setAutocomplete(true)
+						.setRequired(true)
 				)
-				.addSubcommand((subcommand) =>
-					subcommand
-						.setName('song')
-						.setDescription('Plays a song')
-						.addStringOption((option) =>
-							option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
-						)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('song')
+				.setDescription('Plays a song')
+				.addStringOption((option) =>
+					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
 				)
 		),
 	async autocomplete(ctx) {

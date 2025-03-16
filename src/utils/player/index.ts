@@ -57,17 +57,17 @@ export const searchTypes: SearchType[] = [
 	{
 		name: 'album',
 		modifiers: [' -album'],
-		searchEngines: [QueryType.SPOTIFY_ALBUM, QueryType.APPLE_MUSIC_ALBUM],
+		searchEngines: [],
 	},
 	{
 		name: 'playlist',
 		modifiers: [' -playlist'],
-		searchEngines: [QueryType.SPOTIFY_PLAYLIST, QueryType.APPLE_MUSIC_PLAYLIST],
+		searchEngines: [],
 	},
 	{
 		name: 'song',
 		modifiers: [' -song'],
-		searchEngines: [QueryType.SPOTIFY_SONG, QueryType.APPLE_MUSIC_SONG],
+		searchEngines: [],
 	},
 ];
 
@@ -183,11 +183,11 @@ export class Search {
 	constructor(
 		ctx: App.CommandContext | App.AutocompleteInteractionContext,
 		input: string,
-		queryType?: string
+		searchType?: string
 	) {
 		this.ctx = ctx;
 		this.input = input.trim();
-		this.searchType = queryType;
+		this.searchType = searchType;
 	}
 
 	/**
@@ -225,24 +225,34 @@ export class Search {
 			fallbackSearchEngine: QueryType.AUTO,
 		};
 
-		for (const searchSource of searchSources) {
-			for (const modifier of searchSource.modifiers) {
-				if (this.input.toLowerCase().includes(modifier)) {
-					searchOptions.searchEngine = searchSource.searchEngine;
+		if (!isUrl(this.input)) {
+			for (const searchSource of searchSources) {
+				for (const modifier of searchSource.modifiers) {
+					if (this.input.toLowerCase().includes(modifier)) {
+						searchOptions.searchEngine = searchSource.searchEngine;
+					}
 				}
 			}
-		}
 
-		for (const searchType of searchTypes) {
-			for (const modifier of searchType.modifiers) {
-				if (
-					(this.input.toLowerCase().includes(modifier) ||
-						this.searchType === searchType.name.toLowerCase()) &&
-					searchType.searchEngines.length
-				) {
+			for (const searchType of searchTypes) {
+				for (const modifier of searchType.modifiers) {
+					console.log(this.input, modifier);
+
+					if (this.input.toLowerCase().includes(modifier)) {
+						this.searchType = searchType.name;
+						console.log(this.searchType);
+					} else if (this.searchType === 'song') {
+						console.log(1, searchOptions);
+						return searchOptions;
+					}
+				}
+			}
+
+			for (const searchType of searchTypes) {
+				if (this.searchType === searchType.name && searchType.searchEngines.length) {
 					for (const searchSource of searchSources) {
-						const match = searchType.searchEngines.find((searchQueryType) =>
-							searchQueryType.includes(searchSource.name)
+						const match = searchType.searchEngines.find((searchEngine) =>
+							searchEngine.includes(searchSource.name)
 						);
 
 						if (
@@ -251,7 +261,7 @@ export class Search {
 							match
 						) {
 							searchOptions.searchEngine = match;
-
+							console.log(2, searchOptions);
 							return searchOptions;
 						}
 					}
