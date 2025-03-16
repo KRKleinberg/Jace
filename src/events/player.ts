@@ -223,32 +223,36 @@ export const event: App.Event = {
 				let index = 1;
 				const interval = setInterval(
 					async () => {
-						if (queue.currentTrack != track) {
-							clearInterval(interval);
-						}
-
-						const timestamp = queue.node.getTimestamp();
-
-						if (timestamp) {
-							const progressBarIndex = Math.round(
-								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
-							);
-
-							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
-								index = progressBarIndex;
+						if (queue.currentTrack !== track) {
+								clearInterval(interval);
 
 								const embed = Player.createPlayEmbed(queue, track);
 
+								await response.edit({ embeds: [embed] });
+						} else {
+							const timestamp = queue.node.getTimestamp();
+	
+							if (timestamp) {
+								const progressBarIndex = Math.round(
+									(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
+								);
+	
+								if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
+									index = progressBarIndex;
+	
+									const embed = Player.createPlayEmbed(queue, track);
+	
+									await response.edit({
+										embeds: [embed],
+									});
+								}
+							} else {
+								const embed = Player.createPlayEmbed(queue, track);
+	
 								await response.edit({
 									embeds: [embed],
 								});
 							}
-						} else {
-							const embed = Player.createPlayEmbed(queue, track);
-
-							await response.edit({
-								embeds: [embed],
-							});
 						}
 					},
 					track.durationMS / Player.getProgressBarLength(track) > 1_000
