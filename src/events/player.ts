@@ -10,6 +10,10 @@ export const event: App.Event = {
 			errorCount = 0;
 		}, 30_000);
 
+		/* Player.client.events.on(GuildQueueEvent.Debug, (_queue, message) => {
+			console.log(message);
+		}); */
+
 		Player.client.events.on(GuildQueueEvent.Error, async (queue, error) => {
 			console.error('Queue Error -', error);
 

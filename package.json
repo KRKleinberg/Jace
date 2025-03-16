@@ -19,7 +19,8 @@
 	},
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"imports": {
-		"#utils/*": "./src/utils/*.ts"
+		"#utils/*": "./src/utils/*.ts",
+		"#utils/player": "./src/utils/player/index.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.22.0",

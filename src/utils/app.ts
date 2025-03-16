@@ -19,6 +19,7 @@ import {
 	InteractionType,
 	type Message,
 	type SlashCommandOptionsOnlyBuilder,
+	type SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
 import { type EventEmitter } from 'stream';
 
@@ -59,7 +60,7 @@ export interface Command {
 	/** Any extra information to show in the help command. */
 	help?: string;
 	/** Slash command builder. If no name is set, command name will be automatically set to command filename. */
-	data: Omit<SlashCommandOptionsOnlyBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+	data: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
 	autocomplete?: (ctx: AutocompleteInteractionContext) => Promise<void>;
 	run: (
 		ctx: ChatInputCommandInteractionContext | MessageCommandContext

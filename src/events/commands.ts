@@ -58,7 +58,9 @@ export const event: App.Event = {
 						try {
 							await slashCommand.autocomplete({ command: interaction, args: [], guild, member });
 						} catch (error) {
-							console.error('Autocomplete Error -', error);
+							if (!String(error).includes('DiscordAPIError[10062]: Unknown interaction')) {
+								console.error('Autocomplete Error -', error);
+							}
 						}
 					}
 				} else if (interaction.isChatInputCommand()) {

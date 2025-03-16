@@ -1,50 +1,85 @@
 import { App } from '#utils/app';
-import { trunicate } from '#utils/helpers';
+import { randomizeArray } from '#utils/helpers';
 import { Player } from '#utils/player';
 import { useMetadata } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
 	aliases: ['p'],
-	help: `_To search with a specific streaming service, end your search with ${new Intl.ListFormat('en', { type: 'disjunction' }).format(Player.streamSources.map((streamSource) => `**${streamSource.name.toLowerCase()}**`))}_`,
+	help: `Input: \`search\`
+	Modifiers:
+	${Player.searchTypes
+		.flatMap((searchType) =>
+			searchType.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
+		)
+		.concat(
+			Player.searchSources.flatMap((searchSource) =>
+				searchSource.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
+			)
+		)
+		.join('\n')}`,
 	data: new SlashCommandBuilder()
 		.setDescription('Plays a song or playlist')
-		.addStringOption((option) =>
-			option
-				.setName('query')
-				.setDescription('The song or playlist to play')
-				.setAutocomplete(true)
-				.setRequired(true)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('auto')
+				.setDescription('Plays a song, album, or playlist')
+				.addStringOption((option) =>
+					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
+				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('next')
+				.setDescription('Plays a song, album, or playlist at the top of the queue')
+				.addStringOption((option) =>
+					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
+				)
+		)
+		.addSubcommandGroup((subcommandGroup) =>
+			subcommandGroup
+				.setName('type')
+				.setDescription('Search type')
+				.addSubcommand((subcommand) =>
+					subcommand
+						.setName('album')
+						.setDescription('Plays an album')
+						.addStringOption((option) =>
+							option.setName('search').setDescription('The album to play').setAutocomplete(true).setRequired(true)
+						)
+				)
+				.addSubcommand((subcommand) =>
+					subcommand
+						.setName('playlist')
+						.setDescription('Plays a playlist')
+						.addStringOption((option) =>
+							option
+								.setName('search')
+								.setDescription('The playlist to play')
+								.setAutocomplete(true)
+								.setRequired(true)
+						)
+				)
+				.addSubcommand((subcommand) =>
+					subcommand
+						.setName('song')
+						.setDescription('Plays a song')
+						.addStringOption((option) =>
+							option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true)
+						)
+				)
 		),
 	async autocomplete(ctx) {
-		const search = new Player.Search(ctx, ctx.command.options.getString('query', true));
+		const search = new Player.Search(
+			ctx,
+			ctx.command.options.getString('search', true),
+			ctx.command.options.getSubcommand()
+		);
 
 		if (search.query.length) {
-			const searchResult = await search.getResult();
+			const searchResults = await search.getResult(true);
 
-			await ctx.command.respond(
-				searchResult.playlist
-					? [
-							{
-								name: trunicate(
-									`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`,
-									100,
-									'...'
-								),
-								value:
-									searchResult.playlist.url.length <= 100
-										? searchResult.playlist.url
-										: trunicate(`${searchResult.playlist.title} — ${searchResult.playlist.author.name}`, 100),
-							},
-						]
-					: searchResult.tracks.slice(0, 5).map((track) => ({
-							name: trunicate(`${track.cleanTitle} — ${track.author}`, 100, '...'),
-							value:
-								track.url.length <= 100
-									? track.url
-									: trunicate(`${track.cleanTitle} — ${track.author}`, 100, '...'),
-						}))
-			);
+			await ctx.command.respond(searchResults);
 		} else {
 			await ctx.command.respond([]);
 		}
@@ -73,7 +108,7 @@ export const command: App.Command = {
 		const search = new Player.Search(
 			ctx,
 			ctx.command.type === InteractionType.ApplicationCommand
-				? ctx.command.options.getString('query', true)
+				? ctx.command.options.getString('search', true)
 				: ctx.args.join(' ')
 		);
 
@@ -95,6 +130,11 @@ export const command: App.Command = {
 		}
 
 		const searchResult = await search.getResult();
+
+		if (!searchResult.playlist && !searchResult.tracks.length) {
+			return await App.respond(ctx, 'No results found', App.ResponseType.UserError);
+		}
+
 		const entry = queue.tasksQueue.acquire();
 
 		await entry.getTask();
@@ -111,7 +151,26 @@ export const command: App.Command = {
 			}
 		}
 
-		queue.addTrack(searchResult.playlist?.tracks ?? searchResult.tracks[0]);
+		if (
+			ctx.command.type === InteractionType.ApplicationCommand &&
+			ctx.command.options.getSubcommand() === 'next'
+		) {
+			if (searchResult.playlist) {
+				for (const track of searchResult.playlist.tracks.reverse()) {
+					queue.insertTrack(track);
+				}
+			} else {
+				queue.insertTrack(searchResult.tracks[0]);
+			}
+		} else {
+			queue.addTrack(
+				searchResult.playlist
+					? searchResult.playlist.type === 'playlist'
+						? randomizeArray(searchResult.playlist.tracks)
+						: searchResult.playlist.tracks
+					: searchResult.tracks[0]
+			);
+		}
 
 		try {
 			if (!queue.isPlaying()) {

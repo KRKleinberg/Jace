@@ -1,5 +1,6 @@
 import { App } from '#utils/app';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { randomizeArray } from '#utils/helpers';
+import { EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
 
 export const command: App.Command = {
 	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
@@ -9,11 +10,15 @@ export const command: App.Command = {
 		}
 
 		try {
-			const voiceMembers = ctx.member.voice.channel.members
-				.filter((member) => !member.user.bot)
-				.map((voiceMember) => ({ voiceMember, sort: Math.random() }))
-				.sort((a, b) => a.sort - b.sort)
-				.map(({ voiceMember }) => voiceMember);
+			const voiceMembers = randomizeArray(
+				ctx.member.voice.channel.members.reduce((voiceMembers: GuildMember[], voiceMember) => {
+					if (!voiceMember.user.bot) {
+						voiceMembers.push(voiceMember);
+					}
+
+					return voiceMembers;
+				}, [])
+			);
 			const half = Math.ceil(voiceMembers.length / 2);
 			const embed = new EmbedBuilder()
 				.setTitle('Teams')
