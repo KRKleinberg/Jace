@@ -1,6 +1,6 @@
 {
 	"name": "jace",
-	"version": "9.0.0-dev.4",
+	"version": "9.0.0-dev.5",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
@@ -20,6 +20,8 @@
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"imports": {
 		"#utils/*": "./src/utils/*.ts",
+		"#utils/app": "./src/utils/app/index.ts",
+		"#utils/data": "./src/utils/data/index.ts",
 		"#utils/player": "./src/utils/player/index.ts"
 	},
 	"devDependencies": {

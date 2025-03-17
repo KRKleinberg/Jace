@@ -1,8 +1,8 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { QueueRepeatMode, useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	data: new SlashCommandBuilder()
 		.setDescription('Sets loop mode')
 		.addStringOption((option) =>
@@ -43,20 +43,16 @@ export const command: App.Command = {
 		];
 
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channnel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channnel', 'USER_ERROR');
 		}
 		if (!queue || queue.isEmpty()) {
-			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
+			return await App.respond(ctx, 'There are no tracks in the queue', 'USER_ERROR');
 		}
 		if (ctx.member.voice.channel !== queue.channel) {
-			return await App.respond(
-				ctx,
-				'You are not in the same voice channel as the app',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 		if (!queue.isPlaying()) {
-			return await App.respond(ctx, 'There are no tracks playing', App.ResponseType.UserError);
+			return await App.respond(ctx, 'There are no tracks playing', 'USER_ERROR');
 		}
 
 		try {
@@ -86,7 +82,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Queue Repeat Mode Error -', error);
 
-			return await App.respond(ctx, 'Could not set loop mode', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not set loop mode', 'APP_ERROR');
 		}
 
 		return await App.respond(

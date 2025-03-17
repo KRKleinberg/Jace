@@ -1,8 +1,8 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	aliases: ['rm'],
 	data: new SlashCommandBuilder()
 		.setDescription('Removes a track from the queue')
@@ -22,20 +22,16 @@ export const command: App.Command = {
 		const track = queue?.tracks.toArray()[trackNumber];
 
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
 		}
 		if (!currentTrack) {
-			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
+			return await App.respond(ctx, 'There are no tracks in the queue', 'USER_ERROR');
 		}
 		if (ctx.member.voice.channel !== queue.channel) {
-			return await App.respond(
-				ctx,
-				'You are not in the same voice channel as the app',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 		if (!track) {
-			return await App.respond(ctx, 'Please enter a valid track number', App.ResponseType.UserError);
+			return await App.respond(ctx, 'Please enter a valid track number', 'USER_ERROR');
 		}
 
 		try {
@@ -43,7 +39,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Queue Remove Track Error -', error);
 
-			return await App.respond(ctx, 'Could not remove that track', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not remove that track', 'APP_ERROR');
 		}
 
 		return await App.respond(ctx, `⏭️\u2002Removed _${track.cleanTitle}_ by _${track.author}_`);

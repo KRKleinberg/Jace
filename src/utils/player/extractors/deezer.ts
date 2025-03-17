@@ -1,4 +1,4 @@
-import { Player } from '#utils/player';
+import { Player, type PlayerSearchSource } from '#utils/player';
 import type { Track } from 'discord-player';
 import {
 	DeezerExtractor,
@@ -15,9 +15,9 @@ export let extractor: DeezerExtractor | null;
 
 const priority = 10;
 
-const searchSource: Player.SearchSource = {
+const searchSource: PlayerSearchSource = {
 	name: 'deezer',
-	modifiers: [' -deezer', ' -dz'],
+	modifiers: ['-deezer', '-dz'],
 	streamable: true,
 	searchEngine: `ext:${DeezerExtractor.identifier}`,
 };
@@ -32,10 +32,10 @@ export async function registerExtractor() {
 	}
 
 	if (extractor) {
-		await Player.client.extractors.unregister(extractor);
+		await Player.extractors.unregister(extractor);
 	}
 
-	extractor = await Player.client.extractors.register(DeezerExtractor, {
+	extractor = await Player.extractors.register(DeezerExtractor, {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
 		decryptor: NodeDecryptor,
@@ -71,7 +71,7 @@ export async function bridgeTrack(track: Track) {
 
 			const searchResults = buildTrackFromSearch(
 				await search(searchParams.join(' '), 5),
-				Player.client,
+				Player,
 				track.requestedBy
 			);
 
@@ -94,7 +94,7 @@ export async function bridgeTrack(track: Track) {
 				];
 				const searchResults = buildTrackFromSearch(
 					await search(searchParams.join(' '), 5),
-					Player.client,
+					Player,
 					track.requestedBy
 				);
 
@@ -117,7 +117,7 @@ export async function bridgeTrack(track: Track) {
 				const searchParams = [trackTitle];
 				const searchResults = buildTrackFromSearch(
 					await search(searchParams.join(' '), 1),
-					Player.client,
+					Player,
 					track.requestedBy
 				);
 

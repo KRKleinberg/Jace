@@ -1,8 +1,8 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { useHistory, useQueue, useTimeline } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	data: new SlashCommandBuilder().setDescription('Plays the previous track'),
 	async run(ctx) {
 		const history = useHistory();
@@ -10,14 +10,10 @@ export const command: App.Command = {
 		const timeline = useTimeline();
 
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
 		}
 		if (ctx.member.voice.channel !== queue?.channel) {
-			return await App.respond(
-				ctx,
-				'You are not in the same voice channel as the app',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 		if (!history || history.isEmpty()) {
 			try {
@@ -25,7 +21,7 @@ export const command: App.Command = {
 			} catch (error) {
 				console.error('Seek Error -', error);
 
-				return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
+				return await App.respond(ctx, 'Could not go back a track', 'APP_ERROR');
 			}
 
 			return await App.respond(ctx, `⏮️\u2002Restarting track`);
@@ -36,7 +32,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('History Error -', error);
 
-			return await App.respond(ctx, 'Could not go back a track', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not go back a track', 'APP_ERROR');
 		}
 
 		return await App.respond(ctx, '⏮️\u2002Playing previous track');

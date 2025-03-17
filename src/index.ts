@@ -6,4 +6,4 @@ await Player.initializeExtractors();
 await App.initializeCommands();
 await App.initializeEvents();
 
-await App.client.login(process.env.DISCORD_BOT_TOKEN);
+await App.login(process.env.DISCORD_BOT_TOKEN);

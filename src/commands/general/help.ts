@@ -1,4 +1,4 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import {
 	ApplicationCommandOptionType,
 	EmbedBuilder,
@@ -6,7 +6,7 @@ import {
 	type APIEmbedField,
 } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	aliases: ['h'],
 	data: new SlashCommandBuilder().setDescription('Displays a list of commands'),
 	async run(ctx) {
@@ -44,7 +44,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Help Command Error -', error);
 
-			return await App.respond(ctx, 'Could not display commands', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not display commands', 'APP_ERROR');
 		}
 	},
 };

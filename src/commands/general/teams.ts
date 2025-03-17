@@ -1,12 +1,12 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { randomizeArray } from '#utils/helpers';
 import { EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
 	async run(ctx) {
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
 		}
 
 		try {
@@ -44,7 +44,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Teams Command Error -', error);
 
-			return await App.respond(ctx, 'Could not display teams', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not display teams', 'APP_ERROR');
 		}
 	},
 };

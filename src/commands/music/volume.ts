@@ -1,10 +1,10 @@
-import { App } from '#utils/app';
-import { collection } from '#utils/data';
+import { App, type Command } from '#utils/app';
+import { Data } from '#utils/data';
 import { Player } from '#utils/player';
 import { useQueue } from 'discord-player';
 import { InteractionType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	aliases: ['vol'],
 	data: new SlashCommandBuilder()
 		.setDescription('Displays or sets the volume for the server')
@@ -28,11 +28,7 @@ export const command: App.Command = {
 						: parseInt(ctx.args[0]);
 
 		if (!ctx.member.permissions.has(PermissionFlagsBits.Administrator)) {
-			return await App.respond(
-				ctx,
-				'Only an administrator can execute this command',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'Only an administrator can execute this command', 'USER_ERROR');
 		}
 		if (!volume) {
 			if (queue?.node.volume) {
@@ -41,7 +37,7 @@ export const command: App.Command = {
 					`${Player.convertVolume(queue.node.volume, 'readable') < 50 ? '🔉' : '🔊'}\u2002Volume set to _${Player.convertVolume(queue.node.volume, 'readable').toString()}%_`
 				);
 			} else {
-				return await App.respond(ctx, 'Could not display volume', App.ResponseType.AppError);
+				return await App.respond(ctx, 'Could not display volume', 'APP_ERROR');
 			}
 		}
 
@@ -52,11 +48,11 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Queue Set Volume Error -', error);
 
-			return await App.respond(ctx, 'Could not set volume', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not set volume', 'APP_ERROR');
 		}
 
 		try {
-			await collection.updateOne(
+			await Data.collection.updateOne(
 				{ discordId: ctx.guild.id },
 				{ $set: { preferences: { volume } } },
 				{ upsert: true }

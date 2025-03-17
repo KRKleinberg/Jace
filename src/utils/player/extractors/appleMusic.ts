@@ -1,4 +1,4 @@
-import { Player } from '#utils/player';
+import { Player, type PlayerSearchSource } from '#utils/player';
 import { AppleMusicExtractor } from '@discord-player/extractor';
 import { QueryType } from 'discord-player';
 
@@ -9,9 +9,9 @@ export let extractor: AppleMusicExtractor | null;
 
 const priority = 20;
 
-const searchSource: Player.SearchSource = {
+const searchSource: PlayerSearchSource = {
 	name: 'appleMusic',
-	modifiers: [' -applemusic', ' -am'],
+	modifiers: ['-applemusic', '-am'],
 	streamable: false,
 	searchEngine: QueryType.APPLE_MUSIC_SEARCH,
 };
@@ -19,10 +19,10 @@ const searchSource: Player.SearchSource = {
 // FUNCTIONS
 export async function registerExtractor() {
 	if (extractor) {
-		await Player.client.extractors.unregister(extractor);
+		await Player.extractors.unregister(extractor);
 	}
 
-	extractor = await Player.client.extractors.register(AppleMusicExtractor, {});
+	extractor = await Player.extractors.register(AppleMusicExtractor, {});
 
 	if (extractor) {
 		extractor.priority = priority;

@@ -1,9 +1,9 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { durationToMs } from '#utils/helpers';
 import { useQueue, useTimeline } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	data: new SlashCommandBuilder()
 		.setDescription('Seeks to a given time on a the currently playing track')
 		.addStringOption((option) =>
@@ -20,20 +20,16 @@ export const command: App.Command = {
 		);
 
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
 		}
 		if (!currentTrack || !timeline) {
-			return await App.respond(ctx, 'There are no tracks in the queue', App.ResponseType.UserError);
+			return await App.respond(ctx, 'There are no tracks in the queue', 'USER_ERROR');
 		}
 		if (ctx.member.voice.channel !== queue?.channel) {
-			return await App.respond(
-				ctx,
-				'You are not in the same voice channel as the app',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 		if (!position && position !== 0) {
-			return await App.respond(ctx, 'Please enter a valid time to seek to', App.ResponseType.UserError);
+			return await App.respond(ctx, 'Please enter a valid time to seek to', 'USER_ERROR');
 		}
 		if (currentTrack.durationMS <= position) {
 			try {
@@ -41,7 +37,7 @@ export const command: App.Command = {
 			} catch (error) {
 				console.error('Queue Skip Error -', error);
 
-				return await App.respond(ctx, 'Could not skip the track', App.ResponseType.AppError);
+				return await App.respond(ctx, 'Could not skip the track', 'APP_ERROR');
 			}
 
 			return await App.respond(
@@ -57,7 +53,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Seek Error -', error);
 
-			return await App.respond(ctx, 'Could not seek to that position', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not seek to that position', 'APP_ERROR');
 		}
 
 		return await App.respond(

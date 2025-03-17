@@ -53,7 +53,7 @@ export function getFilePaths(
 	/** The file extension you are searching for. */
 	ext: string,
 	/** The current working directory. */
-	cwd = './src/utils/'
+	cwd: string
 ) {
 	const files = fs.readdirSync(dir);
 	let results: string[] = [];

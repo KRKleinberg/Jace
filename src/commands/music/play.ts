@@ -1,10 +1,10 @@
-import { App } from '#utils/app';
+import { App, type Command } from '#utils/app';
 import { randomizeArray } from '#utils/helpers';
-import { Player } from '#utils/player';
+import { Player, PlayerSearch } from '#utils/player';
 import { useMetadata } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
-export const command: App.Command = {
+export const command: Command = {
 	aliases: ['p'],
 	help: `Input: \`search\`
 	Modifiers:
@@ -12,6 +12,7 @@ export const command: App.Command = {
 		.flatMap((searchType) =>
 			searchType.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
 		)
+		.concat([`\`-next\``])
 		.concat(
 			Player.searchSources.flatMap((searchSource) =>
 				searchSource.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
@@ -58,7 +59,7 @@ export const command: App.Command = {
 				)
 		),
 	async autocomplete(ctx) {
-		const search = new Player.Search(
+		const search = new PlayerSearch(
 			ctx,
 			ctx.command.options.getString('search', true),
 			ctx.command.options.getSubcommand()
@@ -74,10 +75,10 @@ export const command: App.Command = {
 	},
 	async run(ctx) {
 		if (!ctx.member.voice.channel) {
-			return await App.respond(ctx, 'You are not in a voice channel', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
 		}
 
-		const queue = Player.client.nodes.create(ctx.guild, {
+		const queue = Player.nodes.create(ctx.guild, {
 			...Player.globalQueueOptions,
 			volume: Player.convertVolume(ctx.preferences.volume, 'queue'),
 		});
@@ -86,14 +87,10 @@ export const command: App.Command = {
 		setMetadata(ctx);
 
 		if (queue.connection && ctx.member.voice.channel !== queue.channel) {
-			return await App.respond(
-				ctx,
-				'You are not in the same voice channel as the app',
-				App.ResponseType.UserError
-			);
+			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 
-		const search = new Player.Search(
+		const search = new PlayerSearch(
 			ctx,
 			ctx.command.type === InteractionType.ApplicationCommand
 				? ctx.command.options.getString('search', true)
@@ -114,13 +111,13 @@ export const command: App.Command = {
 				}
 			}
 
-			return await App.respond(ctx, 'You did not enter a search query', App.ResponseType.UserError);
+			return await App.respond(ctx, 'You did not enter a search query', 'USER_ERROR');
 		}
 
 		const searchResult = await search.getResult();
 
 		if (!searchResult.playlist && !searchResult.tracks.length) {
-			return await App.respond(ctx, 'No results found', App.ResponseType.UserError);
+			return await App.respond(ctx, 'No results found', 'USER_ERROR');
 		}
 
 		const entry = queue.tasksQueue.acquire();
@@ -135,13 +132,14 @@ export const command: App.Command = {
 
 				entry.release();
 
-				return await App.respond(ctx, 'Could not join your voice channel', App.ResponseType.AppError);
+				return await App.respond(ctx, 'Could not join your voice channel', 'APP_ERROR');
 			}
 		}
 
 		if (
-			ctx.command.type === InteractionType.ApplicationCommand &&
-			ctx.command.options.getSubcommand() === 'next'
+			search.input.includes('-next') ||
+			(ctx.command.type === InteractionType.ApplicationCommand &&
+				ctx.command.options.getSubcommand() === 'next')
 		) {
 			if (searchResult.playlist) {
 				for (const track of searchResult.playlist.tracks.reverse()) {
@@ -167,7 +165,7 @@ export const command: App.Command = {
 		} catch (error) {
 			console.error('Queue Play Error -', error);
 
-			return await App.respond(ctx, 'Could not play this track', App.ResponseType.AppError);
+			return await App.respond(ctx, 'Could not play this track', 'APP_ERROR');
 		} finally {
 			entry.release();
 		}

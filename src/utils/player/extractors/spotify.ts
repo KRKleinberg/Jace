@@ -1,5 +1,5 @@
 import { SpotifyAPI, type SpotifyAlbum, type SpotifyPlaylist } from '#utils/api/spotify';
-import { Player } from '#utils/player';
+import { Player, type PlayerSearchSource } from '#utils/player';
 import {
 	BaseExtractor,
 	Playlist,
@@ -15,21 +15,14 @@ import type { Readable } from 'stream';
 
 export * as Spotify from '#utils/player/extractors/spotify';
 
-// INTERFACES
-export interface SearchResult {
-	title: string;
-	artist: string;
-	url: string;
-}
-
 // VARIABLES
 export let extractor: SpotifyExtractor | null;
 
 const priority = 30;
 
-const searchSource: Player.SearchSource = {
+const searchSource: PlayerSearchSource = {
 	name: 'spotify',
-	modifiers: [' -spotify', ' -sp'],
+	modifiers: ['-spotify', '-sp'],
 	streamable: false,
 	searchEngine: QueryType.SPOTIFY_SEARCH,
 };
@@ -37,7 +30,7 @@ const searchSource: Player.SearchSource = {
 // FUNCTIONS
 export async function registerExtractor() {
 	if (extractor) {
-		await Player.client.extractors.unregister(extractor);
+		await Player.extractors.unregister(extractor);
 	}
 
 	if (!process.env.SPOTIFY_CLIENT_ID) {
@@ -47,7 +40,7 @@ export async function registerExtractor() {
 		throw new Error('Missing SPOTIFY_CLIENT_SECRET environment variable');
 	}
 
-	extractor = await Player.client.extractors.register(SpotifyExtractor, {
+	extractor = await Player.extractors.register(SpotifyExtractor, {
 		clientId: process.env.SPOTIFY_CLIENT_ID,
 		clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 	});
