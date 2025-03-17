@@ -6,7 +6,7 @@ import {
 import { ExtractorExecutionContext, QueryType } from 'discord-player';
 
 // CLASSES
-class AppleMusicExtractor extends AMExtractor {
+export class AppleMusicExtractor extends AMExtractor {
 	public priority = 20;
 	public searchSource: PlayerSearchSource = {
 		name: 'appleMusic',
@@ -33,16 +33,11 @@ class AppleMusicExtractor extends AMExtractor {
 	}
 }
 
-// VARIABLES
-export let appleMusicExtractor: AppleMusicExtractor | null;
-
 // FUNCTIONS
 export async function registerAppleMusic() {
-	if (appleMusicExtractor) {
-		await Player.extractors.unregister(appleMusicExtractor);
+	if (Player.extractors.get(AppleMusicExtractor.identifier)) {
+		await Player.extractors.unregister(AppleMusicExtractor.identifier);
 	}
 
-	appleMusicExtractor = await Player.extractors.register(AppleMusicExtractor, {});
-
-	return appleMusicExtractor;
+	await Player.extractors.register(AppleMusicExtractor, {});
 }

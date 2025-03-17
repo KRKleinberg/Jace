@@ -2,7 +2,7 @@ import { App, type AutocompleteInteractionContext, type CommandContext } from '#
 import { createNumberedList, trunicate } from '#utils/helpers';
 import { registerAppleMusic } from '#utils/player/extractors/appleMusic';
 import { registerDeezer } from '#utils/player/extractors/deezer';
-import { registerSpotify, spotifyExtractor } from '#utils/player/extractors/spotify';
+import { registerSpotify, SpotifyExtractor } from '#utils/player/extractors/spotify';
 import {
 	Player as DiscordPlayer,
 	type GuildNodeCreateOptions,
@@ -269,47 +269,24 @@ export class PlayerSearch {
 	): Promise<SearchResult | ApplicationCommandOptionChoiceData[]> {
 		if (autocomplete) {
 			if (!isUrl(this.query)) {
-				switch (this.searchOptions.searchEngine) {
-					case QueryType.SPOTIFY_ALBUM: {
-						const spotifyAlbums = await spotifyExtractor?.internal.searchAlbums(this.query);
+				const spotifyExtractor = Player.extractors.get(SpotifyExtractor.identifier);
 
-						if (spotifyAlbums) {
-							return spotifyAlbums.items.reduce(
-								(responses: ApplicationCommandOptionChoiceData[], spotifyAlbum) => {
-									if (responses.length < 5 && spotifyAlbum.total_tracks > 1) {
-										const name = spotifyAlbum.name;
-										const artist = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
-										const url = spotifyAlbum.external_urls.spotify;
+				if (spotifyExtractor && spotifyExtractor instanceof SpotifyExtractor) {
+					switch (this.searchOptions.searchEngine) {
+						case QueryType.SPOTIFY_ALBUM: {
+							const spotifyAlbums = await spotifyExtractor.internal.searchAlbums(this.query);
 
-										responses.push({
-											name: trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
-											value: url.length <= 100 ? url : trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
-										});
-									}
-
-									return responses;
-								},
-								[]
-							);
-						}
-
-						break;
-					}
-					case QueryType.SPOTIFY_PLAYLIST:
-						{
-							const spotifyPlaylists = await spotifyExtractor?.internal.searchPlaylists(this.query);
-
-							if (spotifyPlaylists) {
-								return spotifyPlaylists.items.reduce(
-									(responses: ApplicationCommandOptionChoiceData[], spotifyPlaylist) => {
-										if (responses.length < 5 && spotifyPlaylist !== null) {
-											const name = spotifyPlaylist.name;
-											const owner = spotifyPlaylist.owner.display_name;
-											const url = spotifyPlaylist.external_urls.spotify;
+							if (spotifyAlbums) {
+								return spotifyAlbums.items.reduce(
+									(responses: ApplicationCommandOptionChoiceData[], spotifyAlbum) => {
+										if (responses.length < 5 && spotifyAlbum.total_tracks > 1) {
+											const name = spotifyAlbum.name;
+											const artist = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
+											const url = spotifyAlbum.external_urls.spotify;
 
 											responses.push({
-												name: trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
-												value: url.length <= 100 ? url : trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
+												name: trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
+												value: url.length <= 100 ? url : trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
 											});
 										}
 
@@ -318,9 +295,38 @@ export class PlayerSearch {
 									[]
 								);
 							}
-						}
 
-						break;
+							break;
+						}
+						case QueryType.SPOTIFY_PLAYLIST:
+							{
+								const spotifyPlaylists = await spotifyExtractor.internal.searchPlaylists(this.query);
+
+								if (spotifyPlaylists) {
+									return spotifyPlaylists.items.reduce(
+										(responses: ApplicationCommandOptionChoiceData[], spotifyPlaylist) => {
+											if (responses.length < 5 && spotifyPlaylist !== null) {
+												const name = spotifyPlaylist.name;
+												const owner = spotifyPlaylist.owner.display_name;
+												const url = spotifyPlaylist.external_urls.spotify;
+
+												responses.push({
+													name: trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
+													value: url.length <= 100 ? url : trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
+												});
+											}
+
+											return responses;
+										},
+										[]
+									);
+								}
+							}
+
+							break;
+					}
+				} else {
+					return [];
 				}
 			}
 

@@ -22,7 +22,7 @@ interface SpotifyExtractorInit {
 }
 
 // CLASSES
-class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
+export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	public static identifier = 'com.krkleinberg.spotifyextractor' as const;
 	private _stream?: (url: string, track: Track) => Promise<Readable | string>;
 	private _credentials = {
@@ -330,9 +330,6 @@ class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	}
 }
 
-// VARIABLES
-export let spotifyExtractor: SpotifyExtractor | null;
-
 // FUNCTIONS
 export async function registerSpotify() {
 	if (!process.env.SPOTIFY_CLIENT_ID) {
@@ -346,11 +343,11 @@ export async function registerSpotify() {
 		return;
 	}
 
-	if (spotifyExtractor) {
-		await Player.extractors.unregister(spotifyExtractor);
+	if (Player.extractors.get(SpotifyExtractor.identifier)) {
+		await Player.extractors.unregister(SpotifyExtractor.identifier);
 	}
 
-	spotifyExtractor = await Player.extractors.register(SpotifyExtractor, {
+	await Player.extractors.register(SpotifyExtractor, {
 		clientId: process.env.SPOTIFY_CLIENT_ID,
 		clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 	});

@@ -9,7 +9,7 @@ import {
 } from 'discord-player-deezer';
 
 // CLASSES
-class DeezerExtractor extends DZExtractor {
+export class DeezerExtractor extends DZExtractor {
 	public priority = 10;
 	public searchSource: PlayerSearchSource = {
 		name: 'deezer',
@@ -27,10 +27,6 @@ class DeezerExtractor extends DZExtractor {
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
 		{
 			if (track.queryType?.includes('appleMusic') || track.queryType?.includes('spotify')) {
-				if (!deezerExtractor) {
-					throw new Error('Deezer extractor is not registered');
-				}
-
 				const trackTitle = track.cleanTitle.split(' (with ')[0];
 				let deezerTrack: Track | undefined;
 
@@ -61,6 +57,7 @@ class DeezerExtractor extends DZExtractor {
 				} catch {
 					// No results, do nothing
 				}
+
 				try {
 					if (!deezerTrack) {
 						const searchParams = [
@@ -105,9 +102,9 @@ class DeezerExtractor extends DZExtractor {
 				}
 
 				if (deezerTrack) {
-					const stream = await deezerExtractor.stream(deezerTrack);
+					const stream = await this.stream(deezerTrack);
 
-					track.bridgedExtractor = deezerExtractor;
+					track.bridgedExtractor = this;
 					track.bridgedTrack = deezerTrack;
 
 					if (!track.durationMS) {
@@ -123,9 +120,6 @@ class DeezerExtractor extends DZExtractor {
 	}
 }
 
-// VARIABLES
-export let deezerExtractor: DeezerExtractor | null;
-
 // FUNCTIONS
 export async function registerDeezer() {
 	if (!process.env.DEEZER_ARL) {
@@ -139,11 +133,11 @@ export async function registerDeezer() {
 		return;
 	}
 
-	if (deezerExtractor) {
-		await Player.extractors.unregister(deezerExtractor);
+	if (Player.extractors.get(DeezerExtractor.identifier)) {
+		await Player.extractors.unregister(DeezerExtractor.identifier);
 	}
 
-	deezerExtractor = await Player.extractors.register(DeezerExtractor, {
+	await Player.extractors.register(DeezerExtractor, {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
 		decryptor: NodeDecryptor,
