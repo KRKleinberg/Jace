@@ -2,6 +2,7 @@ import { SpotifyAPI, type SpotifyAlbum, type SpotifyPlaylist } from '#utils/api/
 import { Player, type PlayerSearchSource } from '#utils/player';
 import {
 	BaseExtractor,
+	ExtractorExecutionContext,
 	Playlist,
 	QueryType,
 	Track,
@@ -13,58 +14,7 @@ import {
 } from 'discord-player';
 import type { Readable } from 'stream';
 
-export * as Spotify from '#utils/player/extractors/spotify';
-
-// VARIABLES
-export let extractor: SpotifyExtractor | null;
-
-const priority = 30;
-
-const searchSource: PlayerSearchSource = {
-	name: 'spotify',
-	modifiers: ['-spotify', '-sp'],
-	streamable: false,
-	searchEngine: QueryType.SPOTIFY_SEARCH,
-};
-
-// FUNCTIONS
-export async function registerExtractor() {
-	if (extractor) {
-		await Player.extractors.unregister(extractor);
-	}
-
-	if (!process.env.SPOTIFY_CLIENT_ID) {
-		throw new Error('Missing SPOTIFY_CLIENT_ID environment variable');
-	}
-	if (!process.env.SPOTIFY_CLIENT_SECRET) {
-		throw new Error('Missing SPOTIFY_CLIENT_SECRET environment variable');
-	}
-
-	extractor = await Player.extractors.register(SpotifyExtractor, {
-		clientId: process.env.SPOTIFY_CLIENT_ID,
-		clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-	});
-
-	if (extractor) {
-		extractor.priority = priority;
-
-		Player.searchSources.push(searchSource);
-		Player.searchTypes.map((searchType) => {
-			if (searchType.name === 'album') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_ALBUM);
-			}
-			if (searchType.name === 'playlist') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_PLAYLIST);
-			}
-			if (searchType.name === 'song') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_SONG);
-			}
-		});
-	}
-
-	return SpotifyExtractor;
-}
-
+// INTERFACES
 interface SpotifyExtractorInit {
 	clientId: string;
 	clientSecret: string;
@@ -79,7 +29,31 @@ class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		clientId: this.options.clientId,
 		clientSecret: this.options.clientSecret,
 	};
-	public internal = new SpotifyAPI(this._credentials);
+	public readonly internal = new SpotifyAPI(this._credentials);
+	public priority = 30;
+	public searchSource: PlayerSearchSource = {
+		name: 'spotify',
+		modifiers: ['-spotify', '-sp'],
+		streamable: false,
+		searchEngine: QueryType.SPOTIFY_SEARCH,
+	};
+
+	constructor(context: ExtractorExecutionContext, options?: SpotifyExtractorInit) {
+		super(context, options);
+
+		Player.searchSources.push(this.searchSource);
+		Player.searchTypes.map((searchType) => {
+			if (searchType.name === 'album') {
+				return searchType.searchEngines.push(QueryType.SPOTIFY_ALBUM);
+			}
+			if (searchType.name === 'playlist') {
+				return searchType.searchEngines.push(QueryType.SPOTIFY_PLAYLIST);
+			}
+			if (searchType.name === 'song') {
+				return searchType.searchEngines.push(QueryType.SPOTIFY_SONG);
+			}
+		});
+	}
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async activate(): Promise<void> {
@@ -354,4 +328,30 @@ class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 
 		return { queryType, id };
 	}
+}
+
+// VARIABLES
+export let spotifyExtractor: SpotifyExtractor | null;
+
+// FUNCTIONS
+export async function registerSpotify() {
+	if (!process.env.SPOTIFY_CLIENT_ID) {
+		console.error('Missing SPOTIFY_CLIENT_ID environment variable');
+
+		return;
+	}
+	if (!process.env.SPOTIFY_CLIENT_SECRET) {
+		console.error('Missing SPOTIFY_CLIENT_SECRET environment variable');
+
+		return;
+	}
+
+	if (spotifyExtractor) {
+		await Player.extractors.unregister(spotifyExtractor);
+	}
+
+	spotifyExtractor = await Player.extractors.register(SpotifyExtractor, {
+		clientId: process.env.SPOTIFY_CLIENT_ID,
+		clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+	});
 }

@@ -1,8 +1,8 @@
 import { App, type AutocompleteInteractionContext, type CommandContext } from '#utils/app';
 import { createNumberedList, trunicate } from '#utils/helpers';
-import { AppleMusic } from '#utils/player/extractors/appleMusic';
-import { Deezer } from '#utils/player/extractors/deezer';
-import { Spotify } from '#utils/player/extractors/spotify';
+import { registerAppleMusic } from '#utils/player/extractors/appleMusic';
+import { registerDeezer } from '#utils/player/extractors/deezer';
+import { registerSpotify, spotifyExtractor } from '#utils/player/extractors/spotify';
 import {
 	Player as DiscordPlayer,
 	type GuildNodeCreateOptions,
@@ -43,9 +43,6 @@ class PlayerClient extends DiscordPlayer {
 		leaveOnEmptyCooldown: 5000,
 		leaveOnEnd: true,
 		leaveOnEndCooldown: 300_000,
-		async onBeforeCreateStream(track) {
-			return await Deezer.bridgeTrack(track);
-		},
 	};
 	public searchSources: PlayerSearchSource[] = [];
 	public searchTypes: PlayerSearchType[] = [
@@ -157,9 +154,9 @@ class PlayerClient extends DiscordPlayer {
 	}
 
 	public async initializeExtractors() {
-		await Spotify.registerExtractor();
-		await AppleMusic.registerExtractor();
-		await Deezer.registerExtractor();
+		await registerSpotify();
+		await registerAppleMusic();
+		await registerDeezer();
 
 		if (!this.searchSources.some((searchSource) => searchSource.streamable)) {
 			throw new Error('No streamable extractors were registered!');
@@ -274,7 +271,7 @@ export class PlayerSearch {
 			if (!isUrl(this.query)) {
 				switch (this.searchOptions.searchEngine) {
 					case QueryType.SPOTIFY_ALBUM: {
-						const spotifyAlbums = await Spotify.extractor?.internal.searchAlbums(this.query);
+						const spotifyAlbums = await spotifyExtractor?.internal.searchAlbums(this.query);
 
 						if (spotifyAlbums) {
 							return spotifyAlbums.items.reduce(
@@ -300,7 +297,7 @@ export class PlayerSearch {
 					}
 					case QueryType.SPOTIFY_PLAYLIST:
 						{
-							const spotifyPlaylists = await Spotify.extractor?.internal.searchPlaylists(this.query);
+							const spotifyPlaylists = await spotifyExtractor?.internal.searchPlaylists(this.query);
 
 							if (spotifyPlaylists) {
 								return spotifyPlaylists.items.reduce(

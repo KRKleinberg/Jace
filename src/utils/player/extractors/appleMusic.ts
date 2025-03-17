@@ -1,33 +1,24 @@
 import { Player, type PlayerSearchSource } from '#utils/player';
-import { AppleMusicExtractor } from '@discord-player/extractor';
-import { QueryType } from 'discord-player';
+import {
+	AppleMusicExtractor as AMExtractor,
+	type AppleMusicExtractorInit,
+} from '@discord-player/extractor';
+import { ExtractorExecutionContext, QueryType } from 'discord-player';
 
-export * as AppleMusic from '#utils/player/extractors/appleMusic';
+// CLASSES
+class AppleMusicExtractor extends AMExtractor {
+	public priority = 20;
+	public searchSource: PlayerSearchSource = {
+		name: 'appleMusic',
+		modifiers: ['-applemusic', '-am'],
+		streamable: false,
+		searchEngine: QueryType.APPLE_MUSIC_SEARCH,
+	};
 
-// VARIABLES
-export let extractor: AppleMusicExtractor | null;
+	constructor(context: ExtractorExecutionContext, options?: AppleMusicExtractorInit) {
+		super(context, options);
 
-const priority = 20;
-
-const searchSource: PlayerSearchSource = {
-	name: 'appleMusic',
-	modifiers: ['-applemusic', '-am'],
-	streamable: false,
-	searchEngine: QueryType.APPLE_MUSIC_SEARCH,
-};
-
-// FUNCTIONS
-export async function registerExtractor() {
-	if (extractor) {
-		await Player.extractors.unregister(extractor);
-	}
-
-	extractor = await Player.extractors.register(AppleMusicExtractor, {});
-
-	if (extractor) {
-		extractor.priority = priority;
-
-		Player.searchSources.push(searchSource);
+		Player.searchSources.push(this.searchSource);
 		Player.searchTypes.map((searchType) => {
 			if (searchType.name === 'Album') {
 				return searchType.searchEngines.push(QueryType.APPLE_MUSIC_ALBUM);
@@ -40,6 +31,18 @@ export async function registerExtractor() {
 			}
 		});
 	}
+}
 
-	return extractor;
+// VARIABLES
+export let appleMusicExtractor: AppleMusicExtractor | null;
+
+// FUNCTIONS
+export async function registerAppleMusic() {
+	if (appleMusicExtractor) {
+		await Player.extractors.unregister(appleMusicExtractor);
+	}
+
+	appleMusicExtractor = await Player.extractors.register(AppleMusicExtractor, {});
+
+	return appleMusicExtractor;
 }
