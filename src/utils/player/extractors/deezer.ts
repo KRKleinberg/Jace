@@ -30,98 +30,94 @@ export class DeezerExtractor extends DZExtractor {
 	}
 
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
-		{
-			if (track.queryType?.includes('appleMusic') || track.queryType?.includes('spotify')) {
-				const trackTitle = track.cleanTitle.split(' (with ')[0];
-				let deezerTrack: Track | undefined;
+		const trackTitle = track.cleanTitle.split(' (with ')[0];
+		let deezerTrack: Track | undefined;
 
-				try {
-					const searchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
+		try {
+			const searchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
 
-					if (track.durationMS) {
-						searchParams.push(
-							`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
-							`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
-						);
-					}
-
-					const searchResults = buildTrackFromSearch(
-						await search(searchParams.join(' '), 5),
-						Player,
-						track.requestedBy
-					);
-
-					if (searchResults.length) {
-						deezerTrack =
-							searchResults.find(
-								(searchResult) =>
-									searchResult.cleanTitle === trackTitle &&
-									searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-							) ?? searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle);
-					}
-				} catch {
-					// No results, do nothing
-				}
-
-				try {
-					if (!deezerTrack) {
-						const searchParams = [
-							`track:"${trackTitle}"`,
-							`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
-						];
-						const searchResults = buildTrackFromSearch(
-							await search(searchParams.join(' '), 5),
-							Player,
-							track.requestedBy
-						);
-
-						if (searchParams.length) {
-							deezerTrack =
-								searchResults.find(
-									(searchResult) =>
-										searchResult.cleanTitle === trackTitle &&
-										searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-								) ??
-								searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
-								searchResults[0];
-						}
-					}
-				} catch {
-					// No results, do nothing
-				}
-				try {
-					if (!deezerTrack) {
-						const searchParams = [trackTitle];
-						const searchResults = buildTrackFromSearch(
-							await search(searchParams.join(' '), 1),
-							Player,
-							track.requestedBy
-						);
-
-						if (searchParams.length) {
-							deezerTrack = searchResults[0];
-						}
-					}
-				} catch {
-					// No results, do nothing
-				}
-
-				if (deezerTrack) {
-					const stream = await this.stream(deezerTrack);
-
-					track.bridgedExtractor = this;
-					track.bridgedTrack = deezerTrack;
-
-					if (!track.durationMS) {
-						track.duration = deezerTrack.duration;
-					}
-
-					return stream;
-				}
+			if (track.durationMS) {
+				searchParams.push(
+					`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
+					`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
+				);
 			}
 
-			return null;
+			const searchResults = buildTrackFromSearch(
+				await search(searchParams.join(' '), 5),
+				Player,
+				track.requestedBy
+			);
+
+			if (searchResults.length) {
+				deezerTrack =
+					searchResults.find(
+						(searchResult) =>
+							searchResult.cleanTitle === trackTitle &&
+							searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+					) ?? searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle);
+			}
+		} catch {
+			// No results, do nothing
 		}
+
+		try {
+			if (!deezerTrack) {
+				const searchParams = [
+					`track:"${trackTitle}"`,
+					`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
+				];
+				const searchResults = buildTrackFromSearch(
+					await search(searchParams.join(' '), 5),
+					Player,
+					track.requestedBy
+				);
+
+				if (searchParams.length) {
+					deezerTrack =
+						searchResults.find(
+							(searchResult) =>
+								searchResult.cleanTitle === trackTitle &&
+								searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
+						) ??
+						searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
+						searchResults[0];
+				}
+			}
+		} catch {
+			// No results, do nothing
+		}
+		try {
+			if (!deezerTrack) {
+				const searchParams = [trackTitle];
+				const searchResults = buildTrackFromSearch(
+					await search(searchParams.join(' '), 1),
+					Player,
+					track.requestedBy
+				);
+
+				if (searchParams.length) {
+					deezerTrack = searchResults[0];
+				}
+			}
+		} catch {
+			// No results, do nothing
+		}
+
+		if (deezerTrack) {
+			const stream = await this.stream(deezerTrack);
+
+			track.bridgedExtractor = this;
+			track.bridgedTrack = deezerTrack;
+
+			if (!track.durationMS) {
+				track.duration = deezerTrack.duration;
+			}
+
+			return stream;
+		}
+
+		return null;
 	}
 }
 
