@@ -205,61 +205,62 @@ export interface SpotifySimplifiedArtist {
 const apiBaseUrl = 'https://api.spotify.com/v1';
 
 export class SpotifyAPI {
-	public accessToken: SpotifyAccessToken | null = null;
+	private _accessToken: SpotifyAccessToken | null = null;
+	private _credentials: {
+		clientId: string;
+		clientSecret: string;
+	};
 
-	public constructor(
-		public credentials: {
-			clientId: string;
-			clientSecret: string;
-		}
-	) {}
+	constructor(credentials: { clientId: string; clientSecret: string }) {
+		this._credentials = credentials;
+	}
 
-	public async requestAccessToken(): Promise<SpotifyAccessToken | null> {
+	private async _requestAccessToken(): Promise<SpotifyAccessToken | null> {
 		const response = await fetch('https://accounts.spotify.com/api/token', {
 			method: 'POST',
 			body: new URLSearchParams({
 				'grant_type': 'client_credentials',
-				'client_id': this.credentials.clientId,
-				'client_secret': this.credentials.clientSecret,
+				'client_id': this._credentials.clientId,
+				'client_secret': this._credentials.clientSecret,
 			}),
 		});
 
 		if (!response.ok) {
-			return (this.accessToken = null);
+			return (this._accessToken = null);
 		}
 
 		const body = (await response.json()) as SpotifyAccessToken;
 
-		return (this.accessToken = body);
+		return (this._accessToken = body);
 	}
 
-	public isTokenExpired() {
-		if (!this.accessToken) {
+	private _isTokenExpired() {
+		if (!this._accessToken) {
 			return true;
 		}
 
-		return this.accessToken.expires_in > 0;
+		return this._accessToken.expires_in > 0;
 	}
 
-	private async search(query: string, type: 'album' | 'playlist' | 'track') {
-		if (this.isTokenExpired()) {
-			await this.requestAccessToken();
+	private async _search(query: string, type: 'album' | 'playlist' | 'track') {
+		if (this._isTokenExpired()) {
+			await this._requestAccessToken();
 		}
 
-		if (!this.accessToken) {
+		if (!this._accessToken) {
 			throw new Error('Spotify API Error: No Access Token');
 		}
 
 		return await fetch(`${apiBaseUrl}/search?q=${encodeURIComponent(query)}&type=${type}&market=US`, {
 			headers: {
-				'Authorization': `${this.accessToken.token_type} ${this.accessToken.access_token}`,
+				'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
 			},
 		});
 	}
 
 	public async searchAlbums(query: string): Promise<SpotifyAlbumSearch | null> {
 		try {
-			const response = await this.search(query, 'album');
+			const response = await this._search(query, 'album');
 
 			if (!response.ok) {
 				return null;
@@ -275,7 +276,7 @@ export class SpotifyAPI {
 
 	public async searchPlaylists(query: string): Promise<SpotifyPlaylistSearch | null> {
 		try {
-			const response = await this.search(query, 'playlist');
+			const response = await this._search(query, 'playlist');
 
 			if (!response.ok) {
 				return null;
@@ -291,7 +292,7 @@ export class SpotifyAPI {
 
 	public async searchTracks(query: string): Promise<SpotifyTrackSearch | null> {
 		try {
-			const response = await this.search(query, 'track');
+			const response = await this._search(query, 'track');
 
 			if (!response.ok) {
 				return null;
@@ -307,17 +308,17 @@ export class SpotifyAPI {
 
 	public async getAlbum(id: string) {
 		try {
-			if (this.isTokenExpired()) {
-				await this.requestAccessToken();
+			if (this._isTokenExpired()) {
+				await this._requestAccessToken();
 			}
 
-			if (!this.accessToken) {
+			if (!this._accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
 			const response = await fetch(`${apiBaseUrl}/albums/${id}?market=US`, {
 				headers: {
-					'Authorization': `${this.accessToken.token_type} ${this.accessToken.access_token}`,
+					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
 				},
 			});
 
@@ -335,17 +336,17 @@ export class SpotifyAPI {
 
 	public async getPlaylist(id: string): Promise<SpotifyPlaylist | null> {
 		try {
-			if (this.isTokenExpired()) {
-				await this.requestAccessToken();
+			if (this._isTokenExpired()) {
+				await this._requestAccessToken();
 			}
 
-			if (!this.accessToken) {
+			if (!this._accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
 			const response = await fetch(`${apiBaseUrl}/playlists/${id}?market=US`, {
 				headers: {
-					'Authorization': `${this.accessToken.token_type} ${this.accessToken.access_token}`,
+					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
 				},
 			});
 

@@ -25,11 +25,7 @@ interface SpotifyExtractorInit {
 export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	public static identifier = 'com.krkleinberg.spotifyextractor' as const;
 	private _stream?: (url: string, track: Track) => Promise<Readable | string>;
-	private _credentials = {
-		clientId: this.options.clientId,
-		clientSecret: this.options.clientSecret,
-	};
-	public readonly internal = new SpotifyAPI(this._credentials);
+	public internal: SpotifyAPI;
 	public priority = 30;
 	public searchSource: PlayerSearchSource = {
 		name: 'spotify',
@@ -38,8 +34,13 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		searchEngine: QueryType.SPOTIFY_SEARCH,
 	};
 
-	constructor(context: ExtractorExecutionContext, options?: SpotifyExtractorInit) {
+	constructor(context: ExtractorExecutionContext, options: SpotifyExtractorInit) {
 		super(context, options);
+
+		this.internal = new SpotifyAPI({
+			clientId: options.clientId,
+			clientSecret: options.clientSecret,
+		});
 
 		Player.searchSources.push(this.searchSource);
 		Player.searchTypes.map((searchType) => {
@@ -57,12 +58,20 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async activate(): Promise<void> {
-		this.protocols = ['spsearch', 'spotify'];
-		const fn = this.options.createStream;
+		if (!this.options.clientId) {
+			throw new Error('SpotifyExtractor Error: Client ID not set!');
+		}
 
-		if (typeof fn === 'function') {
+		if (!this.options.clientSecret) {
+			throw new Error('SpotifyExtractor Error: Client Secret not set!');
+		}
+
+		this.protocols = ['spsearch', 'spotify'];
+		const createStream = this.options.createStream;
+
+		if (typeof createStream === 'function') {
 			this._stream = async (query: string, track: Track) => {
-				return await fn(this, query, track);
+				return await createStream(this, query, track);
 			};
 		}
 	}
@@ -333,14 +342,10 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 // FUNCTIONS
 export async function registerSpotify() {
 	if (!process.env.SPOTIFY_CLIENT_ID) {
-		console.error('Missing SPOTIFY_CLIENT_ID environment variable');
-
-		return;
+		throw new Error('Missing SPOTIFY_CLIENT_ID environment variable');
 	}
 	if (!process.env.SPOTIFY_CLIENT_SECRET) {
-		console.error('Missing SPOTIFY_CLIENT_SECRET environment variable');
-
-		return;
+		throw new Error('Missing SPOTIFY_CLIENT_SECRET environment variable');
 	}
 
 	if (Player.extractors.get(SpotifyExtractor.identifier)) {

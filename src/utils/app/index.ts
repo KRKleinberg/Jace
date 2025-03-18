@@ -100,7 +100,7 @@ class AppClient extends Client {
 		console.log('Events initialized');
 	}
 
-	private createResponse<T extends ResponseContext>(
+	public createResponse<T extends ResponseContext>(
 		ctx: T,
 		message: string,
 		type: ResponseType = 'DEFAULT'

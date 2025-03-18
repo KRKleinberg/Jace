@@ -8,6 +8,11 @@ import {
 	type DeezerExtractorOptions,
 } from 'discord-player-deezer';
 
+interface DeezerExtractorInit extends DeezerExtractorOptions {
+	decryptionKey: string;
+	arl: string;
+}
+
 // CLASSES
 export class DeezerExtractor extends DZExtractor {
 	public priority = 10;
@@ -18,7 +23,7 @@ export class DeezerExtractor extends DZExtractor {
 		searchEngine: `ext:${DeezerExtractor.identifier}`,
 	};
 
-	constructor(context: ExtractorExecutionContext, options?: DeezerExtractorOptions) {
+	constructor(context: ExtractorExecutionContext, options: DeezerExtractorInit) {
 		super(context, options);
 
 		Player.searchSources.push(this.searchSource);

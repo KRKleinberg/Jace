@@ -27,7 +27,7 @@ if (!process.env.MONGODB_URL) {
 }
 
 class DataClient {
-	private client: MongoClient;
+	private _client: MongoClient;
 	public collection: Collection<Document>;
 
 	constructor() {
@@ -41,14 +41,14 @@ class DataClient {
 			throw new Error('Environment variable "MONGODB_URL" is not set!');
 		}
 
-		this.client = new MongoClient(process.env.MONGODB_URL, {
+		this._client = new MongoClient(process.env.MONGODB_URL, {
 			serverApi: {
 				version: ServerApiVersion.v1,
 				strict: true,
 				deprecationErrors: true,
 			},
 		});
-		this.collection = this.client
+		this.collection = this._client
 			.db(process.env.MONGODB_COLLECTION_NAME)
 			.collection<Document>(process.env.ENV);
 	}

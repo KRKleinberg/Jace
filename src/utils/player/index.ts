@@ -167,9 +167,9 @@ class PlayerClient extends DiscordPlayer {
 }
 
 export class PlayerSearch {
-	private readonly ctx: CommandContext | AutocompleteInteractionContext;
+	public readonly ctx: CommandContext | AutocompleteInteractionContext;
 	public readonly input: string;
-	private searchType?: string;
+	public searchType?: string;
 
 	constructor(
 		ctx: CommandContext | AutocompleteInteractionContext,
