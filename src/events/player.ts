@@ -3,11 +3,6 @@ import { Player } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
 import { ChannelType } from 'discord.js';
 
-let errorCount = 0;
-const errorCountReset = setTimeout(() => {
-	errorCount = 0;
-}, 30_000);
-
 /* Player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 	console.log(message);
 }); */
@@ -30,7 +25,6 @@ Player.events.on(GuildQueueEvent.Error, async (queue, error) => {
 
 Player.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 	console.error('Player Error -', error);
-	errorCount++;
 
 	const ctx: CommandContext = queue.metadata as CommandContext;
 
@@ -42,51 +36,11 @@ Player.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 		}
 	}
 
-	if (errorCount <= 3) {
-		console.log('Player Error Count:', errorCount);
-
-		const queueChannel = queue.channel;
-		const queuedTracks = queue.tracks.toArray();
-
-		queue.delete();
-
-		await Player.initializeExtractors();
-
-		queue.revive();
-
-		const tracks = [track, ...queuedTracks];
-		const entry = queue.tasksQueue.acquire();
-
-		try {
-			await entry.getTask();
-
-			if (!queue.connection && queueChannel) {
-				await queue.connect(queueChannel);
-			}
-
-			if (queue.connection) {
-				queue.addTrack(tracks);
-			}
-
-			if (!queue.isPlaying()) {
-				await queue.node.play();
-			}
-		} catch (error) {
-			console.error('Queue Recovery Error -', error);
-		} finally {
-			entry.release();
-
-			errorCountReset.refresh();
-		}
-	} else {
-		errorCountReset.refresh();
-
-		await App.respond(
-			ctx,
-			`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-			'PLAYER_ERROR'
-		);
-	}
+	await App.respond(
+		ctx,
+		`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
+		'PLAYER_ERROR'
+	);
 });
 
 Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
