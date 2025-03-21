@@ -142,6 +142,6 @@ export async function registerDeezer() {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
 		decryptor: NodeDecryptor,
-		reloadUserInterval: 4.32e7 /* 12 hours */,
+		reloadUserInterval: 3.6e6 /* 1 hour */,
 	});
 }
