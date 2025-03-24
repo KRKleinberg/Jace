@@ -58,8 +58,8 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 
 	if (lyricsResults.length && lyricsResult.syncedLyrics) {
 		try {
-			const waitLyric = '▫\u2002▫\u2002▫';
-			const waitLyricBold = '▪\u2002▪\u2002▪';
+			const waitLyric = '৹\u2002৹\u2002৹';
+			const waitLyricBold = '•\u2002•\u2002•';
 			const endLyric = 'END_OF_LYRICS';
 			const syncedLyrics = queue.syncedLyrics(lyricsResult);
 			const syncedVerses = lyricsResult.syncedLyrics.split('\n').map((verse, index, array) => {
