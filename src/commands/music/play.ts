@@ -94,7 +94,10 @@ export const command: Command = {
 			ctx,
 			ctx.command.type === InteractionType.ApplicationCommand
 				? ctx.command.options.getString('search', true)
-				: ctx.args.join(' ')
+				: ctx.args.join(' '),
+			ctx.command.type === InteractionType.ApplicationCommand
+				? ctx.command.options.getSubcommand()
+				: undefined
 		);
 
 		if (!search.query.length) {
