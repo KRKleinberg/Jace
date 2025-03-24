@@ -1,3 +1,4 @@
+import type { SpotifyTrack } from '#utils/api/spotify';
 import { Player, type PlayerSearchSource } from '#utils/player';
 import type { ExtractorExecutionContext, ExtractorStreamable, Track } from 'discord-player';
 import {
@@ -31,12 +32,15 @@ export class DeezerExtractor extends DZExtractor {
 
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
 		const trackTitle = track.cleanTitle.split(' (with ')[0];
+		const album = (track.metadata as SpotifyTrack | undefined)?.album;
 		let deezerTrack: Track | undefined;
 
 		try {
 			const searchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
 
-			if (track.durationMS) {
+			if (album?.name) {
+				searchParams.push(`album:"${album.name}"`);
+			} else if (track.durationMS) {
 				searchParams.push(
 					`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
 					`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
@@ -67,6 +71,11 @@ export class DeezerExtractor extends DZExtractor {
 					`track:"${trackTitle}"`,
 					`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
 				];
+
+				if (album?.name) {
+					searchParams.push(`album:"${album.name}"`);
+				}
+
 				const searchResults = buildTrackFromSearch(
 					await search(searchParams.join(' '), 5),
 					Player,
@@ -138,10 +147,10 @@ export async function registerDeezer() {
 		await Player.extractors.unregister(DeezerExtractor.identifier);
 	}
 
-	await Player.extractors.register(DeezerExtractor, {
+	return await Player.extractors.register(DeezerExtractor, {
 		arl: process.env.DEEZER_ARL,
 		decryptionKey: process.env.DEEZER_KEY,
 		decryptor: NodeDecryptor,
-		reloadUserInterval: 3.6e6 /* 1 hour */,
+		reloadUserInterval: 1.44e7 /* 4 hours */,
 	});
 }

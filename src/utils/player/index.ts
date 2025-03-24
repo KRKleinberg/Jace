@@ -4,15 +4,19 @@ import { registerAppleMusic } from '#utils/player/extractors/appleMusic';
 import { registerDeezer } from '#utils/player/extractors/deezer';
 import { registerSpotify, SpotifyExtractor } from '#utils/player/extractors/spotify';
 import {
+	BaseExtractor,
 	Player as DiscordPlayer,
+	type ExtractorSearchContext,
 	type GuildNodeCreateOptions,
 	type GuildQueue,
+	Playlist,
 	type QueryExtractorSearch,
 	QueryType,
 	type SearchOptions,
 	type SearchQueryType,
 	SearchResult,
-	type Track,
+	Track,
+	Util,
 } from 'discord-player';
 import { isUrl } from 'discord-player-deezer';
 import { type ApplicationCommandOptionChoiceData, EmbedBuilder } from 'discord.js';
@@ -33,6 +37,38 @@ export interface PlayerSearchSource {
 	modifiers: PlayerSearchModifier[];
 	streamable: boolean;
 	searchEngine: SearchQueryType | QueryExtractorSearch;
+}
+
+export interface TrackData {
+	name: string;
+	artist: {
+		name: string;
+		id: string;
+		url: string;
+	};
+	album: {
+		name: string;
+		id: string;
+		url: string;
+	};
+	id: string;
+	url: string;
+	duration: number;
+	thumbnail: string;
+}
+
+export interface PlaylistData {
+	name: string;
+	artist: {
+		name: string;
+		id: string;
+		url: string;
+	};
+	trackCount: number;
+	id: string;
+	url: string;
+	thumbnail: string;
+	tracks: TrackData[];
 }
 
 // CLASSES
@@ -62,6 +98,81 @@ class PlayerClient extends DiscordPlayer {
 			searchEngines: [],
 		},
 	];
+
+	public buildPlaylist(
+		playlistData: PlaylistData,
+		extractor: BaseExtractor,
+		context: ExtractorSearchContext
+	): Playlist {
+		const playlist = new Playlist(this, {
+			title: playlistData.name,
+			description: `${playlistData.name} by ${playlistData.artist.name}`,
+			thumbnail: playlistData.thumbnail || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			type: 'album',
+			source: 'spotify',
+			author: {
+				name: playlistData.artist.name,
+				url: playlistData.artist.url,
+			},
+			tracks: [],
+			id: playlistData.id,
+			url: playlistData.url,
+			rawPlaylist: playlistData,
+		});
+
+		playlist.tracks = playlistData.tracks.map((trackData) => {
+			const track = new Track(this, {
+				title: trackData.name,
+				description: `${trackData.name} by ${trackData.artist.name}`,
+				author: trackData.artist.name || 'Unkown Artist',
+				url: trackData.url,
+				thumbnail: trackData.thumbnail || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+				duration: Util.buildTimeCode(Util.parseMS(trackData.duration || 0)),
+				requestedBy: context.requestedBy,
+				source: 'spotify',
+				queryType: QueryType.SPOTIFY_SONG,
+				metadata: trackData,
+				// eslint-disable-next-line @typescript-eslint/require-await
+				requestMetadata: async () => {
+					return trackData;
+				},
+			});
+
+			track.extractor = extractor;
+			track.playlist = playlist;
+
+			return track;
+		});
+
+		return playlist;
+	}
+
+	public buildTrack(
+		trackData: TrackData,
+		extractor: BaseExtractor,
+		context: ExtractorSearchContext
+	): Track {
+		const track: Track = new Track(this, {
+			title: trackData.name,
+			description: `${trackData.name} by ${trackData.artist.name}`,
+			author: trackData.artist.name || 'Unkown Artist',
+			url: trackData.url,
+			thumbnail: trackData.thumbnail || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			duration: Util.buildTimeCode(Util.parseMS(trackData.duration || 0)),
+			requestedBy: context.requestedBy,
+			source: 'spotify',
+			queryType: QueryType.SPOTIFY_SONG,
+			metadata: trackData,
+			// eslint-disable-next-line @typescript-eslint/require-await
+			requestMetadata: async () => {
+				return trackData;
+			},
+		});
+
+		track.extractor = extractor;
+
+		return track;
+	}
 
 	public convertVolume(volume: number, convertTo: 'readable' | 'queue'): number {
 		const factor = 0.1;
@@ -153,7 +264,7 @@ class PlayerClient extends DiscordPlayer {
 		return !track || track.duration.length <= 5 ? 24 : 22;
 	}
 
-	public async initializeExtractors() {
+	public async registerExtractors() {
 		await registerSpotify();
 		await registerAppleMusic();
 		await registerDeezer();

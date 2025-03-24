@@ -97,7 +97,7 @@ class AppClient extends Client {
 			await import(eventFile);
 		}
 
-		console.log('Events initialized');
+		console.log('Events registered');
 	}
 
 	public createResponse<T extends ResponseContext>(

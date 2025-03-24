@@ -3,10 +3,8 @@ import { Player, type PlayerSearchSource } from '#utils/player';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
-	Playlist,
 	QueryType,
 	Track,
-	Util,
 	type ExtractorInfo,
 	type ExtractorSearchContext,
 	type ExtractorStreamable,
@@ -111,36 +109,9 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 					return this.createResponse();
 				}
 
-				const tracks = spotifyTracks.items.map((spotifyTrack) => {
-					const artists = spotifyTrack.artists.map((artist) => artist.name).join(', ');
-					const track: Track = new Track(this.context.player, {
-						title: spotifyTrack.name,
-						description: `${spotifyTrack.name} by ${artists}`,
-						author: artists || 'Unkown Artist',
-						url: spotifyTrack.external_urls.spotify,
-						thumbnail:
-							spotifyTrack.album.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-						duration: Util.buildTimeCode(Util.parseMS(spotifyTrack.duration_ms || 0)),
-						requestedBy: context.requestedBy,
-						source: 'spotify',
-						queryType: QueryType.SPOTIFY_SONG,
-						metadata: {
-							source: spotifyTrack,
-							bridge: null,
-						},
-						// eslint-disable-next-line @typescript-eslint/require-await
-						requestMetadata: async () => {
-							return {
-								source: spotifyTrack,
-								bridge: null,
-							};
-						},
-					});
-
-					track.extractor = this;
-
-					return track;
-				});
+				const tracks = spotifyTracks.items.map((spotifyTrack) =>
+					Player.buildTrack(this.internal.buildTrackData(spotifyTrack, spotifyTrack.album), this, context)
+				);
 
 				return this.createResponse(null, tracks);
 			}
@@ -174,55 +145,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 					return this.createResponse();
 				}
 
-				const spotifyAlbumTracks = spotifyAlbum.tracks.items;
-				const artists = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
-				const playlist = new Playlist(this.context.player, {
-					title: spotifyAlbum.name,
-					description: `${spotifyAlbum.name} by ${artists}`,
-					thumbnail: spotifyAlbum.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-					type: 'album',
-					source: 'spotify',
-					author: {
-						name: artists || 'Unknown Artist',
-						url: spotifyAlbum.artists[0].external_urls.spotify,
-					},
-					tracks: [],
-					id: spotifyAlbum.id,
-					url: spotifyAlbum.external_urls.spotify,
-					rawPlaylist: spotifyAlbum,
-				});
-
-				playlist.tracks = spotifyAlbumTracks.map((spotifyTrack) => {
-					const artists = spotifyTrack.artists.map((artist) => artist.name).join(', ');
-					const track: Track = new Track(this.context.player, {
-						title: spotifyTrack.name,
-						description: `${spotifyTrack.name} by ${artists}`,
-						author: artists || 'Unkown Artist',
-						url: spotifyTrack.external_urls.spotify,
-						thumbnail: spotifyAlbum.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-						duration: Util.buildTimeCode(Util.parseMS(spotifyTrack.duration_ms || 0)),
-						requestedBy: context.requestedBy,
-						source: 'spotify',
-						queryType: QueryType.SPOTIFY_SONG,
-						metadata: {
-							source: spotifyTrack,
-							bridge: null,
-						},
-						// eslint-disable-next-line @typescript-eslint/require-await
-						requestMetadata: async () => {
-							return {
-								source: spotifyTrack,
-								bridge: null,
-							};
-						},
-					});
-
-					track.extractor = this;
-					track.playlist = playlist;
-
-					return track;
-				});
-
+				const playlist = Player.buildPlaylist(this.internal.buildAlbumData(spotifyAlbum), this, context);
 				return this.createResponse(playlist, playlist.tracks);
 			}
 			case QueryType.SPOTIFY_PLAYLIST: {
@@ -255,57 +178,11 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 					return this.createResponse();
 				}
 
-				const owner = spotifyPlaylist.owner.display_name;
-				const playlist = new Playlist(this.context.player, {
-					title: spotifyPlaylist.name,
-					description: owner ? `${spotifyPlaylist.name} by ${owner}` : spotifyPlaylist.name,
-					thumbnail:
-						spotifyPlaylist.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-					type: 'playlist',
-					source: 'spotify',
-					author: {
-						name: owner ?? 'Unknown Artist',
-						url: spotifyPlaylist.owner.external_urls.spotify,
-					},
-					tracks: [],
-					id: spotifyPlaylist.id,
-					url: spotifyPlaylist.external_urls.spotify,
-					rawPlaylist: spotifyPlaylist,
-				});
-
-				const spotifyPlaylistTracks = spotifyPlaylist.tracks.items;
-
-				playlist.tracks = spotifyPlaylistTracks.map((spotifyPlaylistTrack) => {
-					const artists = spotifyPlaylistTrack.track.artists.map((artist) => artist.name).join(', ');
-					const track: Track = new Track(this.context.player, {
-						title: spotifyPlaylistTrack.track.name,
-						description: `${spotifyPlaylistTrack.track.name} by ${artists}`,
-						author: artists || 'Unkown Artist',
-						url: spotifyPlaylistTrack.track.external_urls.spotify,
-						thumbnail:
-							spotifyPlaylist.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-						duration: Util.buildTimeCode(Util.parseMS(spotifyPlaylistTrack.track.duration_ms || 0)),
-						requestedBy: context.requestedBy,
-						source: 'spotify',
-						queryType: QueryType.SPOTIFY_SONG,
-						metadata: {
-							source: spotifyPlaylistTrack,
-							bridge: null,
-						},
-						// eslint-disable-next-line @typescript-eslint/require-await
-						requestMetadata: async () => {
-							return {
-								source: spotifyPlaylistTrack,
-								bridge: null,
-							};
-						},
-					});
-
-					track.extractor = this;
-					track.playlist = playlist;
-
-					return track;
-				});
+				const playlist = Player.buildPlaylist(
+					this.internal.buildPlaylistData(spotifyPlaylist),
+					this,
+					context
+				);
 
 				return this.createResponse(playlist, playlist.tracks);
 			}
@@ -352,7 +229,7 @@ export async function registerSpotify() {
 		await Player.extractors.unregister(SpotifyExtractor.identifier);
 	}
 
-	await Player.extractors.register(SpotifyExtractor, {
+	return await Player.extractors.register(SpotifyExtractor, {
 		clientId: process.env.SPOTIFY_CLIENT_ID,
 		clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 	});

@@ -39,5 +39,5 @@ export async function registerAppleMusic() {
 		await Player.extractors.unregister(AppleMusicExtractor.identifier);
 	}
 
-	await Player.extractors.register(AppleMusicExtractor, {});
+	return await Player.extractors.register(AppleMusicExtractor, {});
 }

@@ -1,7 +1,7 @@
 import { App } from '#utils/app';
 import { Player } from '#utils/player';
 
-await Player.initializeExtractors();
+await Player.registerExtractors();
 
 await App.initializeCommands();
 await App.initializeEvents();

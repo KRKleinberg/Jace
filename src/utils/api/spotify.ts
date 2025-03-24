@@ -1,3 +1,5 @@
+import type { PlaylistData, TrackData } from '#utils/player';
+
 interface SpotifyAccessToken {
 	access_token: string;
 	token_type: string;
@@ -360,5 +362,92 @@ export class SpotifyAPI {
 		} catch {
 			return null;
 		}
+	}
+
+	public buildAlbumData(spotifyAlbum: SpotifyAlbum): PlaylistData {
+		return {
+			name: spotifyAlbum.name,
+			artist: {
+				name: spotifyAlbum.artists.map((artist) => artist.name).join(', '),
+				id: spotifyAlbum.artists[0].id,
+				url: spotifyAlbum.artists[0].external_urls.spotify,
+			},
+			trackCount: spotifyAlbum.total_tracks,
+			id: spotifyAlbum.id,
+			url: spotifyAlbum.external_urls.spotify,
+			thumbnail: spotifyAlbum.images[0].url,
+			tracks: spotifyAlbum.tracks.items.map((track) => ({
+				name: track.name,
+				artist: {
+					name: track.artists.map((artist) => artist.name).join(', '),
+					id: track.artists[0].id,
+					url: track.artists[0].external_urls.spotify,
+				},
+				album: {
+					name: spotifyAlbum.name,
+					id: spotifyAlbum.id,
+					url: spotifyAlbum.external_urls.spotify,
+				},
+				id: track.id,
+				url: track.external_urls.spotify,
+				duration: track.duration_ms,
+				thumbnail: spotifyAlbum.images[0].url,
+			})),
+		};
+	}
+
+	public buildPlaylistData(spotifyPlaylist: SpotifyPlaylist): PlaylistData {
+		return {
+			name: spotifyPlaylist.name,
+			artist: {
+				name: spotifyPlaylist.owner.display_name ?? 'Unknown',
+				id: spotifyPlaylist.owner.id,
+				url: spotifyPlaylist.owner.external_urls.spotify,
+			},
+			trackCount: spotifyPlaylist.tracks.total,
+			id: spotifyPlaylist.id,
+			url: spotifyPlaylist.external_urls.spotify,
+			thumbnail: spotifyPlaylist.images[0].url,
+			tracks: spotifyPlaylist.tracks.items.map((playlistTrack) => ({
+				name: playlistTrack.track.name,
+				artist: {
+					name: playlistTrack.track.artists.map((artist) => artist.name).join(', '),
+					id: playlistTrack.track.artists[0].id,
+					url: playlistTrack.track.artists[0].external_urls.spotify,
+				},
+				album: {
+					name: playlistTrack.track.album.name,
+					id: playlistTrack.track.album.id,
+					url: playlistTrack.track.album.external_urls.spotify,
+				},
+				id: playlistTrack.track.id,
+				url: playlistTrack.track.external_urls.spotify,
+				duration: playlistTrack.track.duration_ms,
+				thumbnail: playlistTrack.track.album.images[0].url,
+			})),
+		};
+	}
+
+	public buildTrackData(
+		spotifyTrack: SpotifySimplifiedTrack,
+		spotifyAlbum: SpotifySimplifiedAlbum
+	): TrackData {
+		return {
+			name: spotifyTrack.name,
+			artist: {
+				name: spotifyTrack.artists.map((artist) => artist.name).join(', '),
+				id: spotifyTrack.artists[0].id,
+				url: spotifyTrack.artists[0].external_urls.spotify,
+			},
+			album: {
+				name: spotifyAlbum.name,
+				id: spotifyAlbum.id,
+				url: spotifyAlbum.external_urls.spotify,
+			},
+			id: spotifyTrack.id,
+			url: spotifyTrack.external_urls.spotify,
+			duration: spotifyTrack.duration_ms,
+			thumbnail: spotifyAlbum.images[0].url,
+		};
 	}
 }
