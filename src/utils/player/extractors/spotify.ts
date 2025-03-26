@@ -138,7 +138,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				} else if (id) {
 					spotifyAlbum = await this.internal.getAlbum(id);
 				} else {
-					this.createResponse();
+					return this.createResponse();
 				}
 
 				if (!spotifyAlbum) {
@@ -171,7 +171,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				} else if (id) {
 					spotifyPlaylist = await this.internal.getPlaylist(id);
 				} else {
-					this.createResponse();
+					return this.createResponse();
 				}
 
 				if (!spotifyPlaylist) {
