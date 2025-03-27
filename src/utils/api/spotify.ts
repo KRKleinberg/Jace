@@ -1,4 +1,5 @@
-import type { PlaylistData, TrackData } from '#utils/player';
+import { Player, type TrackMetadata } from '#utils/player';
+import { Playlist, QueryType, Track, Util, type ExtractorSearchContext } from 'discord-player';
 
 interface SpotifyAccessToken {
 	access_token: string;
@@ -6,40 +7,24 @@ interface SpotifyAccessToken {
 	expires_in: number;
 }
 
-interface BaseSearchResponse {
+interface SpotifyItems<
+	T extends
+		| SpotifySimplifiedTrack
+		| SpotifySimplifiedAlbum
+		| SpotifySimplifiedPlaylist
+		| SpotifyPlaylistTrack
+		| null,
+> {
 	href: string;
 	limit: number;
-	next?: string;
+	next?: string | null;
 	offset: number;
 	previous?: string;
 	total: number;
+	items: T[];
 }
 
-export interface SpotifyTracks extends BaseSearchResponse {
-	items: SpotifySimplifiedTrack[];
-}
-
-export interface SpotifyTrackSearch extends BaseSearchResponse {
-	items: SpotifyTrack[];
-}
-
-export interface SpotifyAlbumSearch extends BaseSearchResponse {
-	items: SpotifySimplifiedAlbum[];
-}
-
-export interface SpotifyPlaylistSearch extends BaseSearchResponse {
-	items: (SpotifySimplifiedPlaylist | null)[];
-}
-
-export interface SpotifyAlbumTracks extends BaseSearchResponse {
-	items: SpotifySimplifiedTrack[];
-}
-
-export interface SpotifyPlaylistTracks extends BaseSearchResponse {
-	items: SpotifyPlaylistTrack[];
-}
-
-export interface SpotifyPlaylistTrack {
+interface SpotifyPlaylistTrack {
 	added_at: string;
 	added_by: {
 		external_urls: {
@@ -58,49 +43,7 @@ export interface SpotifyPlaylistTrack {
 	track: SpotifyTrack;
 }
 
-export interface SpotifyAlbum extends SpotifySimplifiedAlbum {
-	tracks: SpotifyTracks;
-	copyrights: {
-		text: string;
-		type: string;
-	}[];
-	external_ids: {
-		isrc: string;
-		ean: string;
-		upc: string;
-	};
-	genres: string[];
-	label: string;
-	popularity: number;
-}
-
-export interface SpotifyPlaylist extends SpotifySimplifiedPlaylist {
-	followers: {
-		href?: string;
-		total: number;
-	};
-	tracks: {
-		href: string;
-		limit: number;
-		next?: string;
-		offset: number;
-		previous?: string;
-		total: number;
-		items: SpotifyPlaylistTrack[];
-	};
-}
-
-export interface SpotifyTrack extends SpotifySimplifiedTrack {
-	album: SpotifySimplifiedAlbum;
-	external_ids: {
-		isrc: string;
-		ean: string;
-		upc: string;
-	};
-	popularity: number;
-}
-
-export interface SpotifySimplifiedTrack {
+interface SpotifySimplifiedTrack {
 	artists: SpotifySimplifiedArtist[];
 	available_markets: string[];
 	disc_number: number;
@@ -130,7 +73,17 @@ export interface SpotifySimplifiedTrack {
 	is_local: boolean;
 }
 
-export interface SpotifySimplifiedAlbum {
+interface SpotifyTrack extends SpotifySimplifiedTrack {
+	album: SpotifySimplifiedAlbum;
+	external_ids: {
+		isrc: string;
+		ean: string;
+		upc: string;
+	};
+	popularity: number;
+}
+
+interface SpotifySimplifiedAlbum {
 	album_type: 'album' | 'single' | 'compilation';
 	total_tracks: number;
 	available_markets: string[];
@@ -155,7 +108,23 @@ export interface SpotifySimplifiedAlbum {
 	artists: SpotifySimplifiedArtist[];
 }
 
-export interface SpotifySimplifiedPlaylist {
+interface SpotifyAlbum extends SpotifySimplifiedAlbum {
+	tracks: SpotifyItems<SpotifySimplifiedTrack>;
+	copyrights: {
+		text: string;
+		type: string;
+	}[];
+	external_ids: {
+		isrc: string;
+		ean: string;
+		upc: string;
+	};
+	genres: string[];
+	label: string;
+	popularity: number;
+}
+
+interface SpotifySimplifiedPlaylist {
 	collaborative: boolean;
 	description: string;
 	external_urls: {
@@ -193,7 +162,15 @@ export interface SpotifySimplifiedPlaylist {
 	uri: string;
 }
 
-export interface SpotifySimplifiedArtist {
+interface SpotifyPlaylist extends SpotifySimplifiedPlaylist {
+	followers: {
+		href?: string;
+		total: number;
+	};
+	tracks: SpotifyItems<SpotifyPlaylistTrack>;
+}
+
+interface SpotifySimplifiedArtist {
 	external_urls: {
 		spotify: string;
 	};
@@ -260,7 +237,7 @@ export class SpotifyAPI {
 		});
 	}
 
-	public async searchAlbums(query: string): Promise<SpotifyAlbumSearch | null> {
+	public async searchAlbums(query: string): Promise<SpotifyItems<SpotifySimplifiedAlbum> | null> {
 		try {
 			const response = await this._search(query, 'album');
 
@@ -268,7 +245,7 @@ export class SpotifyAPI {
 				return null;
 			}
 
-			const data = (await response.json()) as { albums: SpotifyAlbumSearch };
+			const data = (await response.json()) as { albums: SpotifyItems<SpotifySimplifiedAlbum> };
 
 			return data.albums;
 		} catch {
@@ -276,7 +253,9 @@ export class SpotifyAPI {
 		}
 	}
 
-	public async searchPlaylists(query: string): Promise<SpotifyPlaylistSearch | null> {
+	public async searchPlaylists(
+		query: string
+	): Promise<SpotifyItems<SpotifySimplifiedPlaylist | null> | null> {
 		try {
 			const response = await this._search(query, 'playlist');
 
@@ -284,7 +263,9 @@ export class SpotifyAPI {
 				return null;
 			}
 
-			const data = (await response.json()) as { playlists: SpotifyPlaylistSearch };
+			const data = (await response.json()) as {
+				playlists: SpotifyItems<SpotifySimplifiedPlaylist | null>;
+			};
 
 			return data.playlists;
 		} catch {
@@ -292,7 +273,7 @@ export class SpotifyAPI {
 		}
 	}
 
-	public async searchTracks(query: string): Promise<SpotifyTrackSearch | null> {
+	public async searchTracks(query: string): Promise<SpotifyItems<SpotifyTrack> | null> {
 		try {
 			const response = await this._search(query, 'track');
 
@@ -300,7 +281,7 @@ export class SpotifyAPI {
 				return null;
 			}
 
-			const data = (await response.json()) as { tracks: SpotifyTrackSearch };
+			const data = (await response.json()) as { tracks: SpotifyItems<SpotifyTrack> };
 
 			return data.tracks;
 		} catch {
@@ -308,7 +289,11 @@ export class SpotifyAPI {
 		}
 	}
 
-	public async getAlbum(id: string) {
+	public async getAlbum(id?: string): Promise<SpotifyAlbum | null> {
+		if (!id) {
+			return null;
+		}
+
 		try {
 			if (this._isTokenExpired()) {
 				await this._requestAccessToken();
@@ -318,25 +303,61 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const response = await fetch(`${apiBaseUrl}/albums/${id}?market=US`, {
+			const albumResponse = await fetch(`${apiBaseUrl}/albums/${id}?market=US`, {
 				headers: {
 					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
 				},
 			});
 
-			if (!response.ok) {
+			if (!albumResponse.ok) {
 				return null;
 			}
 
-			const data = (await response.json()) as SpotifyAlbum;
+			const album = (await albumResponse.json()) as SpotifyAlbum;
 
-			return data;
+			if (!album.tracks.items.length) {
+				return null;
+			}
+
+			let next = album.tracks.next;
+
+			while (typeof next === 'string') {
+				try {
+					const nextResponse = await fetch(next, {
+						headers: {
+							'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+						},
+					});
+
+					if (!nextResponse.ok) {
+						break;
+					}
+
+					const nextPage = (await nextResponse.json()) as SpotifyItems<SpotifySimplifiedTrack>;
+
+					album.tracks.items.push(...nextPage.items);
+
+					next = nextPage.next;
+
+					if (!next) {
+						break;
+					}
+				} catch {
+					break;
+				}
+			}
+
+			return album;
 		} catch {
 			return null;
 		}
 	}
 
-	public async getPlaylist(id: string): Promise<SpotifyPlaylist | null> {
+	public async getPlaylist(id?: string): Promise<SpotifyPlaylist | null> {
+		if (!id) {
+			return null;
+		}
+
 		try {
 			if (this._isTokenExpired()) {
 				await this._requestAccessToken();
@@ -346,108 +367,143 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const response = await fetch(`${apiBaseUrl}/playlists/${id}?market=US`, {
+			const playlistResponse = await fetch(`${apiBaseUrl}/playlists/${id}?market=US`, {
 				headers: {
 					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
 				},
 			});
 
-			if (!response.ok) {
+			if (!playlistResponse.ok) {
+				console.log(playlistResponse);
 				return null;
 			}
 
-			const data = (await response.json()) as SpotifyPlaylist;
+			const playlist = (await playlistResponse.json()) as SpotifyPlaylist;
 
-			return data;
+			if (!playlist.tracks.items.length) {
+				return null;
+			}
+
+			let next = playlist.tracks.next;
+
+			while (typeof next === 'string') {
+				try {
+					const nextResponse = await fetch(next, {
+						headers: {
+							'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+						},
+					});
+
+					if (!nextResponse.ok) {
+						break;
+					}
+
+					const nextPage = (await nextResponse.json()) as SpotifyItems<SpotifyPlaylistTrack>;
+
+					playlist.tracks.items.push(...nextPage.items);
+
+					next = nextPage.next;
+
+					if (!next) {
+						break;
+					}
+				} catch {
+					break;
+				}
+			}
+
+			return playlist;
 		} catch {
 			return null;
 		}
 	}
 
-	public buildAlbumData(spotifyAlbum: SpotifyAlbum): PlaylistData {
-		return {
-			name: spotifyAlbum.name,
-			artist: {
-				name: spotifyAlbum.artists.map((artist) => artist.name).join(', '),
-				id: spotifyAlbum.artists[0].id,
+	public buildAlbum(context: ExtractorSearchContext, spotifyAlbum: SpotifyAlbum): Playlist {
+		const artists = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
+		const playlist = new Playlist(Player, {
+			title: spotifyAlbum.name,
+			description: `${spotifyAlbum.name} by ${artists}`,
+			thumbnail: spotifyAlbum.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			type: 'playlist',
+			source: 'spotify',
+			author: {
+				name: artists,
 				url: spotifyAlbum.artists[0].external_urls.spotify,
 			},
-			trackCount: spotifyAlbum.total_tracks,
+			tracks: [],
 			id: spotifyAlbum.id,
 			url: spotifyAlbum.external_urls.spotify,
-			thumbnail: spotifyAlbum.images[0].url,
-			tracks: spotifyAlbum.tracks.items.map((track) => ({
-				name: track.name,
-				artist: {
-					name: track.artists.map((artist) => artist.name).join(', '),
-					id: track.artists[0].id,
-					url: track.artists[0].external_urls.spotify,
-				},
-				album: {
-					name: spotifyAlbum.name,
-					id: spotifyAlbum.id,
-					url: spotifyAlbum.external_urls.spotify,
-				},
-				id: track.id,
-				url: track.external_urls.spotify,
-				duration: track.duration_ms,
-				thumbnail: spotifyAlbum.images[0].url,
-			})),
-		};
+			rawPlaylist: spotifyAlbum,
+		});
+
+		playlist.tracks = spotifyAlbum.tracks.items.map((track) => {
+			const playlistTrack = this.buildTrack(context, track, spotifyAlbum);
+
+			playlistTrack.playlist = playlist;
+
+			return playlistTrack;
+		});
+
+		return playlist;
 	}
 
-	public buildPlaylistData(spotifyPlaylist: SpotifyPlaylist): PlaylistData {
-		return {
-			name: spotifyPlaylist.name,
-			artist: {
+	public buildPlaylist(context: ExtractorSearchContext, spotifyPlaylist: SpotifyPlaylist): Playlist {
+		const playlist = new Playlist(Player, {
+			title: spotifyPlaylist.name,
+			description: `${spotifyPlaylist.name} by ${spotifyPlaylist.owner.display_name ?? 'Unknown'}`,
+			thumbnail:
+				spotifyPlaylist.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			type: 'playlist',
+			source: 'spotify',
+			author: {
 				name: spotifyPlaylist.owner.display_name ?? 'Unknown',
-				id: spotifyPlaylist.owner.id,
 				url: spotifyPlaylist.owner.external_urls.spotify,
 			},
-			trackCount: spotifyPlaylist.tracks.total,
+			tracks: [],
 			id: spotifyPlaylist.id,
 			url: spotifyPlaylist.external_urls.spotify,
-			thumbnail: spotifyPlaylist.images[0].url,
-			tracks: spotifyPlaylist.tracks.items.map((playlistTrack) => ({
-				name: playlistTrack.track.name,
-				artist: {
-					name: playlistTrack.track.artists.map((artist) => artist.name).join(', '),
-					id: playlistTrack.track.artists[0].id,
-					url: playlistTrack.track.artists[0].external_urls.spotify,
-				},
-				album: {
-					name: playlistTrack.track.album.name,
-					id: playlistTrack.track.album.id,
-					url: playlistTrack.track.album.external_urls.spotify,
-				},
-				id: playlistTrack.track.id,
-				url: playlistTrack.track.external_urls.spotify,
-				duration: playlistTrack.track.duration_ms,
-				thumbnail: playlistTrack.track.album.images[0].url,
-			})),
-		};
+			rawPlaylist: spotifyPlaylist,
+		});
+
+		playlist.tracks = spotifyPlaylist.tracks.items.map(({ track }) => {
+			const playlistTrack = this.buildTrack(context, track, track.album);
+
+			playlistTrack.playlist = playlist;
+
+			return playlistTrack;
+		});
+
+		return playlist;
 	}
 
-	public buildTrackData(
+	public buildTrack(
+		context: ExtractorSearchContext,
 		spotifyTrack: SpotifySimplifiedTrack,
 		spotifyAlbum: SpotifySimplifiedAlbum
-	): TrackData {
-		return {
-			name: spotifyTrack.name,
-			artist: {
-				name: spotifyTrack.artists.map((artist) => artist.name).join(', '),
-				id: spotifyTrack.artists[0].id,
-				url: spotifyTrack.artists[0].external_urls.spotify,
-			},
+	): Track {
+		const artists = spotifyTrack.artists.map((artist) => artist.name).join(', ');
+		const metadata: TrackMetadata = {
 			album: {
 				name: spotifyAlbum.name,
-				id: spotifyAlbum.id,
-				url: spotifyAlbum.external_urls.spotify,
 			},
-			id: spotifyTrack.id,
-			url: spotifyTrack.external_urls.spotify,
-			duration: spotifyTrack.duration_ms,
-			thumbnail: spotifyAlbum.images[0].url,
 		};
+		const track: Track = new Track(Player, {
+			title: spotifyTrack.name,
+			description: `${spotifyTrack.name} by ${artists}`,
+			author: artists,
+			url: spotifyTrack.external_urls.spotify,
+			thumbnail: spotifyAlbum.images.length
+				? spotifyAlbum.images[0].url
+				: 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			duration: Util.formatDuration(spotifyTrack.duration_ms),
+			requestedBy: context.requestedBy,
+			source: 'spotify',
+			queryType: QueryType.SPOTIFY_SONG,
+			metadata,
+			// eslint-disable-next-line @typescript-eslint/require-await
+			requestMetadata: async () => metadata,
+		});
+
+		return track;
 	}
 }

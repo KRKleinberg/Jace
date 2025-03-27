@@ -1,4 +1,4 @@
-import { SpotifyAPI, type SpotifyAlbum, type SpotifyPlaylist } from '#utils/api/spotify';
+import { SpotifyAPI } from '#utils/api/spotify';
 import { Player, type PlayerSearchSource } from '#utils/player';
 import {
 	BaseExtractor,
@@ -110,81 +110,76 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				}
 
 				const tracks = spotifyTracks.items.map((spotifyTrack) =>
-					Player.buildTrack(this.internal.buildTrackData(spotifyTrack, spotifyTrack.album), this, context)
+					this.internal.buildTrack(context, spotifyTrack, spotifyTrack.album)
 				);
 
 				return this.createResponse(null, tracks);
 			}
 			case QueryType.SPOTIFY_ALBUM: {
 				const { queryType, id } = this.parse(query);
-				let spotifyAlbum: SpotifyAlbum | undefined | null;
 
-				if (queryType !== 'album') {
+				if (queryType === 'album' && id) {
+					const spotifyAlbum = await this.internal.getAlbum(id);
+
+					if (!spotifyAlbum) {
+						return this.createResponse();
+					}
+
+					const album = this.internal.buildAlbum(context, spotifyAlbum);
+
+					return this.createResponse(album, album.tracks);
+				} else {
 					const spotifyAlbums = await this.internal.searchAlbums(query);
 
 					if (!spotifyAlbums) {
 						return this.createResponse();
 					}
 
-					const spotifyAlbumId = spotifyAlbums.items.find(
-						(spotifyAlbum) => spotifyAlbum.total_tracks > 1
-					)?.id;
+					const spotifyAlbum = await this.internal.getAlbum(
+						spotifyAlbums.items.find((spotifyAlbum) => spotifyAlbum.total_tracks > 1)?.id
+					);
 
-					if (!spotifyAlbumId) {
+					if (!spotifyAlbum) {
 						return this.createResponse();
 					}
 
-					spotifyAlbum = await this.internal.getAlbum(spotifyAlbumId);
-				} else if (id) {
-					spotifyAlbum = await this.internal.getAlbum(id);
-				} else {
-					return this.createResponse();
-				}
+					const album = this.internal.buildAlbum(context, spotifyAlbum);
 
-				if (!spotifyAlbum) {
-					return this.createResponse();
+					return this.createResponse(album, album.tracks);
 				}
-
-				const playlist = Player.buildPlaylist(this.internal.buildAlbumData(spotifyAlbum), this, context);
-				return this.createResponse(playlist, playlist.tracks);
 			}
 			case QueryType.SPOTIFY_PLAYLIST: {
 				const { queryType, id } = this.parse(query);
-				let spotifyPlaylist: SpotifyPlaylist | undefined | null;
 
-				if (queryType !== 'playlist') {
+				if (queryType === 'playlist' && id) {
+					const spotifyPlaylist = await this.internal.getPlaylist(id);
+
+					if (!spotifyPlaylist) {
+						return this.createResponse();
+					}
+
+					const playlist = this.internal.buildPlaylist(context, spotifyPlaylist);
+
+					return this.createResponse(playlist, playlist.tracks);
+				} else {
 					const spotifyPlaylists = await this.internal.searchPlaylists(query);
 
 					if (!spotifyPlaylists) {
 						return this.createResponse();
 					}
 
-					const spotifyPlaylistId = spotifyPlaylists.items.find(
-						(spotifyPlaylist) => spotifyPlaylist !== null
-					)?.id;
+					const spotifyPlaylist = await this.internal.getPlaylist(
+						spotifyPlaylists.items.find((spotifyPlaylist) => spotifyPlaylist !== null)?.id
+					);
 
-					if (!spotifyPlaylistId) {
+					if (!spotifyPlaylist) {
 						return this.createResponse();
 					}
 
-					spotifyPlaylist = await this.internal.getPlaylist(spotifyPlaylistId);
-				} else if (id) {
-					spotifyPlaylist = await this.internal.getPlaylist(id);
-				} else {
-					return this.createResponse();
+					const playlist = this.internal.buildPlaylist(context, spotifyPlaylist);
+
+					return this.createResponse(playlist, playlist.tracks);
 				}
-
-				if (!spotifyPlaylist) {
-					return this.createResponse();
-				}
-
-				const playlist = Player.buildPlaylist(
-					this.internal.buildPlaylistData(spotifyPlaylist),
-					this,
-					context
-				);
-
-				return this.createResponse(playlist, playlist.tracks);
 			}
 			default:
 				return this.createResponse();

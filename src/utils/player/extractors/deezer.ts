@@ -1,5 +1,4 @@
-import type { SpotifyTrack } from '#utils/api/spotify';
-import { Player, type PlayerSearchSource } from '#utils/player';
+import { Player, type PlayerSearchSource, type TrackMetadata } from '#utils/player';
 import type { ExtractorExecutionContext, ExtractorStreamable, Track } from 'discord-player';
 import {
 	DeezerExtractor as DZExtractor,
@@ -32,7 +31,7 @@ export class DeezerExtractor extends DZExtractor {
 
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
 		const trackTitle = track.cleanTitle.split(' (with ')[0];
-		const album = (track.metadata as SpotifyTrack | undefined)?.album;
+		const album = (track.metadata as TrackMetadata | undefined)?.album;
 		let deezerTrack: Track | undefined;
 
 		try {

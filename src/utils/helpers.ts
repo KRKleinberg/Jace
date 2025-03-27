@@ -11,8 +11,7 @@ export function createNumberedList(array: string[], charLimit?: number): string 
 
 		for (const currentString of numberedArray) {
 			const lengthDiff = numberedArray.length - results.length;
-			const endPhrase =
-				lengthDiff < 100 ? `**...and ${lengthDiff.toString()} more**` : '**...and 99+ more**';
+			const endPhrase = `**...and ${lengthDiff.toString()} more**`;
 
 			totalLength += currentString.length + 1;
 
@@ -70,6 +69,16 @@ export function getFilePaths(
 	}
 
 	return results;
+}
+
+export function isUrl(query: string) {
+	try {
+		const url = new URL(query);
+
+		return ['https:', 'http:'].includes(url.protocol);
+	} catch {
+		return false;
+	}
 }
 
 export function randomizeArray<T>(array: T[]): T[] {
