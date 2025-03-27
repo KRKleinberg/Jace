@@ -374,7 +374,6 @@ export class SpotifyAPI {
 			});
 
 			if (!playlistResponse.ok) {
-				console.log(playlistResponse);
 				return null;
 			}
 
