@@ -423,7 +423,7 @@ export class SpotifyAPI {
 			title: spotifyAlbum.name,
 			description: `${spotifyAlbum.name} by ${artists}`,
 			thumbnail: spotifyAlbum.images[0].url || 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-			type: 'playlist',
+			type: 'album',
 			source: 'spotify',
 			author: {
 				name: artists,
