@@ -1,13 +1,10 @@
 import { Player, type TrackMetadata } from '#utils/player';
 import { Playlist, QueryType, Track, Util, type ExtractorSearchContext } from 'discord-player';
-import { parse } from 'node-html-parser';
-import { Secret, TOTP } from 'otpauth';
 
-// INTERFACES
 interface SpotifyAccessToken {
-	token: string;
-	expiresAfter: number;
-	type: 'Bearer';
+	access_token: string;
+	token_type: string;
+	expires_in: number;
 }
 
 interface SpotifyItems<
@@ -184,213 +181,65 @@ interface SpotifySimplifiedArtist {
 	uri: string;
 }
 
+const apiBaseUrl = 'https://api.spotify.com/v1';
+
 export class SpotifyAPI {
-	private readonly base = 'https://api.spotify.com/v1';
-	private readonly userAgent =
-		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.49';
-	private accessToken: SpotifyAccessToken | null = null;
-	private credentials?: {
-		clientId?: string | undefined;
-		clientSecret?: string | undefined;
+	private _accessToken: SpotifyAccessToken | null = null;
+	private _credentials: {
+		clientId: string;
+		clientSecret: string;
 	};
-	private market = 'US';
 
-	constructor(credentials?: { clientId?: string; clientSecret?: string }, market?: string) {
-		if (credentials?.clientId && credentials.clientSecret) {
-			this.credentials = credentials;
-		}
-
-		if (market) {
-			this.market = market;
-		}
+	constructor(credentials: { clientId: string; clientSecret: string }) {
+		this._credentials = credentials;
 	}
 
-	private get authorizationKey() {
-		if (this.credentials?.clientId && this.credentials.clientSecret) {
-			return Buffer.from(`${this.credentials.clientId}:${this.credentials.clientSecret}`).toString(
-				'base64'
-			);
-		} else {
-			return '';
-		}
-	}
-
-	public async requestToken() {
-		const accessTokenUrl = await this.getAccessTokenUrl();
-
-		const fetchOptions: RequestInit = !this.credentials
-			? {
-					headers: {
-						Referer: 'https://open.spotify.com/',
-						Origin: 'https://open.spotify.com',
-					},
-				}
-			: {
-					method: 'POST',
-					headers: {
-						'User-Agent': this.userAgent,
-						Authorization: `Basic ${this.authorizationKey}`,
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-					body: 'grant_type=client_credentials',
-				};
-
-		const tokenData = (await (await fetch(accessTokenUrl, fetchOptions)).json()) as {
-			accessToken?: string;
-			accessTokenExpirationTimestampMs?: number;
-			access_token?: string;
-			expires_in?: number;
-		} | null;
-
-		if (!tokenData) {
-			throw new Error('Failed to retrieve access token.');
-		}
-
-		this.accessToken = {
-			token: (!this.credentials ? tokenData.accessToken : tokenData.access_token) ?? '',
-			expiresAfter: !this.credentials
-				? (tokenData.accessTokenExpirationTimestampMs ?? 0)
-				: Date.now() + (tokenData.expires_in ?? 0) * 1000,
-			type: 'Bearer',
-		};
-	}
-
-	private buildTokenUrl() {
-		const baseUrl = new URL('https://open.spotify.com/get_access_token');
-		baseUrl.searchParams.set('reason', 'init');
-		baseUrl.searchParams.set('productType', 'web-player');
-		return baseUrl;
-	}
-
-	private calculateToken(hex: number[]) {
-		const token = hex.map((v, i) => v ^ ((i % 33) + 9));
-		const bufferToken = Buffer.from(token.join(''), 'utf8').toString('hex');
-		return Secret.fromHex(bufferToken);
-	}
-
-	private async getAccessTokenUrl() {
-		if (this.credentials) {
-			return 'https://accounts.spotify.com/api/token?grant_type=client_credentials';
-		}
-
-		const token = this.calculateToken([
-			12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54,
-		]);
-
-		const spotifyHtml = await (
-			await fetch('https://open.spotify.com', {
-				headers: {
-					'User-Agent':
-						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-				},
-			})
-		).text();
-		const root = parse(spotifyHtml);
-		const scriptTags = root.querySelectorAll('script');
-		const playerSrc = scriptTags
-			.find((v) => v.getAttribute('src')?.includes('web-player/web-player.'))
-			?.getAttribute('src');
-		if (!playerSrc) {
-			throw new Error('Could not find player script source');
-		}
-		const playerScript = await (
-			await fetch(playerSrc, {
-				headers: {
-					Dnt: '1',
-					Referer: 'https://open.spotify.com/',
-					'User-Agent':
-						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-				},
-			})
-		).text();
-
-		const playerVerSplit = playerScript.split('buildVer');
-		const versionString = `{"buildVer"${playerVerSplit[1].split('}')[0].replace('buildDate', '"buildDate"')}}`;
-		const version = JSON.parse(versionString) as { buildVer: string; buildDate: string };
-
-		const url = this.buildTokenUrl();
-		const { searchParams } = url;
-
-		const cTime = Date.now();
-		const sTime = (
-			(await (
-				await fetch('https://open.spotify.com/server-time', {
-					headers: {
-						Referer: 'https://open.spotify.com/',
-						Origin: 'https://open.spotify.com',
-					},
-				})
-			).json()) as { serverTime: number }
-		).serverTime;
-
-		const totp = new TOTP({
-			secret: token,
-			period: 30,
-			digits: 6,
-			algorithm: 'SHA1',
+	private async _requestAccessToken(): Promise<SpotifyAccessToken | null> {
+		const response = await fetch('https://accounts.spotify.com/api/token', {
+			method: 'POST',
+			body: new URLSearchParams({
+				'grant_type': 'client_credentials',
+				'client_id': this._credentials.clientId,
+				'client_secret': this._credentials.clientSecret,
+			}),
 		});
 
-		const totpServer = totp.generate({
-			timestamp: sTime * 1e3,
-		});
-		const totpClient = totp.generate({
-			timestamp: cTime,
-		});
-
-		searchParams.set('sTime', String(sTime));
-		searchParams.set('cTime', String(cTime));
-		searchParams.set('totp', totpClient);
-		searchParams.set('totpServer', totpServer);
-		searchParams.set('totpVer', '5');
-		searchParams.set('buildVer', version.buildVer);
-		searchParams.set('buildDate', version.buildDate);
-
-		return url;
-	}
-
-	private isTokenExpired() {
-		return !this.accessToken || Date.now() > this.accessToken.expiresAfter;
-	}
-
-	private async ensureValidToken() {
-		if (this.isTokenExpired()) {
-			await this.requestToken();
-		}
-	}
-
-	private async fetchData(apiUrl: string) {
-		await this.ensureValidToken();
-		const res = await fetch(apiUrl, {
-			headers: {
-				Authorization: `Bearer ${this.accessToken?.token ?? ''}`,
-				Referer: 'https://open.spotify.com/',
-				Origin: 'https://open.spotify.com',
-			},
-		});
-
-		if (!res.ok) {
-			throw new Error('Failed to fetch Spotify data.');
-		}
-		return res;
-	}
-
-	private async search(query: string, type: 'album' | 'playlist' | 'track') {
-		if (this.isTokenExpired()) {
-			await this.requestToken();
+		if (!response.ok) {
+			return (this._accessToken = null);
 		}
 
-		if (!this.accessToken) {
+		const body = (await response.json()) as SpotifyAccessToken;
+
+		return (this._accessToken = body);
+	}
+
+	private _isTokenExpired() {
+		if (!this._accessToken) {
+			return true;
+		}
+
+		return this._accessToken.expires_in > 0;
+	}
+
+	private async _search(query: string, type: 'album' | 'playlist' | 'track') {
+		if (this._isTokenExpired()) {
+			await this._requestAccessToken();
+		}
+
+		if (!this._accessToken) {
 			throw new Error('Spotify API Error: No Access Token');
 		}
 
-		return await this.fetchData(
-			`${this.base}/search?q=${encodeURIComponent(query)}&type=${type}&market=${this.market}`
-		);
+		return await fetch(`${apiBaseUrl}/search?q=${encodeURIComponent(query)}&type=${type}&market=US`, {
+			headers: {
+				'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+			},
+		});
 	}
 
 	public async searchAlbums(query: string): Promise<SpotifyItems<SpotifySimplifiedAlbum> | null> {
 		try {
-			const response = await this.search(query, 'album');
+			const response = await this._search(query, 'album');
 
 			if (!response.ok) {
 				return null;
@@ -408,7 +257,7 @@ export class SpotifyAPI {
 		query: string
 	): Promise<SpotifyItems<SpotifySimplifiedPlaylist | null> | null> {
 		try {
-			const response = await this.search(query, 'playlist');
+			const response = await this._search(query, 'playlist');
 
 			if (!response.ok) {
 				return null;
@@ -426,7 +275,7 @@ export class SpotifyAPI {
 
 	public async searchTracks(query: string): Promise<SpotifyItems<SpotifyTrack> | null> {
 		try {
-			const response = await this.search(query, 'track');
+			const response = await this._search(query, 'track');
 
 			if (!response.ok) {
 				return null;
@@ -446,15 +295,19 @@ export class SpotifyAPI {
 		}
 
 		try {
-			if (this.isTokenExpired()) {
-				await this.requestToken();
+			if (this._isTokenExpired()) {
+				await this._requestAccessToken();
 			}
 
-			if (!this.accessToken) {
+			if (!this._accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const albumResponse = await this.fetchData(`${this.base}/albums/${id}?market=US`);
+			const albumResponse = await fetch(`${apiBaseUrl}/albums/${id}?market=US`, {
+				headers: {
+					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+				},
+			});
 
 			if (!albumResponse.ok) {
 				return null;
@@ -470,7 +323,11 @@ export class SpotifyAPI {
 
 			while (typeof next === 'string') {
 				try {
-					const nextResponse = await this.fetchData(next);
+					const nextResponse = await fetch(next, {
+						headers: {
+							'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+						},
+					});
 
 					if (!nextResponse.ok) {
 						break;
@@ -502,15 +359,19 @@ export class SpotifyAPI {
 		}
 
 		try {
-			if (this.isTokenExpired()) {
-				await this.requestToken();
+			if (this._isTokenExpired()) {
+				await this._requestAccessToken();
 			}
 
-			if (!this.accessToken) {
+			if (!this._accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const playlistResponse = await this.fetchData(`${this.base}/playlists/${id}?market=US`);
+			const playlistResponse = await fetch(`${apiBaseUrl}/playlists/${id}?market=US`, {
+				headers: {
+					'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+				},
+			});
 
 			if (!playlistResponse.ok) {
 				return null;
@@ -526,7 +387,11 @@ export class SpotifyAPI {
 
 			while (typeof next === 'string') {
 				try {
-					const nextResponse = await this.fetchData(next);
+					const nextResponse = await fetch(next, {
+						headers: {
+							'Authorization': `${this._accessToken.token_type} ${this._accessToken.access_token}`,
+						},
+					});
 
 					if (!nextResponse.ok) {
 						break;
@@ -552,34 +417,6 @@ export class SpotifyAPI {
 		}
 	}
 
-	public async getTrack(id?: string): Promise<SpotifyTrack | null> {
-		if (!id) {
-			return null;
-		}
-
-		try {
-			if (this.isTokenExpired()) {
-				await this.requestToken();
-			}
-
-			if (!this.accessToken) {
-				throw new Error('Spotify API Error: No Access Token');
-			}
-
-			const trackResponse = await this.fetchData(`${this.base}/tracks/${id}?market=US`);
-
-			if (!trackResponse.ok) {
-				return null;
-			}
-
-			const track = (await trackResponse.json()) as SpotifyTrack;
-
-			return track;
-		} catch {
-			return null;
-		}
-	}
-
 	public buildAlbum(context: ExtractorSearchContext, spotifyAlbum: SpotifyAlbum): Playlist {
 		const artists = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
 		const playlist = new Playlist(Player, {
@@ -599,7 +436,7 @@ export class SpotifyAPI {
 		});
 
 		playlist.tracks = spotifyAlbum.tracks.items.map((track) => {
-			const playlistTrack = this.buildTrack(context, track, playlist);
+			const playlistTrack = this.buildTrack(context, track, spotifyAlbum);
 
 			playlistTrack.playlist = playlist;
 
@@ -628,7 +465,7 @@ export class SpotifyAPI {
 		});
 
 		playlist.tracks = spotifyPlaylist.tracks.items.map(({ track }) => {
-			const playlistTrack = this.buildTrack(context, track);
+			const playlistTrack = this.buildTrack(context, track, track.album);
 
 			playlistTrack.playlist = playlist;
 
@@ -638,21 +475,15 @@ export class SpotifyAPI {
 		return playlist;
 	}
 
-	public buildTrack(context: ExtractorSearchContext, spotifyTrack: SpotifyTrack): Track;
 	public buildTrack(
 		context: ExtractorSearchContext,
 		spotifyTrack: SpotifySimplifiedTrack,
-		playlist: Playlist
-	): Track;
-	public buildTrack(
-		context: ExtractorSearchContext,
-		spotifyTrack: SpotifyTrack | SpotifySimplifiedTrack,
-		playlist?: Playlist
+		spotifyAlbum: SpotifySimplifiedAlbum
 	): Track {
 		const artists = spotifyTrack.artists.map((artist) => artist.name).join(', ');
 		const metadata: TrackMetadata = {
 			album: {
-				name: 'album' in spotifyTrack ? spotifyTrack.album.name : playlist?.title,
+				name: spotifyAlbum.name,
 			},
 		};
 		const track: Track = new Track(Player, {
@@ -660,9 +491,9 @@ export class SpotifyAPI {
 			description: `${spotifyTrack.name} by ${artists}`,
 			author: artists,
 			url: spotifyTrack.external_urls.spotify,
-			thumbnail:
-				('album' in spotifyTrack ? spotifyTrack.album.images[0].url : playlist?.url) ??
-				'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			thumbnail: spotifyAlbum.images.length
+				? spotifyAlbum.images[0].url
+				: 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
 			duration: Util.formatDuration(spotifyTrack.duration_ms),
 			requestedBy: context.requestedBy,
 			source: 'spotify',

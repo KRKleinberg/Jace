@@ -1,9 +1,9 @@
 import { Player, type PlayerSearchSource } from '#utils/player';
-import { ExtractorExecutionContext, QueryType } from 'discord-player';
 import {
 	AppleMusicExtractor as AMExtractor,
 	type AppleMusicExtractorInit,
-} from 'discord-player-applemusic';
+} from '@discord-player/extractor';
+import { ExtractorExecutionContext, QueryType } from 'discord-player';
 
 // CLASSES
 export class AppleMusicExtractor extends AMExtractor {

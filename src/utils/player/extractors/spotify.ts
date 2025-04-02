@@ -1,6 +1,5 @@
+import { SpotifyAPI } from '#utils/api/spotify';
 import { Player, type PlayerSearchSource } from '#utils/player';
-
-import { SpotifyAPI } from '#utils/player/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
@@ -15,24 +14,10 @@ import type { Readable } from 'stream';
 
 // INTERFACES
 interface SpotifyExtractorInit {
-	clientId?: string;
-	clientSecret?: string;
-	market?: string;
+	clientId: string;
+	clientSecret: string;
 	createStream?: (ext: SpotifyExtractor, url: string, track: Track) => Promise<Readable | string>;
 }
-
-// Variables
-const spotifyUrlRegex =
-	/^(?:https:\/\/open\.spotify\.com\/(intl-([a-z]|[A-Z]){0,3}\/)?(?:user\/[A-Za-z0-9]+\/)?|spotify:)(album|playlist|track)(?:[/:])([A-Za-z0-9]+).*$/;
-
-const spotifySongRegex =
-	/^https?:\/\/(?:embed\.|open\.)(?:spotify\.com\/)(intl-([a-z]|[A-Z])+\/)?(?:track\/|\?uri=spotify:track:)((\w|-){22})(\?si=.+)?$/;
-
-const spotifyPlaylistRegex =
-	/^https?:\/\/(?:embed\.|open\.)(?:spotify\.com\/)(intl-([a-z]|[A-Z])+\/)?(?:playlist\/|\?uri=spotify:playlist:)((\w|-){22})(\?si=.+)?$/;
-
-const spotifyAlbumRegex =
-	/^https?:\/\/(?:embed\.|open\.)(?:spotify\.com\/)(intl-([a-z]|[A-Z])+\/)?(?:album\/|\?uri=spotify:album:)((\w|-){22})(\?si=.+)?$/;
 
 // CLASSES
 export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
@@ -50,7 +35,10 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	constructor(context: ExtractorExecutionContext, options: SpotifyExtractorInit) {
 		super(context, options);
 
-		this.internal = new SpotifyAPI();
+		this.internal = new SpotifyAPI({
+			clientId: options.clientId,
+			clientSecret: options.clientSecret,
+		});
 
 		Player.searchSources.push(this.searchSource);
 		Player.searchTypes.map((searchType) => {
@@ -110,40 +98,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			context.type = QueryType.SPOTIFY_SEARCH;
 		}
 
-		const { id } = this.parse(query);
-
-		if (spotifySongRegex.test(query)) {
-			const spotifyData = await this.internal.getTrack(id);
-			if (!spotifyData) {
-				return this.createResponse();
-			}
-
-			const track = this.internal.buildTrack(context, spotifyData);
-			track.extractor = this;
-
-			return this.createResponse(null, [track]);
-		}
-
-		if (spotifyPlaylistRegex.test(query)) {
-			const spotifyPlaylist = await this.internal.getPlaylist(id);
-			if (!spotifyPlaylist) {
-				return this.createResponse();
-			}
-
-			const playlist = this.internal.buildPlaylist(context, spotifyPlaylist);
-			return this.createResponse(playlist, playlist.tracks);
-		}
-
-		if (spotifyAlbumRegex.test(query)) {
-			const spotifyAlbum = await this.internal.getAlbum(id);
-			if (!spotifyAlbum) {
-				return this.createResponse();
-			}
-
-			const playlist = this.internal.buildAlbum(context, spotifyAlbum);
-			return this.createResponse(playlist, playlist.tracks);
-		}
-
 		switch (context.type) {
 			case QueryType.AUTO:
 			case QueryType.AUTO_SEARCH:
@@ -156,7 +110,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				}
 
 				const tracks = spotifyTracks.items.map((spotifyTrack) =>
-					this.internal.buildTrack(context, spotifyTrack)
+					this.internal.buildTrack(context, spotifyTrack, spotifyTrack.album)
 				);
 
 				return this.createResponse(null, tracks);
@@ -248,15 +202,13 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return stream.result;
 	}
 
-	public parse = (
-		q: string
-	): {
-		queryType: string;
-		id: string;
-	} => {
-		const [, , , queryType, id] = spotifyUrlRegex.exec(q) ?? [];
+	public parse(query: string) {
+		const regEx =
+			/^(?:https:\/\/open\.spotify\.com\/(intl-([a-z]|[A-Z]){0,3}\/)?(?:user\/[A-Za-z0-9]+\/)?|spotify:)(album|playlist|track)(?:[/:])([A-Za-z0-9]+).*$/;
+		const [, , , queryType, id] = regEx.exec(query) ?? [];
+
 		return { queryType, id };
-	};
+	}
 }
 
 // FUNCTIONS
