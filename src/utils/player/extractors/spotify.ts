@@ -1,6 +1,5 @@
 import { Player, type PlayerSearchSource } from '#utils/player';
-
-import { SpotifyAPI } from '#utils/player/internal/spotify';
+import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
