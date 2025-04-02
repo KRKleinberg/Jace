@@ -30,12 +30,13 @@ export class DeezerExtractor extends DZExtractor {
 	}
 
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
-		const trackTitle = track.cleanTitle.split(' (with ')[0];
+		const title = track.cleanTitle.split(' (with ')[0];
 		const album = (track.metadata as TrackMetadata | undefined)?.album;
+		const artist = track.author.split(', ')[0].split(' & ')[0];
 		let deezerTrack: Track | undefined;
 
 		try {
-			const searchParams = [`track:"${trackTitle}"`, `artist:"${track.author}"`];
+			const searchParams = [`track:"${title}"`, `artist:"${artist}"`];
 
 			if (album?.name) {
 				searchParams.push(`album:"${album.name}"`);
@@ -55,61 +56,13 @@ export class DeezerExtractor extends DZExtractor {
 			if (searchResults.length) {
 				deezerTrack =
 					searchResults.find(
-						(searchResult) =>
-							searchResult.cleanTitle === trackTitle &&
-							searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-					) ?? searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle);
+						(searchResult) => searchResult.cleanTitle === title && searchResult.author.includes(artist)
+					) ??
+					searchResults.find((searchResult) => searchResult.cleanTitle === title) ??
+					(searchResults[0] || buildTrackFromSearch(await search(title, 1), Player, track.requestedBy)[0]);
 			}
 		} catch {
-			// No results, do nothing
-		}
-
-		try {
-			if (!deezerTrack) {
-				const searchParams = [
-					`track:"${trackTitle}"`,
-					`artist:"${track.author.split(', ')[0].split(' & ')[0]}"`,
-				];
-
-				if (album?.name) {
-					searchParams.push(`album:"${album.name}"`);
-				}
-
-				const searchResults = buildTrackFromSearch(
-					await search(searchParams.join(' '), 5),
-					Player,
-					track.requestedBy
-				);
-
-				if (searchParams.length) {
-					deezerTrack =
-						searchResults.find(
-							(searchResult) =>
-								searchResult.cleanTitle === trackTitle &&
-								searchResult.author.includes(track.author.split(', ')[0].split(' & ')[0])
-						) ??
-						searchResults.find((searchResult) => searchResult.cleanTitle === trackTitle) ??
-						searchResults[0];
-				}
-			}
-		} catch {
-			// No results, do nothing
-		}
-		try {
-			if (!deezerTrack) {
-				const searchParams = [trackTitle];
-				const searchResults = buildTrackFromSearch(
-					await search(searchParams.join(' '), 1),
-					Player,
-					track.requestedBy
-				);
-
-				if (searchParams.length) {
-					deezerTrack = searchResults[0];
-				}
-			}
-		} catch {
-			// No results, do nothing
+			return null;
 		}
 
 		if (deezerTrack) {
