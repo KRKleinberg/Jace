@@ -22,8 +22,7 @@
 		"#utils/*": "./src/utils/*.ts",
 		"#utils/app": "./src/utils/app/index.ts",
 		"#utils/data": "./src/utils/data/index.ts",
-		"#utils/player": "./src/utils/player/index.ts",
-		"#utils/player/extractors": "./src/utils/player/extractors/index.ts"
+		"#utils/player": "./src/utils/player/index.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.23.0",

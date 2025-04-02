@@ -1,11 +1,8 @@
 import { App, type AutocompleteInteractionContext, type CommandContext } from '#utils/app';
 import { createNumberedList, isUrl, trunicate } from '#utils/helpers';
-import {
-	registerDeezer,
-	registerAppleMusic,
-	registerSpotify,
-	SpotifyExtractor,
-} from '#utils/player/extractors';
+import { registerAppleMusic } from '#utils/player/extractors/AppleMusic';
+import { registerDeezer } from '#utils/player/extractors/Deezer';
+import { registerSpotify, SpotifyExtractor } from '#utils/player/extractors/Spotify';
 import {
 	Player as DiscordPlayer,
 	type GuildNodeCreateOptions,

@@ -1,4 +1,6 @@
 import { Player, type PlayerSearchSource } from '#utils/player';
+
+import { SpotifyAPI } from '#utils/player/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
@@ -10,7 +12,6 @@ import {
 	type SearchQueryType,
 } from 'discord-player';
 import type { Readable } from 'stream';
-import { SpotifyAPI } from './internal/spotify.ts';
 
 // INTERFACES
 interface SpotifyExtractorInit {
