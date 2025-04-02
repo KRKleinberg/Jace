@@ -661,7 +661,7 @@ export class SpotifyAPI {
 			author: artists,
 			url: spotifyTrack.external_urls.spotify,
 			thumbnail:
-				('album' in spotifyTrack ? spotifyTrack.album.images[0].url : playlist?.url) ??
+				('album' in spotifyTrack ? spotifyTrack.album.images[0].url : playlist?.thumbnail) ??
 				'https://www.scdn.co/i/_global/twitter_card-default.jpg',
 			duration: Util.formatDuration(spotifyTrack.duration_ms),
 			requestedBy: context.requestedBy,
