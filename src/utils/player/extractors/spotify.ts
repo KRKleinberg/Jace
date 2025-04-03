@@ -3,6 +3,7 @@ import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
+	GuildQueueHistory,
 	QueryType,
 	Track,
 	type ExtractorInfo,
@@ -231,7 +232,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		}
 	}
 
-	public async getRelatedTracks(track: Track): Promise<ExtractorInfo> {
+	public async getRelatedTracks(track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
 		let { id } = this.parse(track.url);
 
 		if (!id) {
@@ -242,7 +243,25 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			}
 		}
 
-		const spotifyTracks = await this.internal.getRecommendations([id]);
+		const ids = history.tracks
+			.toArray()
+			.slice(1)
+			.reduce(
+				(trackIds: string[], track: Track) => {
+					const { id } = this.parse(track.url);
+
+					if (id) {
+						trackIds.unshift(id);
+					}
+					if (trackIds.length > 5) {
+						trackIds.shift();
+					}
+
+					return trackIds;
+				},
+				[id]
+			);
+		const spotifyTracks = await this.internal.getRecommendations(ids);
 		const tracks = spotifyTracks?.map((spotifyTrack) => this.internal.buildTrack({ spotifyTrack }));
 
 		if (tracks) {
