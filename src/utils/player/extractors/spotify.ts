@@ -21,7 +21,7 @@ interface SpotifyExtractorInit {
 	createStream?: (ext: SpotifyExtractor, url: string, track: Track) => Promise<Readable | string>;
 }
 
-// Variables
+// VARIABLES
 const spotifyUrlRegex =
 	/^(?:https:\/\/open\.spotify\.com\/(intl-([a-z]|[A-Z]){0,3}\/)?(?:user\/[A-Za-z0-9]+\/)?|spotify:)(album|playlist|track)(?:[/:])([A-Za-z0-9]+).*$/;
 
