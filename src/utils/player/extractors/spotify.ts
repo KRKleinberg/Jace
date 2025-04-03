@@ -112,12 +112,12 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		const { id } = this.parse(query);
 
 		if (spotifySongRegex.test(query)) {
-			const spotifyData = await this.internal.getTrack(id);
-			if (!spotifyData) {
+			const spotifyTrack = await this.internal.getTrack(id);
+			if (!spotifyTrack) {
 				return this.createResponse();
 			}
 
-			const track = this.internal.buildTrack(context, spotifyData);
+			const track = this.internal.buildTrack({ spotifyTrack }, context);
 			track.extractor = this;
 
 			return this.createResponse(null, [track]);
@@ -155,7 +155,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				}
 
 				const tracks = spotifyTracks.items.map((spotifyTrack) =>
-					this.internal.buildTrack(context, spotifyTrack)
+					this.internal.buildTrack({ spotifyTrack }, context)
 				);
 
 				return this.createResponse(null, tracks);
@@ -231,6 +231,27 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		}
 	}
 
+	public async getRelatedTracks(track: Track): Promise<ExtractorInfo> {
+		let { id } = this.parse(track.url);
+
+		if (!id) {
+			const response = await this.internal.searchTracks(`${track.cleanTitle} - ${track.author}`);
+
+			if (response !== null && 'id' in response) {
+				id = response.items[0].id;
+			}
+		}
+
+		const spotifyTracks = await this.internal.getRecommendations([id]);
+		const tracks = spotifyTracks?.map((spotifyTrack) => this.internal.buildTrack({ spotifyTrack }));
+
+		if (tracks) {
+			return this.createResponse(null, tracks);
+		}
+
+		return this.createResponse();
+	}
+
 	public async stream(track: Track): Promise<ExtractorStreamable> {
 		if (this._stream) {
 			const stream = await this._stream(track.url, track);
@@ -247,15 +268,13 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return stream.result;
 	}
 
-	public parse = (
-		q: string
-	): {
+	public parse(q: string): {
 		queryType: string;
 		id: string;
-	} => {
+	} {
 		const [, , , queryType, id] = spotifyUrlRegex.exec(q) ?? [];
 		return { queryType, id };
-	};
+	}
 }
 
 // FUNCTIONS

@@ -184,6 +184,18 @@ interface SpotifySimplifiedArtist {
 	uri: string;
 }
 
+interface SpotifyRecommendedations {
+	seeds: {
+		afterFilteringSize: number;
+		afterRelinkingSize: number;
+		href: string;
+		id: string;
+		initialPoolSize: number;
+		type: string;
+	};
+	tracks: SpotifyTrack[];
+}
+
 export class SpotifyAPI {
 	private readonly base = 'https://api.spotify.com/v1';
 	private readonly userAgent =
@@ -360,7 +372,8 @@ export class SpotifyAPI {
 
 	private async fetchData(apiUrl: string) {
 		await this.ensureValidToken();
-		const res = await fetch(apiUrl, {
+
+		const response = await fetch(apiUrl, {
 			headers: {
 				Authorization: `Bearer ${this.accessToken?.token ?? ''}`,
 				Referer: 'https://open.spotify.com/',
@@ -368,10 +381,11 @@ export class SpotifyAPI {
 			},
 		});
 
-		if (!res.ok) {
+		if (!response.ok) {
 			throw new Error('Failed to fetch Spotify data.');
 		}
-		return res;
+
+		return response;
 	}
 
 	private async search(query: string, type: 'album' | 'playlist' | 'track') {
@@ -454,7 +468,7 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const albumResponse = await this.fetchData(`${this.base}/albums/${id}?market=US`);
+			const albumResponse = await this.fetchData(`${this.base}/albums/${id}?market=${this.market}`);
 
 			if (!albumResponse.ok) {
 				return null;
@@ -510,7 +524,7 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const playlistResponse = await this.fetchData(`${this.base}/playlists/${id}?market=US`);
+			const playlistResponse = await this.fetchData(`${this.base}/playlists/${id}?market=${this.market}`);
 
 			if (!playlistResponse.ok) {
 				return null;
@@ -566,7 +580,7 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const trackResponse = await this.fetchData(`${this.base}/tracks/${id}?market=US`);
+			const trackResponse = await this.fetchData(`${this.base}/tracks/${id}?market=${this.market}`);
 
 			if (!trackResponse.ok) {
 				return null;
@@ -575,6 +589,33 @@ export class SpotifyAPI {
 			const track = (await trackResponse.json()) as SpotifyTrack;
 
 			return track;
+		} catch {
+			return null;
+		}
+	}
+
+	public async getRecommendations(trackIds: string[]): Promise<SpotifyTrack[] | null> {
+		try {
+			if (this.isTokenExpired()) {
+				await this.requestToken();
+			}
+
+			if (!this.accessToken) {
+				throw new Error('Spotify API Error: No Access Token');
+			}
+
+			const recommendationResponse = await this.fetchData(
+				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}&market=${this.market}`
+			);
+
+			if (!recommendationResponse.ok) {
+				return null;
+			}
+
+			const recommendations = (await recommendationResponse.json()) as SpotifyRecommendedations;
+			const tracks = recommendations.tracks;
+
+			return tracks;
 		} catch {
 			return null;
 		}
@@ -599,7 +640,7 @@ export class SpotifyAPI {
 		});
 
 		playlist.tracks = spotifyAlbum.tracks.items.map((track) => {
-			const playlistTrack = this.buildTrack(context, track, playlist);
+			const playlistTrack = this.buildTrack({ spotifyTrack: track, playlist }, context);
 
 			playlistTrack.playlist = playlist;
 
@@ -628,7 +669,7 @@ export class SpotifyAPI {
 		});
 
 		playlist.tracks = spotifyPlaylist.tracks.items.map(({ track }) => {
-			const playlistTrack = this.buildTrack(context, track);
+			const playlistTrack = this.buildTrack({ spotifyTrack: track }, context);
 
 			playlistTrack.playlist = playlist;
 
@@ -638,33 +679,40 @@ export class SpotifyAPI {
 		return playlist;
 	}
 
-	public buildTrack(context: ExtractorSearchContext, spotifyTrack: SpotifyTrack): Track;
 	public buildTrack(
-		context: ExtractorSearchContext,
-		spotifyTrack: SpotifySimplifiedTrack,
-		playlist: Playlist
+		trackInfo:
+			| { spotifyTrack: SpotifyTrack }
+			| {
+					spotifyTrack: SpotifySimplifiedTrack;
+					playlist: Playlist;
+			  },
+		context?: ExtractorSearchContext
 	): Track;
 	public buildTrack(
-		context: ExtractorSearchContext,
-		spotifyTrack: SpotifyTrack | SpotifySimplifiedTrack,
-		playlist?: Playlist
+		trackInfo: {
+			spotifyTrack: SpotifyTrack | SpotifySimplifiedTrack;
+			playlist?: Playlist;
+		},
+		context?: ExtractorSearchContext
 	): Track {
-		const artists = spotifyTrack.artists.map((artist) => artist.name).join(', ');
+		const artists = trackInfo.spotifyTrack.artists.map((artist) => artist.name).join(', ');
 		const metadata: TrackMetadata = {
 			album: {
-				name: 'album' in spotifyTrack ? spotifyTrack.album.name : playlist?.title,
+				name:
+					'album' in trackInfo.spotifyTrack ? trackInfo.spotifyTrack.album.name : trackInfo.playlist?.title,
 			},
 		};
 		const track: Track = new Track(Player, {
-			title: spotifyTrack.name,
-			description: `${spotifyTrack.name} by ${artists}`,
+			title: trackInfo.spotifyTrack.name,
+			description: `${trackInfo.spotifyTrack.name} by ${artists}`,
 			author: artists,
-			url: spotifyTrack.external_urls.spotify,
+			url: trackInfo.spotifyTrack.external_urls.spotify,
 			thumbnail:
-				('album' in spotifyTrack ? spotifyTrack.album.images[0].url : playlist?.thumbnail) ??
-				'https://www.scdn.co/i/_global/twitter_card-default.jpg',
-			duration: Util.formatDuration(spotifyTrack.duration_ms),
-			requestedBy: context.requestedBy,
+				('album' in trackInfo.spotifyTrack
+					? trackInfo.spotifyTrack.album.images[0].url
+					: trackInfo.playlist?.thumbnail) ?? 'https://www.scdn.co/i/_global/twitter_card-default.jpg',
+			duration: Util.formatDuration(trackInfo.spotifyTrack.duration_ms),
+			requestedBy: context?.requestedBy,
 			source: 'spotify',
 			queryType: QueryType.SPOTIFY_SONG,
 			metadata,

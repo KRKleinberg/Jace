@@ -45,7 +45,7 @@ export const command: Command = {
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channnel', 'USER_ERROR');
 		}
-		if (!queue || queue.isEmpty()) {
+		if (!queue?.currentTrack) {
 			return await App.respond(ctx, 'There are no tracks in the queue', 'USER_ERROR');
 		}
 		if (ctx.member.voice.channel !== queue.channel) {
