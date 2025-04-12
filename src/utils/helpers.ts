@@ -124,11 +124,15 @@ export function getFilePaths(
  * @param query - The string to validate as a URL.
  * @returns `true` if the string is a valid URL with an HTTP or HTTPS protocol, otherwise `false`.
  */
-export function isUrl(query: string) {
+export function isUrl(query: string): boolean {
 	try {
-		const url = new URL(query);
+		if (URL.canParse(query)) {
+			const url = new URL(query);
 
-		return ['https:', 'http:'].includes(url.protocol);
+			return ['https:', 'http:'].includes(url.protocol);
+		}
+
+		return false;
 	} catch {
 		return false;
 	}
@@ -136,21 +140,28 @@ export function isUrl(query: string) {
 
 /**
  * Randomizes the order of elements in an array using the Fisher-Yates shuffle algorithm.
+ * The function creates a shallow copy of the input array to avoid mutating the original array.
  *
  * @template T - The type of elements in the array.
- * @param array - The array to be randomized. This array is modified in place.
- * @returns The same array with its elements shuffled in random order.
+ * @param array - The array to be randomized.
+ * @returns A new array with the elements shuffled in random order.
  */
 export function randomizeArray<T>(array: T[]): T[] {
-	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		const temp = array[i];
+	const clonedArray = [...array];
 
-		array[i] = array[j];
-		array[j] = temp;
+	const randomBuffer = new Uint32Array(1);
+
+	for (let i = clonedArray.length - 1; i > 0; i--) {
+		crypto.getRandomValues(randomBuffer);
+
+		const randomIndex = Math.floor((randomBuffer[0] / 0x100000000) * (i + 1));
+		const tempElement = clonedArray[i];
+
+		clonedArray[i] = clonedArray[randomIndex];
+		clonedArray[randomIndex] = tempElement;
 	}
 
-	return array;
+	return clonedArray;
 }
 
 /**
