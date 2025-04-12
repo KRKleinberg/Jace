@@ -217,7 +217,14 @@ export class SpotifyAPI {
 		}
 	}
 
-	private get authorizationKey() {
+	/**
+	 * Generates the Base64-encoded authorization key using the client ID and client secret
+	 * from the credentials. This key is typically used for authentication purposes.
+	 *
+	 * @returns {string} The Base64-encoded authorization key if both client ID and client secret
+	 * are available; otherwise, an empty string.
+	 */
+	private get authorizationKey(): string {
 		if (this.credentials?.clientId && this.credentials.clientSecret) {
 			return Buffer.from(`${this.credentials.clientId}:${this.credentials.clientSecret}`).toString(
 				'base64'
@@ -227,9 +234,19 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Requests an access token from Spotify's API.
+	 *
+	 * Depending on whether credentials are provided, this method will either:
+	 * - Fetch a token using a simple GET request (no credentials).
+	 * - Fetch a token using a POST request with client credentials.
+	 *
+	 * The retrieved token and its expiration time are stored in the `accessToken` property.
+	 *
+	 * @throws {Error} If the access token cannot be retrieved.
+	 */
 	public async requestToken() {
 		const accessTokenUrl = await this.getAccessTokenUrl();
-
 		const fetchOptions: RequestInit = !this.credentials
 			? {
 					headers: {
@@ -246,7 +263,6 @@ export class SpotifyAPI {
 					},
 					body: 'grant_type=client_credentials',
 				};
-
 		const tokenData = (await (await fetch(accessTokenUrl, fetchOptions)).json()) as {
 			accessToken?: string;
 			accessTokenExpirationTimestampMs?: number;
@@ -267,20 +283,58 @@ export class SpotifyAPI {
 		};
 	}
 
-	private buildTokenUrl() {
+	/**
+	 * Constructs the URL used to retrieve an access token from Spotify.
+	 * The URL includes query parameters specifying the reason for the request
+	 * and the product type.
+	 *
+	 * @returns {URL} The fully constructed URL for fetching the access token.
+	 */
+	private buildTokenUrl(): URL {
 		const baseUrl = new URL('https://open.spotify.com/get_access_token');
 		baseUrl.searchParams.set('reason', 'init');
 		baseUrl.searchParams.set('productType', 'web-player');
 		return baseUrl;
 	}
 
-	private calculateToken(hex: number[]) {
+	/**
+	 * Calculates a token by applying a transformation to the input hexadecimal array.
+	 * Each element in the array is XORed with a value derived from its index, and the
+	 * resulting array is converted into a hexadecimal string.
+	 *
+	 * @param hex - An array of numbers representing the hexadecimal input.
+	 * @returns A `Secret` object created from the transformed hexadecimal string.
+	 */
+	private calculateToken(hex: number[]): Secret {
 		const token = hex.map((v, i) => v ^ ((i % 33) + 9));
 		const bufferToken = Buffer.from(token.join(''), 'utf8').toString('hex');
 		return Secret.fromHex(bufferToken);
 	}
 
-	private async getAccessTokenUrl() {
+	/**
+	 * Retrieves the Spotify access token URL, either using stored credentials or by dynamically
+	 * generating the required parameters through a series of network requests and calculations.
+	 *
+	 * @returns {Promise<string | URL>} A promise that resolves to the Spotify access token URL.
+	 * 
+	 * @throws {Error} If the player script source cannot be found or if any network request fails.
+	 *
+	 * @remarks
+	 * - If `this.credentials` is available, a static token URL is returned.
+	 * - Otherwise, the method performs the following steps:
+	 *   1. Fetches the Spotify homepage to extract the player script source.
+	 *   2. Downloads the player script to parse the build version and build date.
+	 *   3. Fetches the server time from Spotify's server.
+	 *   4. Generates TOTP (Time-based One-Time Password) values for both client and server times.
+	 *   5. Constructs a dynamic token URL with all the required query parameters.
+	 *
+	 * @example
+	 * ```typescript
+	 * const tokenUrl = await getAccessTokenUrl();
+	 * console.log(tokenUrl.toString());
+	 * ```
+	 */
+	private async getAccessTokenUrl(): Promise<string | URL> {
 		if (this.credentials) {
 			return 'https://accounts.spotify.com/api/token?grant_type=client_credentials';
 		}
@@ -360,16 +414,37 @@ export class SpotifyAPI {
 		return url;
 	}
 
-	private isTokenExpired() {
+	/**
+	 * Checks if the current access token is expired.
+	 *
+	 * @returns {boolean} `true` if the access token is either not present or has expired, otherwise `false`.
+	 */
+	private isTokenExpired(): boolean {
 		return !this.accessToken || Date.now() > this.accessToken.expiresAfter;
 	}
 
-	private async ensureValidToken() {
+	/**
+	 * Ensures that the current token is valid by checking its expiration status.
+	 * If the token is expired, it will request a new token to maintain validity.
+	 * 
+	 * @private
+	 * @async
+	 * @returns {Promise<void>} A promise that resolves once the token is validated or refreshed.
+	 */
+	private async ensureValidToken(): Promise<void> {
 		if (this.isTokenExpired()) {
 			await this.requestToken();
 		}
 	}
 
+	/**
+	 * Fetches data from the specified Spotify API URL.
+	 * Ensures that a valid access token is available before making the request.
+	 *
+	 * @param apiUrl - The URL of the Spotify API endpoint to fetch data from.
+	 * @returns A promise that resolves to the response object from the fetch request.
+	 * @throws An error if the response status is not OK or if the fetch operation fails.
+	 */
 	private async fetchData(apiUrl: string) {
 		await this.ensureValidToken();
 
@@ -388,6 +463,15 @@ export class SpotifyAPI {
 		return response;
 	}
 
+	/**
+	 * Searches the Spotify API for the specified query and type (album, playlist, or track).
+	 * Automatically refreshes the access token if it is expired before making the request.
+	 *
+	 * @param query - The search query string to look for.
+	 * @param type - The type of item to search for ('album', 'playlist', or 'track').
+	 * @returns A promise that resolves with the search results from the Spotify API.
+	 * @throws An error if the access token is unavailable or invalid.
+	 */
 	private async search(query: string, type: 'album' | 'playlist' | 'track') {
 		if (this.isTokenExpired()) {
 			await this.requestToken();

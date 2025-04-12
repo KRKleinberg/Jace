@@ -27,7 +27,7 @@ if (!process.env.MONGODB_URL) {
 }
 
 class DataClient {
-	private _client: MongoClient;
+	private client: MongoClient;
 	public collection: Collection<Document>;
 
 	constructor() {
@@ -41,14 +41,14 @@ class DataClient {
 			throw new Error('Environment variable "MONGODB_URL" is not set!');
 		}
 
-		this._client = new MongoClient(process.env.MONGODB_URL, {
+		this.client = new MongoClient(process.env.MONGODB_URL, {
 			serverApi: {
 				version: ServerApiVersion.v1,
 				strict: true,
 				deprecationErrors: true,
 			},
 		});
-		this.collection = this._client
+		this.collection = this.client
 			.db(process.env.MONGODB_COLLECTION_NAME)
 			.collection<Document>(process.env.ENV);
 	}
@@ -56,7 +56,7 @@ class DataClient {
 	/**
 	 * Retrieves the preferences for a user or guild based on the provided Discord ID.
 	 * If a specific preference is not found for the user or guild, it falls back to the master preferences.
-	 * 
+	 *
 	 * @param discordId - An optional object containing the `userId` and/or `guildId` to fetch preferences for.
 	 * @returns A promise that resolves to the required preferences object containing `prefix` and `volume`.
 	 * @throws {Error} If the master preferences for `prefix` or `volume` are not set in the database.
