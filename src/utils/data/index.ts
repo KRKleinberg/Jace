@@ -53,6 +53,14 @@ class DataClient {
 			.collection<Document>(process.env.ENV);
 	}
 
+	/**
+	 * Retrieves the preferences for a user or guild based on the provided Discord ID.
+	 * If a specific preference is not found for the user or guild, it falls back to the master preferences.
+	 * 
+	 * @param discordId - An optional object containing the `userId` and/or `guildId` to fetch preferences for.
+	 * @returns A promise that resolves to the required preferences object containing `prefix` and `volume`.
+	 * @throws {Error} If the master preferences for `prefix` or `volume` are not set in the database.
+	 */
 	public async getPreferences(discordId?: {
 		userId?: string;
 		guildId?: string;

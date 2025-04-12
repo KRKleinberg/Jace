@@ -7,18 +7,18 @@ import { InteractionType, SlashCommandBuilder } from 'discord.js';
 export const command: Command = {
 	aliases: ['p'],
 	help: `Input: \`search\`
-	Modifiers:
-	${Player.searchTypes
-		.flatMap((searchType) =>
-			searchType.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
-		)
-		.concat([`\`-next\``])
+	Modifiers (<modifier>:<search>):
+	${[`\`next\`*`]
 		.concat(
-			Player.searchSources.flatMap((searchSource) =>
-				searchSource.modifiers.map((modifier) => `\`${modifier.trim()}\``).join(', ')
-			)
+			Player.extractors.store
+				.values()
+				.toArray()
+				.flatMap((extractor) => {
+					return extractor.protocols.map((protocol) => `\`${protocol}\``).join(', ');
+				})
 		)
-		.join('\n')}`,
+		.join('\n')}
+		*_Can be used with other modifiers_`,
 	data: new SlashCommandBuilder()
 		.setDescription('Plays a song or playlist')
 		.addSubcommand((subcommand) =>
@@ -139,11 +139,7 @@ export const command: Command = {
 			}
 		}
 
-		if (
-			search.input.includes('-next') ||
-			(ctx.command.type === InteractionType.ApplicationCommand &&
-				ctx.command.options.getSubcommand() === 'next')
-		) {
+		if (search.next) {
 			if (searchResult.playlist) {
 				for (const track of searchResult.playlist.tracks.reverse()) {
 					queue.insertTrack(track);

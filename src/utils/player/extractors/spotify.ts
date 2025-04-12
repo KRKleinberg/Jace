@@ -1,16 +1,16 @@
+import { isUrl } from '#utils/helpers';
 import { Player, type PlayerSearchSource } from '#utils/player';
 import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
 	GuildQueueHistory,
-	QueryType,
 	Track,
 	type ExtractorInfo,
 	type ExtractorSearchContext,
 	type ExtractorStreamable,
-	type SearchQueryType,
 } from 'discord-player';
+import type { ApplicationCommandOptionChoiceData } from 'discord.js';
 import type { Readable } from 'stream';
 
 // INTERFACES
@@ -41,10 +41,8 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	public internal: SpotifyAPI;
 	public priority = 30;
 	public searchSource: PlayerSearchSource = {
-		name: 'spotify',
-		modifiers: ['-spotify', '-sp'],
+		id: this.identifier,
 		streamable: false,
-		searchEngine: QueryType.SPOTIFY_SEARCH,
 	};
 
 	constructor(context: ExtractorExecutionContext, options: SpotifyExtractorInit) {
@@ -53,17 +51,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		this.internal = new SpotifyAPI();
 
 		Player.searchSources.push(this.searchSource);
-		Player.searchTypes.map((searchType) => {
-			if (searchType.name === 'album') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_ALBUM);
-			}
-			if (searchType.name === 'playlist') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_PLAYLIST);
-			}
-			if (searchType.name === 'song') {
-				return searchType.searchEngines.push(QueryType.SPOTIFY_SONG);
-			}
-		});
 	}
 
 	// eslint-disable-next-line @typescript-eslint/require-await
@@ -76,7 +63,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			throw new Error('SpotifyExtractor Error: Client Secret not set!');
 		}
 
-		this.protocols = ['spsearch', 'spotify'];
+		this.protocols = ['spotify', 'sp', 'album', 'playlist'];
 		const createStream = this.options.createStream;
 
 		if (typeof createStream === 'function') {
@@ -92,24 +79,14 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/require-await
-	public async validate(query: string, type?: SearchQueryType | null): Promise<boolean> {
+	public async validate(query: string): Promise<boolean> {
 		return (
-			[
-				QueryType.SPOTIFY_ALBUM,
-				QueryType.SPOTIFY_PLAYLIST,
-				QueryType.SPOTIFY_SONG,
-				QueryType.SPOTIFY_SEARCH,
-				QueryType.AUTO,
-				QueryType.AUTO_SEARCH,
-			] as SearchQueryType[]
-		).some((t) => t === type);
+			!isUrl(query) ||
+			[spotifyAlbumRegex, spotifyPlaylistRegex, spotifySongRegex].some((regex) => regex.test(query))
+		);
 	}
 
 	public async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {
-		if (context.protocol === 'spsearch') {
-			context.type = QueryType.SPOTIFY_SEARCH;
-		}
-
 		const { id } = this.parse(query);
 
 		if (spotifySongRegex.test(query)) {
@@ -144,24 +121,8 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			return this.createResponse(playlist, playlist.tracks);
 		}
 
-		switch (context.type) {
-			case QueryType.AUTO:
-			case QueryType.AUTO_SEARCH:
-			case QueryType.SPOTIFY_SONG:
-			case QueryType.SPOTIFY_SEARCH: {
-				const spotifyTracks = await this.internal.searchTracks(query);
-
-				if (!spotifyTracks) {
-					return this.createResponse();
-				}
-
-				const tracks = spotifyTracks.items.map((spotifyTrack) =>
-					this.internal.buildTrack({ spotifyTrack }, context)
-				);
-
-				return this.createResponse(null, tracks);
-			}
-			case QueryType.SPOTIFY_ALBUM: {
+		switch (context.protocol) {
+			case 'album': {
 				const { queryType, id } = this.parse(query);
 
 				if (queryType === 'album' && id) {
@@ -194,7 +155,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 					return this.createResponse(album, album.tracks);
 				}
 			}
-			case QueryType.SPOTIFY_PLAYLIST: {
+			case 'playlist': {
 				const { queryType, id } = this.parse(query);
 
 				if (queryType === 'playlist' && id) {
@@ -227,9 +188,91 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 					return this.createResponse(playlist, playlist.tracks);
 				}
 			}
-			default:
-				return this.createResponse();
+			default: {
+				const spotifyTracks = await this.internal.searchTracks(query);
+
+				if (!spotifyTracks) {
+					return this.createResponse();
+				}
+
+				const tracks = spotifyTracks.items.map((spotifyTrack) =>
+					this.internal.buildTrack({ spotifyTrack }, context)
+				);
+
+				return this.createResponse(null, tracks);
+			}
 		}
+	}
+
+	/**
+	 * Provides autocomplete suggestions based on the given query and protocol.
+	 *
+	 * @param query - The search query string used to fetch suggestions.
+	 * @param protocol - The type of resource to search for. Supported values are:
+	 *   - `'album'`: Searches for Spotify albums.
+	 *   - `'playlist'`: Searches for Spotify playlists.
+	 * @returns A promise that resolves to an array of `ApplicationCommandOptionChoiceData` objects,
+	 *          each representing an autocomplete suggestion. Returns an empty array if no suggestions are found.
+	 */
+	public async autocomplete(
+		query: string,
+		protocol: string
+	): Promise<ApplicationCommandOptionChoiceData[]> {
+		switch (protocol) {
+			case 'album': {
+				const spotifyAlbums = await this.internal.searchAlbums(query);
+
+				if (spotifyAlbums) {
+					const responses: ApplicationCommandOptionChoiceData[] = [];
+
+					for (const item of spotifyAlbums.items) {
+						if (responses.length >= 5) {
+							break;
+						}
+						if (item.total_tracks > 1) {
+							responses.push(
+								Player.buildAutocompleteResponse(
+									item.name,
+									item.artists.map((artist) => artist.name).join(', '),
+									item.external_urls.spotify
+								)
+							);
+						}
+					}
+					return responses;
+				}
+
+				break;
+			}
+			case 'playlist': {
+				const spotifyPlaylists = await this.internal.searchPlaylists(query);
+
+				if (spotifyPlaylists) {
+					const responses: ApplicationCommandOptionChoiceData[] = [];
+
+					for (const item of spotifyPlaylists.items) {
+						if (responses.length >= 5) {
+							break;
+						}
+						if (item) {
+							responses.push(
+								Player.buildAutocompleteResponse(
+									item.name,
+									item.owner.display_name ?? 'Unknown',
+									item.external_urls.spotify
+								)
+							);
+						}
+					}
+
+					return responses;
+				}
+
+				break;
+			}
+		}
+
+		return [];
 	}
 
 	public async getRelatedTracks(track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
@@ -287,6 +330,14 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return stream.result;
 	}
 
+	/**
+	 * Parses a Spotify URL or query string and extracts the query type and ID.
+	 *
+	 * @param q - The Spotify URL or query string to parse.
+	 * @returns An object containing the extracted `queryType` and `id`.
+	 *          - `queryType`: The type of the query (e.g., track, playlist, album).
+	 *          - `id`: The unique identifier associated with the query type.
+	 */
 	public parse(q: string): {
 		queryType: string;
 		id: string;

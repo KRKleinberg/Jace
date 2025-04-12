@@ -1,6 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Creates a numbered list from an array of strings, with an optional character limit.
+ * Each item in the list is prefixed with its index in bold format (e.g., `**1.**`).
+ * If a character limit is provided and the resulting list exceeds the limit,
+ * the list is truncated and ends with a summary indicating the number of remaining items.
+ *
+ * @param array - The array of strings to convert into a numbered list.
+ * @param charLimit - An optional character limit for the resulting list. If exceeded, the list is truncated.
+ * @returns The formatted numbered list as a string. If truncated, the list ends with a summary.
+ */
 export function createNumberedList(array: string[], charLimit?: number): string {
 	const numberedArray = array.map((value, index) => `**${(index + 1).toString()}.** ${value}`);
 	const list = numberedArray.join('\n');
@@ -30,6 +40,22 @@ export function createNumberedList(array: string[], charLimit?: number): string 
 	}
 }
 
+/**
+ * Converts a duration string in the format "HH:MM:SS" or "MM:SS" into milliseconds.
+ *
+ * @param duration - The duration string to convert. It should be in the format "HH:MM:SS" or "MM:SS".
+ *                   Each segment is separated by a colon and represents hours, minutes, and seconds respectively.
+ *                   Hours and minutes are optional, but seconds must always be present.
+ *
+ * @returns The duration in milliseconds as a number.
+ *
+ * @example
+ * ```typescript
+ * durationToMs("01:02:03"); // Returns 3723000 (1 hour, 2 minutes, and 3 seconds in milliseconds)
+ * durationToMs("02:03");    // Returns 123000 (2 minutes and 3 seconds in milliseconds)
+ * durationToMs("45");       // Returns 45000 (45 seconds in milliseconds)
+ * ```
+ */
 export function durationToMs(duration: string) {
 	const times = (n: number, t: number) => {
 		let tn = 1;
@@ -46,6 +72,27 @@ export function durationToMs(duration: string) {
 		.reduce((a, c) => a + c, 0);
 }
 
+/**
+ * Recursively retrieves all file paths with a specific extension from a given directory.
+ *
+ * @param dir - The directory to search in.
+ * @param ext - The file extension to filter by (e.g., ".txt").
+ * @param cwd - The current working directory, used to generate relative paths.
+ * @returns An array of relative file paths matching the specified extension.
+ *
+ * @remarks
+ * This function traverses the directory structure recursively. If a subdirectory
+ * is encountered, it will search within that subdirectory as well. The returned
+ * file paths are relative to the provided `cwd` parameter.
+ *
+ * @example
+ * ```typescript
+ * import { getFilePaths } from './utils/helpers';
+ *
+ * const files = getFilePaths('./src', '.ts', process.cwd());
+ * console.log(files); // ['./src/index.ts', './src/utils/helpers.ts', ...]
+ * ```
+ */
 export function getFilePaths(
 	/** The directory you are searching in. */
 	dir: string,
@@ -71,6 +118,12 @@ export function getFilePaths(
 	return results;
 }
 
+/**
+ * Determines whether a given string is a valid HTTP or HTTPS URL.
+ *
+ * @param query - The string to validate as a URL.
+ * @returns `true` if the string is a valid URL with an HTTP or HTTPS protocol, otherwise `false`.
+ */
 export function isUrl(query: string) {
 	try {
 		const url = new URL(query);
@@ -81,6 +134,13 @@ export function isUrl(query: string) {
 	}
 }
 
+/**
+ * Randomizes the order of elements in an array using the Fisher-Yates shuffle algorithm.
+ *
+ * @template T - The type of elements in the array.
+ * @param array - The array to be randomized. This array is modified in place.
+ * @returns The same array with its elements shuffled in random order.
+ */
 export function randomizeArray<T>(array: T[]): T[] {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -93,7 +153,15 @@ export function randomizeArray<T>(array: T[]): T[] {
 	return array;
 }
 
-export function trunicate(text: string, length: number, end?: string) {
+/**
+ * Truncates a given string to a specified length and optionally appends a custom ending.
+ *
+ * @param text - The string to be truncated.
+ * @param length - The maximum length of the truncated string, including the optional ending.
+ * @param end - An optional string to append to the truncated text. Defaults to an empty string.
+ * @returns The truncated string, optionally appended with the specified ending.
+ */
+export function truncate(text: string, length: number, end?: string) {
 	if (text.length < length) {
 		return text;
 	} else if (end && end.length < length) {

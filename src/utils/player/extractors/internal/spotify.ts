@@ -1,5 +1,5 @@
 import { Player, type TrackMetadata } from '#utils/player';
-import { Playlist, QueryType, Track, Util, type ExtractorSearchContext } from 'discord-player';
+import { Playlist, Track, Util, type ExtractorSearchContext } from 'discord-player';
 import { parse } from 'node-html-parser';
 import { Secret, TOTP } from 'otpauth';
 
@@ -398,10 +398,17 @@ export class SpotifyAPI {
 		}
 
 		return await this.fetchData(
-			`${this.base}/search?q=${encodeURIComponent(query)}&type=${type}&market=${this.market}`
+			`${this.base}/search?q=${encodeURIComponent(query)}&type=${type}${this.market ? `&market=${this.market}` : ''}`
 		);
 	}
 
+	/**
+	 * Searches for albums on Spotify based on the provided query string.
+	 *
+	 * @param query - The search query string used to find albums.
+	 * @returns A promise that resolves to a `SpotifyItems<SpotifySimplifiedAlbum>` object containing the search results,
+	 *          or `null` if the search fails or no results are found.
+	 */
 	public async searchAlbums(query: string): Promise<SpotifyItems<SpotifySimplifiedAlbum> | null> {
 		try {
 			const response = await this.search(query, 'album');
@@ -418,6 +425,17 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Searches for playlists on Spotify based on the provided query string.
+	 *
+	 * @param query - The search query string used to find playlists.
+	 * @returns A promise that resolves to a `SpotifyItems` object containing
+	 *          `SpotifySimplifiedPlaylist` items or `null` if the search fails
+	 *          or no playlists are found.
+	 *
+	 * @throws This method does not throw errors directly; it catches and handles
+	 *         any exceptions internally, returning `null` in case of failure.
+	 */
 	public async searchPlaylists(
 		query: string
 	): Promise<SpotifyItems<SpotifySimplifiedPlaylist | null> | null> {
@@ -438,6 +456,13 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Searches for tracks on Spotify based on the provided query string.
+	 *
+	 * @param query - The search query string to look for tracks.
+	 * @returns A promise that resolves to a `SpotifyItems<SpotifyTrack>` object containing the search results,
+	 *          or `null` if the search fails or no results are found.
+	 */
 	public async searchTracks(query: string): Promise<SpotifyItems<SpotifyTrack> | null> {
 		try {
 			const response = await this.search(query, 'track');
@@ -454,6 +479,20 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Retrieves a Spotify album by its ID.
+	 *
+	 * @param id - The unique identifier of the Spotify album. If not provided, the method returns `null`.
+	 * @returns A `Promise` that resolves to a `SpotifyAlbum` object if the album is successfully retrieved,
+	 *          or `null` if the album does not exist, the ID is not provided, or an error occurs.
+	 *
+	 * @remarks
+	 * - If the access token is expired, the method will attempt to request a new token before proceeding.
+	 * - The method fetches all tracks in the album, including those on subsequent pages, by following the `next` links.
+	 * - If any error occurs during the process, the method will return `null`.
+	 *
+	 * @throws An error if the access token is missing and cannot be retrieved.
+	 */
 	public async getAlbum(id?: string): Promise<SpotifyAlbum | null> {
 		if (!id) {
 			return null;
@@ -468,7 +507,9 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const albumResponse = await this.fetchData(`${this.base}/albums/${id}?market=${this.market}`);
+			const albumResponse = await this.fetchData(
+				`${this.base}/albums/${id}${this.market ? `?market=${this.market}` : ''}`
+			);
 
 			if (!albumResponse.ok) {
 				return null;
@@ -510,6 +551,20 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Retrieves a Spotify playlist by its ID.
+	 *
+	 * @param id - The unique identifier of the Spotify playlist. If not provided, the method returns `null`.
+	 * @returns A `Promise` that resolves to a `SpotifyPlaylist` object if the playlist is successfully retrieved,
+	 *          or `null` if the playlist does not exist, the ID is not provided, or an error occurs.
+	 *
+	 * @remarks
+	 * - If the access token is expired, the method will attempt to request a new token before proceeding.
+	 * - The method fetches all tracks in the playlist, including those on subsequent pages, by following the `next` links.
+	 * - If any error occurs during the process, the method will return `null`.
+	 *
+	 * @throws An error if the access token is missing and cannot be retrieved.
+	 */
 	public async getPlaylist(id?: string): Promise<SpotifyPlaylist | null> {
 		if (!id) {
 			return null;
@@ -524,7 +579,9 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const playlistResponse = await this.fetchData(`${this.base}/playlists/${id}?market=${this.market}`);
+			const playlistResponse = await this.fetchData(
+				`${this.base}/playlists/${id}${this.market ? `?market=${this.market}` : ''}`
+			);
 
 			if (!playlistResponse.ok) {
 				return null;
@@ -566,6 +623,14 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Retrieves a Spotify track by its ID.
+	 *
+	 * @param id - The unique identifier of the Spotify track. If not provided, the method returns `null`.
+	 * @returns A promise that resolves to a `SpotifyTrack` object if the track is found, or `null` if the track
+	 *          is not found, the ID is not provided, or an error occurs.
+	 * @throws An error if the Spotify API access token is unavailable and cannot be refreshed.
+	 */
 	public async getTrack(id?: string): Promise<SpotifyTrack | null> {
 		if (!id) {
 			return null;
@@ -580,7 +645,9 @@ export class SpotifyAPI {
 				throw new Error('Spotify API Error: No Access Token');
 			}
 
-			const trackResponse = await this.fetchData(`${this.base}/tracks/${id}?market=${this.market}`);
+			const trackResponse = await this.fetchData(
+				`${this.base}/tracks/${id}${this.market ? `?market=${this.market}` : ''}`
+			);
 
 			if (!trackResponse.ok) {
 				return null;
@@ -594,6 +661,15 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Fetches track recommendations from the Spotify API based on the provided track IDs.
+	 *
+	 * @param trackIds - An array of Spotify track IDs to use as seeds for generating recommendations.
+	 * @returns A promise that resolves to an array of recommended Spotify tracks (`SpotifyTrack[]`)
+	 *          or `null` if the request fails or no recommendations are available.
+	 *
+	 * @throws Will throw an error if the Spotify access token is unavailable or expired and cannot be refreshed.
+	 */
 	public async getRecommendations(trackIds: string[]): Promise<SpotifyTrack[] | null> {
 		try {
 			if (this.isTokenExpired()) {
@@ -605,7 +681,7 @@ export class SpotifyAPI {
 			}
 
 			const recommendationResponse = await this.fetchData(
-				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}&market=${this.market}`
+				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}${this.market ? `&market=${this.market}` : ''}`
 			);
 
 			if (!recommendationResponse.ok) {
@@ -621,6 +697,13 @@ export class SpotifyAPI {
 		}
 	}
 
+	/**
+	 * Builds a `Playlist` object from a Spotify album.
+	 *
+	 * @param context - The context for the extractor search, providing additional metadata or configuration.
+	 * @param spotifyAlbum - The Spotify album object containing album details such as name, artists, images, tracks, and URLs.
+	 * @returns A `Playlist` object representing the Spotify album, including its metadata and tracks.
+	 */
 	public buildAlbum(context: ExtractorSearchContext, spotifyAlbum: SpotifyAlbum): Playlist {
 		const artists = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
 		const playlist = new Playlist(Player, {
@@ -650,6 +733,13 @@ export class SpotifyAPI {
 		return playlist;
 	}
 
+	/**
+	 * Builds a `Playlist` object from the provided Spotify playlist data.
+	 *
+	 * @param context - The context for the extractor search, providing additional metadata or configuration.
+	 * @param spotifyPlaylist - The Spotify playlist data to be transformed into a `Playlist` object.
+	 * @returns A `Playlist` object containing metadata, tracks, and other relevant information derived from the Spotify playlist.
+	 */
 	public buildPlaylist(context: ExtractorSearchContext, spotifyPlaylist: SpotifyPlaylist): Playlist {
 		const playlist = new Playlist(Player, {
 			title: spotifyPlaylist.name,
@@ -679,6 +769,15 @@ export class SpotifyAPI {
 		return playlist;
 	}
 
+	/**
+	 * Builds a `Track` object using the provided Spotify track information and optional context.
+	 *
+	 * @param trackInfo - An object containing the Spotify track information and optional playlist details.
+	 * @param trackInfo.spotifyTrack - The Spotify track, which can be either a full `SpotifyTrack` or a simplified `SpotifySimplifiedTrack`.
+	 * @param trackInfo.playlist - (Optional) The playlist containing the track, used for additional metadata like title or thumbnail.
+	 * @param context - (Optional) The search context, which may include the user who requested the track.
+	 * @returns A `Track` object populated with metadata derived from the Spotify track and playlist information.
+	 */
 	public buildTrack(
 		trackInfo:
 			| { spotifyTrack: SpotifyTrack }
@@ -714,7 +813,6 @@ export class SpotifyAPI {
 			duration: Util.formatDuration(trackInfo.spotifyTrack.duration_ms),
 			requestedBy: context?.requestedBy,
 			source: 'spotify',
-			queryType: QueryType.SPOTIFY_SONG,
 			metadata,
 			// eslint-disable-next-line @typescript-eslint/require-await
 			requestMetadata: async () => metadata,

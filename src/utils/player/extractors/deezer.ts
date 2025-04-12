@@ -17,10 +17,8 @@ interface DeezerExtractorInit extends DeezerExtractorOptions {
 export class DeezerExtractor extends DZExtractor {
 	public priority = 10;
 	public searchSource: PlayerSearchSource = {
-		name: 'deezer',
-		modifiers: ['-deezer', '-dz'],
+		id: this.identifier,
 		streamable: true,
-		searchEngine: `ext:${DeezerExtractor.identifier}`,
 	};
 
 	constructor(context: ExtractorExecutionContext, options: DeezerExtractorInit) {
@@ -29,6 +27,27 @@ export class DeezerExtractor extends DZExtractor {
 		Player.searchSources.push(this.searchSource);
 	}
 
+	public async activate(): Promise<void> {
+		await super.activate();
+
+		this.protocols = ['deezer', 'dz'];
+	}
+
+	/**
+	 * Attempts to bridge a given track to a corresponding track on Deezer and retrieves a streamable object.
+	 *
+	 * @param track - The track to be bridged, containing metadata such as title, author, album, and duration.
+	 * @returns A promise that resolves to an `ExtractorStreamable` object if a matching track is found and streamed,
+	 *          or `null` if no match is found or an error occurs during the process.
+	 *
+	 * @remarks
+	 * - The method performs a search on Deezer using the track's title, artist, and optionally album or duration.
+	 * - It prioritizes exact matches for title and artist, but falls back to other matches if necessary.
+	 * - If a matching track is found, it streams the track and updates the original track's metadata with the bridged information.
+	 * - If the original track lacks a duration, it is updated with the duration of the bridged track.
+	 *
+	 * @throws This method does not throw errors directly but will return `null` if an error occurs during the search or streaming process.
+	 */
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
 		const title = track.cleanTitle.split(' (with ')[0];
 		const album = (track.metadata as TrackMetadata | undefined)?.album;

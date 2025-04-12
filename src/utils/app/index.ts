@@ -75,7 +75,18 @@ export interface Command {
 class AppClient extends Client {
 	public readonly commands = new Collection<string, Command>();
 
-	public async initializeCommands() {
+	/**
+	 * Asynchronously initializes and loads command modules from the specified directory.
+	 *
+	 * This method scans the provided directory for TypeScript files containing command definitions,
+	 * dynamically imports them, and registers the commands into the internal command collection.
+	 *
+	 * @async
+	 * @returns {Promise<void>} A promise that resolves when all commands have been initialized.
+	 *
+	 * @throws {Error} If there is an issue importing or processing a command file.
+	 */
+	public async initializeCommands(): Promise<void> {
 		const commandFiles = getFilePaths('./src/commands/', '.ts', './src/utils/app');
 
 		for (const commandFile of commandFiles) {
@@ -90,7 +101,18 @@ class AppClient extends Client {
 		console.log('Commands initialized');
 	}
 
-	public async initializeEvents() {
+	/**
+	 * Asynchronously initializes and registers event handlers.
+	 *
+	 * This method retrieves all file paths matching the specified criteria
+	 * from the events directory, dynamically imports each event file, and
+	 * logs a confirmation message once all events are registered.
+	 *
+	 * @async
+	 * @returns {Promise<void>} A promise that resolves when all event files
+	 * have been imported and registered.
+	 */
+	public async initializeEvents(): Promise<void> {
 		const eventFiles = getFilePaths('./src/events/', '.ts', './src/utils/app');
 
 		for (const eventFile of eventFiles) {
@@ -100,6 +122,25 @@ class AppClient extends Client {
 		console.log('Events registered');
 	}
 
+	/**
+	 * Creates a response object with an embedded message based on the provided context, message, and response type.
+	 *
+	 * @template T - The type of the response context, extending `ResponseContext`.
+	 * @param ctx - The context of the response, which includes the command and other relevant information.
+	 * @param message - The message to be included in the response embed.
+	 * @param type - The type of the response, which determines the embed's color and style. Defaults to `'DEFAULT'`.
+	 *
+	 * @returns A response object that is either `InteractionReplyOptions` or `BaseMessageOptions`,
+	 *          depending on the type of the command in the provided context.
+	 *
+	 * The response embed's appearance is determined by the `type` parameter:
+	 * - `'PLAYER_ERROR'` or `'APP_ERROR'`: Orange color with a warning icon.
+	 * - `'USER_ERROR'`: Red color with an error icon.
+	 * - `'DEFAULT'`: Uses the guild member's display color or a default style.
+	 *
+	 * If the command type is `ApplicationCommand` and the response type is `'APP_ERROR'` or `'USER_ERROR'`,
+	 * the response will be ephemeral (visible only to the user).
+	 */
 	public createResponse<T extends ResponseContext>(
 		ctx: T,
 		message: string,
@@ -131,6 +172,23 @@ class AppClient extends Client {
 		return response;
 	}
 
+	/**
+	 * Sends a response based on the provided context, message, and response type.
+	 *
+	 * @param ctx - The context of the response, containing information about the command and channel.
+	 * @param message - The message to send, which can be a string or a `BaseMessageOptions` object.
+	 * @param type - The type of response to send. Defaults to `'DEFAULT'`. Possible values:
+	 *   - `'DEFAULT'`: Sends a standard response.
+	 *   - `'CHANNEL'`: Sends a response to the channel if the channel type is `GuildText`.
+	 *   - `'REPLY'`: Sends a reply to the command.
+	 * @returns A promise that resolves to a `Message` or `InteractionResponse` object, depending on the response type.
+	 *
+	 * @remarks
+	 * The method handles different interaction types (`ApplicationCommand`, `MessageComponent`) and determines
+	 * the appropriate way to send the response (e.g., `send`, `reply`, `editReply`, `followUp`, or `update`).
+	 *
+	 * @throws Will throw an error if the response cannot be sent due to invalid context or unsupported interaction type.
+	 */
 	public async respond(
 		ctx: ResponseContext,
 		message: string | BaseMessageOptions,
@@ -158,7 +216,7 @@ class AppClient extends Client {
 	}
 }
 
-// Exports
+// EXPORTS
 export const App = new AppClient({
 	intents: [
 		GatewayIntentBits.GuildMessages,

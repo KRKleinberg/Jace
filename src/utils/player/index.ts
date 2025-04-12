@@ -1,5 +1,5 @@
 import { App, type AutocompleteInteractionContext, type CommandContext } from '#utils/app';
-import { createNumberedList, isUrl, trunicate } from '#utils/helpers';
+import { createNumberedList, isUrl, truncate } from '#utils/helpers';
 import { registerAppleMusic } from '#utils/player/extractors/appleMusic';
 import { registerDeezer } from '#utils/player/extractors/deezer';
 import { registerSpotify, SpotifyExtractor } from '#utils/player/extractors/spotify';
@@ -7,10 +7,7 @@ import {
 	Player as DiscordPlayer,
 	type GuildNodeCreateOptions,
 	type GuildQueue,
-	type QueryExtractorSearch,
-	QueryType,
 	type SearchOptions,
-	type SearchQueryType,
 	SearchResult,
 	Track,
 } from 'discord-player';
@@ -20,18 +17,9 @@ import { type ApplicationCommandOptionChoiceData, EmbedBuilder } from 'discord.j
 export type PlayerSearchModifier = `-${string}`;
 
 // INTERFACES
-export interface PlayerSearchType {
-	name: string;
-	modifiers: PlayerSearchModifier[];
-	searchEngines: (SearchQueryType | QueryExtractorSearch)[];
-}
-
 export interface PlayerSearchSource {
-	/** Match name with start of QueryType */
-	name: string;
-	modifiers: PlayerSearchModifier[];
+	id: string;
 	streamable: boolean;
-	searchEngine: SearchQueryType | QueryExtractorSearch;
 }
 
 export interface TrackMetadata {
@@ -50,24 +38,36 @@ class PlayerClient extends DiscordPlayer {
 		leaveOnEndCooldown: 300_000,
 	};
 	public searchSources: PlayerSearchSource[] = [];
-	public searchTypes: PlayerSearchType[] = [
-		{
-			name: 'album',
-			modifiers: ['-album'],
-			searchEngines: [],
-		},
-		{
-			name: 'playlist',
-			modifiers: ['-playlist'],
-			searchEngines: [],
-		},
-		{
-			name: 'song',
-			modifiers: ['-song'],
-			searchEngines: [],
-		},
-	];
 
+	/**
+	 * Builds an autocomplete response for an application command option.
+	 *
+	 * @param title - The title of the item to be displayed in the autocomplete response.
+	 * @param artist - The artist associated with the item.
+	 * @param url - The URL associated with the item.
+	 * @returns An object conforming to `ApplicationCommandOptionChoiceData` containing
+	 *          the truncated name and value for the autocomplete response.
+	 */
+	public buildAutocompleteResponse(
+		title: string,
+		artist: string,
+		url: string
+	): ApplicationCommandOptionChoiceData {
+		return {
+			name: truncate(`${title} — ${artist}`, 100, '...'),
+			value: url.length <= 100 ? url : truncate(`${title} — ${artist}`, 100, '...'),
+		};
+	}
+
+	/**
+	 * Converts a volume value between two representations: 'readable' and 'queue'.
+	 *
+	 * @param volume - The volume value to be converted.
+	 * @param convertTo - Specifies the target representation for the conversion.
+	 *                     - `'readable'`: Converts the volume to a human-readable format.
+	 *                     - `'queue'`: Converts the volume to a queue-compatible format.
+	 * @returns The converted volume value.
+	 */
 	public convertVolume(volume: number, convertTo: 'readable' | 'queue'): number {
 		const factor = 0.1;
 		const multiplier = convertTo === 'readable' ? 1 / factor : factor;
@@ -75,6 +75,15 @@ class PlayerClient extends DiscordPlayer {
 		return volume * multiplier;
 	}
 
+	/**
+	 * Creates an embed message for a music player, displaying information about the currently playing
+	 * or previously played track, along with optional lyrics and a progress bar.
+	 *
+	 * @param queue - The guild queue containing the current playback state and metadata.
+	 * @param track - The track for which the embed is being created.
+	 * @param lyrics - Optional array of strings representing the lyrics of the track.
+	 * @returns An instance of `EmbedBuilder` containing the formatted embed message.
+	 */
 	public createPlayEmbed(queue: GuildQueue, track: Track, lyrics?: string[]) {
 		const ctx: CommandContext = queue.metadata as CommandContext;
 		const progressBar = queue.node.createProgressBar({
@@ -114,6 +123,14 @@ class PlayerClient extends DiscordPlayer {
 		}
 	}
 
+	/**
+	 * Creates an embed message for a queued track or playlist in a Discord guild queue.
+	 *
+	 * @param queue - The guild queue containing the metadata and tracks.
+	 * @param searchResult - The search result containing the track(s) or playlist to be queued.
+	 * @param next - Optional. If `true`, the track or playlist will be queued as the next item. Defaults to `false`.
+	 * @returns An `EmbedBuilder` instance representing the queued track or playlist.
+	 */
 	public createQueuedEmbed(
 		queue: GuildQueue,
 		searchResult: SearchResult,
@@ -156,6 +173,14 @@ class PlayerClient extends DiscordPlayer {
 			);
 	}
 
+	/**
+	 * Calculates the length of the progress bar based on the provided track's duration.
+	 *
+	 * @param track - An optional `Track` object. If no track is provided or the track's duration
+	 *                length is less than or equal to 5, the progress bar length will be 24.
+	 *                Otherwise, it will be 22.
+	 * @returns The length of the progress bar as a number.
+	 */
 	public getProgressBarLength(track?: Track): number {
 		return !track || track.duration.length <= 5 ? 24 : 22;
 	}
@@ -176,7 +201,9 @@ class PlayerClient extends DiscordPlayer {
 export class PlayerSearch {
 	public readonly ctx: CommandContext | AutocompleteInteractionContext;
 	public readonly input: string;
+	public next = false;
 	public searchType?: string;
+	public searchOptions: SearchOptions;
 
 	constructor(
 		ctx: CommandContext | AutocompleteInteractionContext,
@@ -184,90 +211,72 @@ export class PlayerSearch {
 		searchType?: string
 	) {
 		this.ctx = ctx;
-		this.input = input.trim();
+		this.input = input.replace('next:', '').trim();
 		this.searchType = searchType;
+		this.searchOptions = { requestedBy: ctx.member.user };
+
+		if (input.includes('next:')) {
+			this.next = true;
+		}
 	}
 
 	/**
-	 * Returns the user input without the requested search engine.
+	 * Retrieves the query string based on the input.
+	 * If the input is a URL, the entire input is returned.
+	 * Otherwise, it attempts to extract and return the portion of the input
+	 * after the first colon (`:`), trimming any whitespace. If no colon is
+	 * present, the original input is returned.
+	 *
+	 * @returns {string} The processed query string.
 	 */
 	get query(): string {
-		let query = this.input;
-
-		for (const searchSource of Player.searchSources) {
-			for (const modifier of searchSource.modifiers) {
-				if (this.input.toLowerCase().includes(modifier)) {
-					query = this.input.replaceAll(modifier, '').trim();
-				}
-			}
+		if (isUrl(this.input)) {
+			return this.input;
 		}
 
-		for (const searchType of Player.searchTypes) {
-			for (const modifier of searchType.modifiers) {
-				if (this.input.toLowerCase().includes(modifier)) {
-					query = this.input.replaceAll(modifier, '').trim();
-				}
-			}
-		}
-
-		return query;
+		return this.input.split(':')[1]?.trim() ?? this.input;
 	}
 
 	/**
-	 * Returns the search engine the user requests.
+	 * Retrieves the protocol from the input string if applicable.
+	 *
+	 * The method determines the protocol based on the following conditions:
+	 * - If the input is a valid URL, it returns `undefined`.
+	 * - If the input contains a colon (`:`), it extracts and returns the substring
+	 *   before the colon, trimmed of any whitespace.
+	 * - If a `searchType` is defined, it returns the `searchType`.
+	 * - Otherwise, it returns `undefined`.
+	 *
+	 * @returns {string | undefined} The protocol string, or `undefined` if no protocol is found.
 	 */
-	get searchOptions(): SearchOptions {
-		const searchOptions: SearchOptions = {
-			requestedBy: this.ctx.member.user,
-			searchEngine: QueryType.AUTO,
-			fallbackSearchEngine: QueryType.AUTO,
-		};
-
-		if (!isUrl(this.input)) {
-			for (const searchSource of Player.searchSources) {
-				for (const modifier of searchSource.modifiers) {
-					if (this.input.toLowerCase().includes(modifier)) {
-						searchOptions.searchEngine = searchSource.searchEngine;
-					}
-				}
-			}
-
-			for (const searchType of Player.searchTypes) {
-				for (const modifier of searchType.modifiers) {
-					if (this.input.toLowerCase().includes(modifier)) {
-						this.searchType = searchType.name;
-					} else if (this.searchType === 'song') {
-						return searchOptions;
-					}
-				}
-			}
-
-			for (const searchType of Player.searchTypes) {
-				if (this.searchType === searchType.name && searchType.searchEngines.length) {
-					for (const searchSource of Player.searchSources) {
-						const match = searchType.searchEngines.find((searchEngine) =>
-							searchEngine.includes(searchSource.name)
-						);
-
-						if (
-							(searchOptions.searchEngine === searchSource.searchEngine ||
-								searchOptions.searchEngine === QueryType.AUTO) &&
-							match
-						) {
-							searchOptions.searchEngine = match;
-
-							return searchOptions;
-						}
-					}
-				}
-			}
+	get protocol(): string | undefined {
+		if (isUrl(this.input)) {
+			return undefined;
+		} else if (this.input.includes(':')) {
+			return this.input.split(':')[0].trim();
+		} else if (this.searchType) {
+			return this.searchType;
 		}
 
-		return searchOptions;
+		return undefined;
 	}
 
 	/**
-	 * Returns search result
+	 * Retrieves search results based on the provided query and options.
+	 *
+	 * @param autocomplete - A boolean indicating whether to return autocomplete suggestions.
+	 * @returns A promise that resolves to either:
+	 * - An array of autocomplete suggestions (`ApplicationCommandOptionChoiceData[]`) if `autocomplete` is true.
+	 * - A `SearchResult` object containing detailed search results if `autocomplete` is false.
+	 *
+	 * The method performs the following:
+	 * - If `autocomplete` is true:
+	 *   - Checks if the query is not a URL and a protocol is provided, then attempts to fetch autocomplete suggestions
+	 *     using the Spotify extractor.
+	 *   - If no results are found, performs a search using the query and protocol, returning either playlist suggestions
+	 *     or the top 5 track suggestions.
+	 * - If `autocomplete` is false:
+	 *   - Performs a search using the query and protocol, returning the full search results.
 	 */
 	async getResult(autocomplete?: false): Promise<SearchResult>;
 	async getResult(autocomplete?: true): Promise<ApplicationCommandOptionChoiceData[]>;
@@ -275,96 +284,42 @@ export class PlayerSearch {
 		autocomplete = false
 	): Promise<SearchResult | ApplicationCommandOptionChoiceData[]> {
 		if (autocomplete) {
-			if (!isUrl(this.query)) {
-				const spotifyExtractor = Player.extractors.get(SpotifyExtractor.identifier);
+			if (!isUrl(this.query) && this.protocol) {
+				const spotifyExtractor = Player.extractors.get(SpotifyExtractor.identifier) as
+					| SpotifyExtractor
+					| undefined;
 
-				if (spotifyExtractor && spotifyExtractor instanceof SpotifyExtractor) {
-					switch (this.searchOptions.searchEngine) {
-						case QueryType.SPOTIFY_ALBUM: {
-							const spotifyAlbums = await spotifyExtractor.internal.searchAlbums(this.query);
+				const results = await spotifyExtractor?.autocomplete(this.query, this.protocol);
 
-							if (spotifyAlbums) {
-								return spotifyAlbums.items.reduce(
-									(responses: ApplicationCommandOptionChoiceData[], spotifyAlbum) => {
-										if (responses.length < 5 && spotifyAlbum.total_tracks > 1) {
-											const name = spotifyAlbum.name;
-											const artist = spotifyAlbum.artists.map((artist) => artist.name).join(', ');
-											const url = spotifyAlbum.external_urls.spotify;
-
-											responses.push({
-												name: trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
-												value: url.length <= 100 ? url : trunicate(artist ? `${name} — ${artist}` : name, 100, '...'),
-											});
-										}
-
-										return responses;
-									},
-									[]
-								);
-							}
-
-							break;
-						}
-						case QueryType.SPOTIFY_PLAYLIST:
-							{
-								const spotifyPlaylists = await spotifyExtractor.internal.searchPlaylists(this.query);
-
-								if (spotifyPlaylists) {
-									return spotifyPlaylists.items.reduce(
-										(responses: ApplicationCommandOptionChoiceData[], spotifyPlaylist) => {
-											if (responses.length < 5 && spotifyPlaylist !== null) {
-												const name = spotifyPlaylist.name;
-												const owner = spotifyPlaylist.owner.display_name;
-												const url = spotifyPlaylist.external_urls.spotify;
-
-												responses.push({
-													name: trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
-													value: url.length <= 100 ? url : trunicate(owner ? `${name} — ${owner}` : name, 100, '...'),
-												});
-											}
-
-											return responses;
-										},
-										[]
-									);
-								}
-							}
-
-							break;
-					}
-				} else {
-					return [];
+				if (results?.length) {
+					return results;
 				}
 			}
 
-			const searchResults = await Player.search(this.query, this.searchOptions);
+			const searchResults = await Player.search(
+				this.protocol ? `${this.protocol}:${this.query}` : this.query,
+				this.searchOptions
+			);
 
 			return searchResults.playlist
 				? [
-						{
-							name: trunicate(
-								`${searchResults.playlist.title} — ${searchResults.playlist.author.name}`,
-								100,
-								'...'
-							),
-							value:
-								searchResults.playlist.url.length <= 100
-									? searchResults.playlist.url
-									: trunicate(`${searchResults.playlist.title} — ${searchResults.playlist.author.name}`, 100),
-						},
+						Player.buildAutocompleteResponse(
+							searchResults.playlist.title,
+							searchResults.playlist.author.name,
+							searchResults.playlist.url
+						),
 					]
-				: searchResults.tracks.slice(0, 5).map((track) => ({
-						name: trunicate(`${track.cleanTitle} — ${track.author}`, 100, '...'),
-						value:
-							track.url.length <= 100
-								? track.url
-								: trunicate(`${track.cleanTitle} — ${track.author}`, 100, '...'),
-					}));
+				: searchResults.tracks
+						.slice(0, 5)
+						.map((track) => Player.buildAutocompleteResponse(track.title, track.author, track.url));
 		}
 
-		return await Player.search(this.query, this.searchOptions);
+		return await Player.search(
+			this.protocol ? `${this.protocol}:${this.query}` : this.query,
+			this.searchOptions
+		);
 	}
 }
 
-// Exports
+// EXPORTS
 export const Player = new PlayerClient(App);
