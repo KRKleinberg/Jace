@@ -284,7 +284,7 @@ export class PlayerSearch {
 		autocomplete = false
 	): Promise<SearchResult | ApplicationCommandOptionChoiceData[]> {
 		if (autocomplete) {
-			if (!isUrl(this.query) && this.protocol) {
+			if (!isUrl(this.query) && (this.protocol === 'album' || this.protocol === 'playlist')) {
 				const spotifyExtractor = Player.extractors.get(SpotifyExtractor.identifier) as
 					| SpotifyExtractor
 					| undefined;
