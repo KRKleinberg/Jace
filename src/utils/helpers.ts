@@ -56,7 +56,7 @@ export function createNumberedList(array: string[], charLimit?: number): string 
  * durationToMs("45");       // Returns 45000 (45 seconds in milliseconds)
  * ```
  */
-export function durationToMs(duration: string) {
+export function durationToMs(duration: string): number {
 	const times = (n: number, t: number) => {
 		let tn = 1;
 		for (let i = 0; i < t; i++) {
@@ -100,7 +100,7 @@ export function getFilePaths(
 	ext: string,
 	/** The current working directory. */
 	cwd: string
-) {
+): string[] {
 	const files = fs.readdirSync(dir);
 	let results: string[] = [];
 
@@ -168,11 +168,12 @@ export function randomizeArray<T>(array: T[]): T[] {
  * Truncates a given string to a specified length and optionally appends a custom ending.
  *
  * @param text - The string to be truncated.
- * @param length - The maximum length of the truncated string, including the optional ending.
- * @param end - An optional string to append to the truncated text. Defaults to an empty string.
+ * @param length - The maximum length of the truncated string.
+ * @param end - An optional string to append to the truncated string. If provided, the total length
+ *              of the truncated string including this ending will not exceed the specified length.
  * @returns The truncated string, optionally appended with the specified ending.
  */
-export function truncate(text: string, length: number, end?: string) {
+export function truncate(text: string, length: number, end?: string): string {
 	if (text.length < length) {
 		return text;
 	} else if (end && end.length < length) {
