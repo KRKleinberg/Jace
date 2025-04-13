@@ -76,6 +76,9 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 			const response = await App.respond(ctx, { embeds: [embed] }, 'CHANNEL');
 
 			let index = 1;
+			const intervalDuration = track.durationMS / Player.getProgressBarLength(track) > 5_000
+				? track.durationMS / Player.getProgressBarLength(track)
+				: 5_000;
 			const interval = setInterval(
 				async () => {
 					if (queue.currentTrack !== track) {
@@ -110,9 +113,7 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 						}
 					}
 				},
-				track.durationMS / Player.getProgressBarLength(track) > 5_000
-					? track.durationMS / Player.getProgressBarLength(track)
-					: 5_000
+				intervalDuration
 			);
 
 			syncedLyrics.load(syncedVerses.join('\n'));

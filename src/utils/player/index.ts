@@ -250,7 +250,7 @@ export class PlayerSearch {
 	 * @returns {string | undefined} The protocol string, or `undefined` if no protocol is found.
 	 */
 	get protocol(): string | undefined {
-		if (isUrl(this.input)) {
+		if (isUrl(this.input) || this.searchType === 'song') {
 			return undefined;
 		} else if (this.input.includes(':')) {
 			return this.input.split(':')[0].trim();
