@@ -271,7 +271,7 @@ export class SpotifyAPI {
 		} | null;
 
 		if (!tokenData) {
-			throw new Error('Failed to retrieve access token.');
+			throw new Error('SpotifyAPI Error: Failed to retrieve access token.');
 		}
 
 		this.accessToken = {
@@ -316,7 +316,7 @@ export class SpotifyAPI {
 	 * generating the required parameters through a series of network requests and calculations.
 	 *
 	 * @returns {Promise<string | URL>} A promise that resolves to the Spotify access token URL.
-	 * 
+	 *
 	 * @throws {Error} If the player script source cannot be found or if any network request fails.
 	 *
 	 * @remarks
@@ -357,7 +357,7 @@ export class SpotifyAPI {
 			.find((v) => v.getAttribute('src')?.includes('web-player/web-player.'))
 			?.getAttribute('src');
 		if (!playerSrc) {
-			throw new Error('Could not find player script source');
+			throw new Error('SpotifyAPI Error: Could not find player script source');
 		}
 		const playerScript = await (
 			await fetch(playerSrc, {
@@ -426,7 +426,7 @@ export class SpotifyAPI {
 	/**
 	 * Ensures that the current token is valid by checking its expiration status.
 	 * If the token is expired, it will request a new token to maintain validity.
-	 * 
+	 *
 	 * @private
 	 * @async
 	 * @returns {Promise<void>} A promise that resolves once the token is validated or refreshed.
@@ -457,7 +457,7 @@ export class SpotifyAPI {
 		});
 
 		if (!response.ok) {
-			throw new Error('Failed to fetch Spotify data.');
+			throw new Error('SpotifyAPI Error: Failed to fetch Spotify data.');
 		}
 
 		return response;

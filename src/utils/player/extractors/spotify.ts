@@ -48,21 +48,16 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	constructor(context: ExtractorExecutionContext, options: SpotifyExtractorInit) {
 		super(context, options);
 
-		this.internal = new SpotifyAPI();
+		this.internal = new SpotifyAPI(
+			{ clientId: options.clientId, clientSecret: options.clientSecret },
+			options.market
+		);
 
 		Player.searchSources.push(this.searchSource);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async activate(): Promise<void> {
-		if (!this.options.clientId) {
-			throw new Error('SpotifyExtractor Error: Client ID not set!');
-		}
-
-		if (!this.options.clientSecret) {
-			throw new Error('SpotifyExtractor Error: Client Secret not set!');
-		}
-
 		this.protocols = ['spotify', 'sp', 'album', 'playlist'];
 		const createStream = this.options.createStream;
 
@@ -324,7 +319,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		const stream = await this.context.requestBridge(track, this);
 
 		if (!stream.result) {
-			throw new Error('Could not bridge this track');
+			throw new Error('Spotify Extractor Error: Could not bridge this track');
 		}
 
 		return stream.result;
@@ -349,13 +344,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 
 // FUNCTIONS
 export async function registerSpotify() {
-	if (!process.env.SPOTIFY_CLIENT_ID) {
-		throw new Error('Missing SPOTIFY_CLIENT_ID environment variable');
-	}
-	if (!process.env.SPOTIFY_CLIENT_SECRET) {
-		throw new Error('Missing SPOTIFY_CLIENT_SECRET environment variable');
-	}
-
 	if (Player.extractors.get(SpotifyExtractor.identifier)) {
 		await Player.extractors.unregister(SpotifyExtractor.identifier);
 	}

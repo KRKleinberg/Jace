@@ -5,10 +5,10 @@ import { Events, REST, Routes } from 'discord.js';
 App.once(Events.ClientReady, async () => {
 	// REST API
 	if (!process.env.DISCORD_BOT_TOKEN) {
-		throw new Error('Environment variable "DISCORD_BOT_TOKEN" is not set!');
+		throw new Error('ENV Error: Environment variable "DISCORD_BOT_TOKEN" is not set!');
 	}
 	if (!process.env.DISCORD_APP_ID) {
-		throw new Error('Environment variable "DISCORD_BOT_TOKEN" is not set!');
+		throw new Error('ENV Error: Environment variable "DISCORD_BOT_TOKEN" is not set!');
 	}
 
 	const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);

@@ -17,13 +17,13 @@ interface Document {
 
 // CHECK ENV VARIABLES
 if (!process.env.ENV) {
-	throw new Error('Environment variable "ENV" is not set!');
+	throw new Error('ENV Error: Environment variable "ENV" is not set!');
 }
 if (!process.env.MONGODB_COLLECTION_NAME) {
-	throw new Error('Environment variable "MONGODB_COLLECTION_NAME" is not set!');
+	throw new Error('ENV Error: Environment variable "MONGODB_COLLECTION_NAME" is not set!');
 }
 if (!process.env.MONGODB_URL) {
-	throw new Error('Environment variable "MONGODB_URL" is not set!');
+	throw new Error('ENV Error: Environment variable "MONGODB_URL" is not set!');
 }
 
 class DataClient {
@@ -32,13 +32,13 @@ class DataClient {
 
 	constructor() {
 		if (!process.env.ENV) {
-			throw new Error('Environment variable "ENV" is not set!');
+			throw new Error('ENV Error: Environment variable "ENV" is not set!');
 		}
 		if (!process.env.MONGODB_COLLECTION_NAME) {
-			throw new Error('Environment variable "MONGODB_COLLECTION_NAME" is not set!');
+			throw new Error('ENV Error: Environment variable "MONGODB_COLLECTION_NAME" is not set!');
 		}
 		if (!process.env.MONGODB_URL) {
-			throw new Error('Environment variable "MONGODB_URL" is not set!');
+			throw new Error('ENV Error: Environment variable "MONGODB_URL" is not set!');
 		}
 
 		this.client = new MongoClient(process.env.MONGODB_URL, {
@@ -70,10 +70,10 @@ class DataClient {
 		const master = await this.collection.findOne({ discordId: '0' });
 
 		if (!master?.preferences.prefix) {
-			throw new Error('Master prefix is not set in database!');
+			throw new Error('DB Error: Master prefix is not set in database!');
 		}
 		if (!master.preferences.volume) {
-			throw new Error('Master volume is not set in database!');
+			throw new Error('DB Error: Master volume is not set in database!');
 		}
 
 		return {

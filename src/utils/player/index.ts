@@ -191,7 +191,7 @@ class PlayerClient extends DiscordPlayer {
 		await registerDeezer();
 
 		if (!this.searchSources.some((searchSource) => searchSource.streamable)) {
-			throw new Error('No streamable extractors were registered!');
+			throw new Error('Player Error: No streamable extractors were registered!');
 		}
 
 		console.log('Extractors initialized');
@@ -250,11 +250,11 @@ export class PlayerSearch {
 	 * @returns {string | undefined} The protocol string, or `undefined` if no protocol is found.
 	 */
 	get protocol(): string | undefined {
-		if (isUrl(this.input) || this.searchType === 'song') {
+		if (isUrl(this.input)) {
 			return undefined;
 		} else if (this.input.includes(':')) {
 			return this.input.split(':')[0].trim();
-		} else if (this.searchType) {
+		} else if (this.searchType === 'album' || this.searchType === 'playlist') {
 			return this.searchType;
 		}
 
