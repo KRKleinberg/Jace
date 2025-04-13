@@ -56,7 +56,7 @@ App.on(Events.InteractionCreate, async (interaction) => {
 				try {
 					await slashCommand.autocomplete({ command: interaction, args: [], guild, member });
 				} catch (error) {
-					if (!String(error).includes('DiscordAPIError[10062]: Unknown interaction')) {
+					if (!(error instanceof Error && 'code' in error && error.code === 10062)) {
 						console.error('Autocomplete Error -', error);
 					}
 				}

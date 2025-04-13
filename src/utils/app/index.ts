@@ -58,14 +58,44 @@ export interface ResponseContext {
 		| AnySelectMenuInteraction;
 }
 
+/**
+ * Represents a command with its associated metadata and execution logic.
+ */
 export interface Command {
-	/** Alternative command names for running command via prefix. */
+	/**
+	 * Alternative command names that can be used to invoke the command via a prefix.
+	 * @example
+	 * aliases: ['start', 'begin']
+	 */
 	aliases?: string[];
-	/** Any extra information to show in the help command. */
+
+	/**
+	 * Additional information or description to display in the help command.
+	 * This can provide users with guidance on how to use the command.
+	 */
 	help?: string;
-	/** Slash command builder. If no name is set, command name will be automatically set to command filename. */
+
+	/**
+	 * The slash command builder object that defines the structure of the command.
+	 * If the name is not explicitly set, it will default to the command's filename.
+	 */
 	data: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+
+	/**
+	 * A function to handle autocomplete interactions for the command.
+	 * This is invoked when the user is typing in an input field that supports autocomplete.
+	 * @param ctx - The context of the autocomplete interaction.
+	 * @returns A promise that resolves when the autocomplete logic is complete.
+	 */
 	autocomplete?: (ctx: AutocompleteInteractionContext) => Promise<void>;
+
+	/**
+	 * The main execution logic for the command.
+	 * This function is called when the command is invoked by a user.
+	 * @param ctx - The context of the command interaction, which can be either
+	 * a chat input command or a message command.
+	 * @returns A promise that resolves to a response or an event emitter.
+	 */
 	run: (
 		ctx: ChatInputCommandInteractionContext | MessageCommandContext
 	) => Promise<Response | EventEmitter>;
@@ -87,7 +117,7 @@ class AppClient extends Client {
 	 * @throws {Error} If there is an issue importing or processing a command file.
 	 */
 	public async initializeCommands(): Promise<void> {
-		const commandFiles = getFilePaths('./src/commands/', '.ts', './src/utils/app');
+		const commandFiles = await getFilePaths('./src/commands/', '.ts', './src/utils/app');
 
 		for (const commandFile of commandFiles) {
 			const { command } = (await import(commandFile)) as { command: Command };
@@ -113,7 +143,7 @@ class AppClient extends Client {
 	 * have been imported and registered.
 	 */
 	public async initializeEvents(): Promise<void> {
-		const eventFiles = getFilePaths('./src/events/', '.ts', './src/utils/app');
+		const eventFiles = await getFilePaths('./src/events/', '.ts', './src/utils/app');
 
 		for (const eventFile of eventFiles) {
 			await import(eventFile);

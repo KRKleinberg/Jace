@@ -75,43 +75,53 @@ export function durationToMs(duration: string): number {
 /**
  * Recursively retrieves all file paths with a specific extension from a given directory.
  *
- * @param dir - The directory to search in.
+ * @param dir - The directory to search for files.
  * @param ext - The file extension to filter by (e.g., ".txt").
  * @param cwd - The current working directory, used to generate relative paths.
- * @returns An array of relative file paths matching the specified extension.
+ * @param visited - A set of visited directories to prevent infinite loops caused by symbolic links. Defaults to an empty set.
+ * @returns A promise that resolves to an array of relative file paths matching the specified extension.
  *
  * @remarks
- * This function traverses the directory structure recursively. If a subdirectory
- * is encountered, it will search within that subdirectory as well. The returned
- * file paths are relative to the provided `cwd` parameter.
+ * - The function ensures that directories are not revisited by resolving their absolute paths and tracking them in the `visited` set.
+ * - File paths are returned in a format with forward slashes (`/`) regardless of the operating system.
+ * - Symbolic links are handled to avoid infinite recursion.
  *
  * @example
  * ```typescript
  * import { getFilePaths } from './utils/helpers';
  *
- * const files = getFilePaths('./src', '.ts', process.cwd());
- * console.log(files); // ['./src/index.ts', './src/utils/helpers.ts', ...]
+ * const files = await getFilePaths('./src', '.ts', process.cwd());
+ * console.log(files); // Outputs an array of TypeScript file paths relative to the current working directory.
  * ```
  */
-export function getFilePaths(
-	/** The directory you are searching in. */
+export async function getFilePaths(
 	dir: string,
-	/** The file extension you are searching for. */
 	ext: string,
-	/** The current working directory. */
-	cwd: string
-): string[] {
-	const files = fs.readdirSync(dir);
+	cwd: string,
+	visited = new Set<string>()
+): Promise<string[]> {
+	const files = await fs.promises.readdir(dir);
 	let results: string[] = [];
+
+	// Resolve the absolute path of the directory to track it
+	const resolvedDir = await fs.promises.realpath(dir);
+
+	// Skip if the directory has already been visited
+	if (visited.has(resolvedDir)) {
+		return results;
+	}
+
+	// Mark the directory as visited
+	visited.add(resolvedDir);
 
 	for (const file of files) {
 		const filePath = path.join(dir, file);
-		const stats = fs.statSync(filePath);
+		const stats = await fs.promises.stat(filePath);
 
 		if (stats.isDirectory()) {
-			results = results.concat(getFilePaths(filePath, ext, cwd));
+			results = results.concat(await getFilePaths(filePath, ext, cwd, visited));
 		} else if (stats.isFile() && file.endsWith(ext)) {
-			results.push(`./${path.relative(cwd, filePath)}`);
+			results.push(path.relative(cwd, filePath).replace(/\\/g, '/'));
 		}
 	}
 
@@ -127,9 +137,7 @@ export function getFilePaths(
 export function isUrl(query: string): boolean {
 	try {
 		if (URL.canParse(query)) {
-			const url = new URL(query);
-
-			return ['https:', 'http:'].includes(url.protocol);
+			return ['https:', 'http:'].includes(new URL(query).protocol);
 		}
 
 		return false;
@@ -139,29 +147,31 @@ export function isUrl(query: string): boolean {
 }
 
 /**
- * Randomizes the order of elements in an array using the Fisher-Yates shuffle algorithm.
- * The function creates a shallow copy of the input array to avoid mutating the original array.
+ * Randomizes the order of elements in an array and returns a new array with the shuffled elements.
  *
  * @template T - The type of elements in the array.
  * @param array - The array to be randomized.
  * @returns A new array with the elements shuffled in random order.
+ *
+ * @example
+ * ```typescript
+ * const numbers = [1, 2, 3, 4, 5];
+ * const shuffledNumbers = randomizeArray(numbers);
+ * console.log(shuffledNumbers); // Output: [3, 1, 5, 4, 2] (example, actual output may vary)
+ * ```
  */
 export function randomizeArray<T>(array: T[]): T[] {
-	const clonedArray = [...array];
+	const result = [...array];
 
-	const randomBuffer = new Uint32Array(1);
+	for (let i = result.length - 1; i > 0; i--) {
+		const randomIndex = Math.floor(Math.random() * (i + 1));
+		const tempElement = result[i];
 
-	for (let i = clonedArray.length - 1; i > 0; i--) {
-		crypto.getRandomValues(randomBuffer);
-
-		const randomIndex = Math.floor((randomBuffer[0] / 0x100000000) * (i + 1));
-		const tempElement = clonedArray[i];
-
-		clonedArray[i] = clonedArray[randomIndex];
-		clonedArray[randomIndex] = tempElement;
+		result[i] = result[randomIndex];
+		result[randomIndex] = tempElement;
 	}
 
-	return clonedArray;
+	return result;
 }
 
 /**
@@ -169,14 +179,14 @@ export function randomizeArray<T>(array: T[]): T[] {
  *
  * @param text - The string to be truncated.
  * @param length - The maximum length of the truncated string.
- * @param end - An optional string to append to the truncated string. If provided, the total length
- *              of the truncated string including this ending will not exceed the specified length.
+ * @param end - An optional string to append to the truncated text. If provided, its length is considered
+ *              when truncating the text to ensure the total length does not exceed the specified length.
  * @returns The truncated string, optionally appended with the specified ending.
  */
 export function truncate(text: string, length: number, end?: string): string {
-	if (text.length < length) {
+	if (text.length <= length) {
 		return text;
-	} else if (end && end.length < length) {
+	} else if (end && end.length <= length) {
 		return `${text.slice(0, length - end.length)}${end}`;
 	} else {
 		return text.slice(0, length);
