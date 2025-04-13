@@ -76,9 +76,6 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 			const response = await App.respond(ctx, { embeds: [embed] }, 'CHANNEL');
 
 			let index = 1;
-			const intervalDuration = track.durationMS / Player.getProgressBarLength(track) > 5_000
-				? track.durationMS / Player.getProgressBarLength(track)
-				: 5_000;
 			const interval = setInterval(
 				async () => {
 					if (queue.currentTrack !== track) {
@@ -113,7 +110,7 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 						}
 					}
 				},
-				intervalDuration
+				Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
 			);
 
 			syncedLyrics.load(syncedVerses.join('\n'));
@@ -123,7 +120,10 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 						verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
 					);
 
-					if (syncedVerses[currentVerseIndex + 1]?.includes(endLyric)) {
+					if (
+						currentVerseIndex + 1 < syncedVerses.length &&
+						syncedVerses[currentVerseIndex + 1]?.includes(endLyric)
+					) {
 						lyrics = [syncedVerses[currentVerseIndex - 1].slice(11), `**${currentVerse}**`];
 					} else if (currentVerse.includes(endLyric)) {
 						lyrics = [
@@ -208,9 +208,7 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 					}
 				}
 			},
-			track.durationMS / Player.getProgressBarLength(track) > 1_000
-				? track.durationMS / Player.getProgressBarLength(track)
-				: 1_000
+			Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
 		);
 	}
 });
