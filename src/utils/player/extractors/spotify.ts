@@ -295,17 +295,11 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			return null;
 		};
 
-		const nextTrack: Track | null = await getNextTrack();
-
-		if (!nextTrack) {
-			// Retry fetching the next track twice more in case of a temporary issue.
-			return this.createResponse(
-				null,
-				[(await getNextTrack()) ?? (await getNextTrack())].filter((track) => track !== null)
-			);
-		}
-
-		return this.createResponse(null, [nextTrack]);
+		// Try fetching the next track three times in case of temporary issues.
+		return this.createResponse(
+			null,
+			[(await getNextTrack()) ?? (await getNextTrack()) ?? (await getNextTrack())].filter((track) => track !== null)
+		);
 	}
 
 	public async stream(track: Track): Promise<ExtractorStreamable> {
