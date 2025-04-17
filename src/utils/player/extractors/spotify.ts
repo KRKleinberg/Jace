@@ -298,10 +298,10 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		const nextTrack: Track | null = await getNextTrack();
 
 		if (!nextTrack) {
-			// Retry fetching the next track once more in case of a temporary issue.
+			// Retry fetching the next track twice more in case of a temporary issue.
 			return this.createResponse(
 				null,
-				[await getNextTrack()].filter((track) => track !== null)
+				[(await getNextTrack()) ?? (await getNextTrack())].filter((track) => track !== null)
 			);
 		}
 
