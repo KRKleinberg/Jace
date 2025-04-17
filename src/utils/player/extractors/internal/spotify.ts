@@ -754,7 +754,10 @@ export class SpotifyAPI {
 	 *
 	 * @throws Will throw an error if the Spotify access token is unavailable or expired and cannot be refreshed.
 	 */
-	public async getRecommendations(trackIds: string[]): Promise<SpotifyTrack[] | null> {
+	public async getRecommendations(
+		trackIds: string[],
+		limit?: number
+	): Promise<SpotifyTrack[] | null> {
 		try {
 			if (this.isTokenExpired()) {
 				await this.requestToken();
@@ -765,7 +768,7 @@ export class SpotifyAPI {
 			}
 
 			const recommendationResponse = await this.fetchData(
-				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}${this.market ? `&market=${this.market}` : ''}`
+				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}${this.market ? `&market=${this.market}` : ''}${limit && limit > 0 ? `&limit=${limit.toString()}` : ''}`
 			);
 
 			if (!recommendationResponse.ok) {

@@ -26,6 +26,7 @@ export interface TrackMetadata {
 	album?: {
 		name?: string;
 	};
+	skipped?: boolean;
 }
 
 // CLASSES

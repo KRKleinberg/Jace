@@ -1,5 +1,5 @@
 import { isUrl } from '#utils/helpers';
-import { Player, type PlayerSearchSource } from '#utils/player';
+import { Player, type PlayerSearchSource, type TrackMetadata } from '#utils/player';
 import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
@@ -270,43 +270,42 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return [];
 	}
 
-	public async getRelatedTracks(track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
-		let { id } = this.parse(track.url);
-
-		if (!id) {
-			const response = await this.internal.searchTracks(`${track.cleanTitle} - ${track.author}`);
-
-			if (response !== null && 'id' in response) {
-				id = response.items[0].id;
-			}
-		}
-
-		const ids = history.tracks
-			.toArray()
-			.slice(1)
-			.reduce(
-				(trackIds: string[], track: Track) => {
+	public async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
+		const getNextTrack = async (): Promise<Track | null> => {
+			try {
+				const ids = history.tracks.toArray().reduce((trackIds: string[], track: Track) => {
 					const { id } = this.parse(track.url);
 
-					if (id) {
-						trackIds.unshift(id);
-					}
-					if (trackIds.length > 5) {
-						trackIds.shift();
+					if (!(track.metadata as TrackMetadata | null | undefined)?.skipped && id && trackIds.length < 5) {
+						trackIds.push(id);
 					}
 
 					return trackIds;
-				},
-				[id]
-			);
-		const spotifyTracks = await this.internal.getRecommendations(ids);
-		const tracks = spotifyTracks?.map((spotifyTrack) => this.internal.buildTrack({ spotifyTrack }));
+				}, []);
 
-		if (tracks) {
-			return this.createResponse(null, tracks);
+				const spotifyTracks = await this.internal.getRecommendations(ids, 1);
+
+				if (spotifyTracks?.length) {
+					return this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] });
+				}
+			} catch (error) {
+				console.error('Spotify Autoplay Error:', error);
+			}
+
+			return null;
+		};
+
+		const nextTrack: Track | null = await getNextTrack();
+
+		if (!nextTrack) {
+			// Retry fetching the next track once more in case of a temporary issue.
+			return this.createResponse(
+				null,
+				[await getNextTrack()].filter((track) => track !== null)
+			);
 		}
 
-		return this.createResponse();
+		return this.createResponse(null, [nextTrack]);
 	}
 
 	public async stream(track: Track): Promise<ExtractorStreamable> {

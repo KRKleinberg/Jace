@@ -1,4 +1,5 @@
 import { App, type Command } from '#utils/app';
+import type { TrackMetadata } from '#utils/player/index';
 import { useQueue } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -8,6 +9,7 @@ export const command: Command = {
 	async run(ctx) {
 		const queue = useQueue();
 		const currentTrack = queue?.currentTrack;
+		const trackMetadata = currentTrack?.metadata as TrackMetadata | null | undefined;
 
 		if (!ctx.member.voice.channel) {
 			return await App.respond(ctx, 'You are not in a voice channel', 'USER_ERROR');
@@ -18,6 +20,8 @@ export const command: Command = {
 		if (ctx.member.voice.channel !== queue.channel) {
 			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
+
+		currentTrack.setMetadata(trackMetadata ? { ...trackMetadata, skipped: true } : { skipped: true });
 
 		try {
 			queue.node.skip();
