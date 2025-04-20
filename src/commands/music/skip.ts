@@ -21,7 +21,7 @@ export const command: Command = {
 			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
 
-		currentTrack.setMetadata(trackMetadata ? { ...trackMetadata, skipped: true } : { skipped: true });
+		currentTrack.setMetadata({ ...trackMetadata, skipped: true });
 
 		try {
 			queue.node.skip();

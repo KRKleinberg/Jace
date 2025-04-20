@@ -1,6 +1,6 @@
 {
 	"name": "jace",
-	"version": "9.0.0-dev.14",
+	"version": "9.0.0-dev.15",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
@@ -25,9 +25,9 @@
 		"#utils/player": "./src/utils/player/index.ts"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.24.0",
+		"@eslint/js": "^9.25.0",
 		"@types/node": "^22.14.1",
-		"eslint": "^9.24.0",
+		"eslint": "^9.25.0",
 		"ffmpeg-static": "^5.2.0",
 		"globals": "^16.0.0",
 		"prettier": "^3.5.3",

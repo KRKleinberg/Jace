@@ -271,35 +271,27 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	}
 
 	public async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
-		const getNextTrack = async (): Promise<Track | null> => {
-			try {
-				const ids = history.tracks.toArray().reduce((trackIds: string[], track: Track) => {
-					const { id } = this.parse(track.url);
+		try {
+			const ids = history.tracks.toArray().reduce((trackIds: string[], track: Track) => {
+				const { id } = this.parse(track.url);
 
-					if (!(track.metadata as TrackMetadata | null | undefined)?.skipped && id && trackIds.length < 5) {
-						trackIds.push(id);
-					}
-
-					return trackIds;
-				}, []);
-
-				const spotifyTracks = await this.internal.getRecommendations(ids, 1);
-
-				if (spotifyTracks?.length) {
-					return this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] });
+				if (!(track.metadata as TrackMetadata | null | undefined)?.skipped && id && trackIds.length < 5) {
+					trackIds.push(id);
 				}
-			} catch (error) {
-				console.error('Spotify Autoplay Error:', error);
+
+				return trackIds;
+			}, []);
+
+			const spotifyTracks = await this.internal.getRecommendations(ids, 1);
+
+			if (spotifyTracks?.length) {
+				return this.createResponse(null, [this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] })]);
 			}
+		} catch (error) {
+			console.error('Spotify Autoplay Error:', error);
+		}
 
-			return null;
-		};
-
-		// Try fetching the next track three times in case of temporary issues.
-		return this.createResponse(
-			null,
-			[(await getNextTrack()) ?? (await getNextTrack()) ?? (await getNextTrack())].filter((track) => track !== null)
-		);
+		return this.createResponse();
 	}
 
 	public async stream(track: Track): Promise<ExtractorStreamable> {

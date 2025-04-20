@@ -6,6 +6,7 @@ import {
 	buildTrackFromSearch,
 	search,
 	type DeezerExtractorOptions,
+	type DeezerSearchTrackResponse,
 } from 'discord-player-deezer';
 
 interface DeezerExtractorInit extends DeezerExtractorOptions {
@@ -50,12 +51,13 @@ export class DeezerExtractor extends DZExtractor {
 	 */
 	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
 		const title = track.cleanTitle.split(' (with ')[0];
-		const album = (track.metadata as TrackMetadata | undefined)?.album;
+		const album = (track.metadata as TrackMetadata | null | undefined)?.album;
 		const artist = track.author.split(', ')[0].split(' & ')[0];
 		let deezerTrack: Track | undefined;
 
 		try {
 			const searchParams = [`track:"${title}"`, `artist:"${artist}"`];
+			let deezerResults: DeezerSearchTrackResponse | undefined;
 
 			if (album?.name) {
 				searchParams.push(`album:"${album.name}"`);
@@ -66,11 +68,13 @@ export class DeezerExtractor extends DZExtractor {
 				);
 			}
 
-			const searchResults = buildTrackFromSearch(
-				await search(searchParams.join(' '), 5),
-				Player,
-				track.requestedBy
-			);
+			try {
+				deezerResults = await search(searchParams.join(' '), 5);
+			} catch {
+				deezerResults = await search(`${title} ${artist}`, 5);
+			}
+
+			const searchResults = buildTrackFromSearch(deezerResults, Player, track.requestedBy);
 
 			if (searchResults.length) {
 				deezerTrack =
@@ -80,7 +84,9 @@ export class DeezerExtractor extends DZExtractor {
 					searchResults.find((searchResult) => searchResult.cleanTitle === title) ??
 					(searchResults[0] || buildTrackFromSearch(await search(title, 1), Player, track.requestedBy)[0]);
 			}
-		} catch {
+		} catch (error) {
+			console.error('Deezer Bridge Error -', error);
+
 			return null;
 		}
 

@@ -1,4 +1,5 @@
 import { App, type Command } from '#utils/app';
+import type { TrackMetadata } from '#utils/player/index';
 import { useHistory, useQueue, useTimeline } from 'discord-player';
 import { SlashCommandBuilder } from 'discord.js';
 
@@ -15,7 +16,7 @@ export const command: Command = {
 		if (ctx.member.voice.channel !== queue?.channel) {
 			return await App.respond(ctx, 'You are not in the same voice channel as the app', 'USER_ERROR');
 		}
-		if (!history || history.isEmpty()) {
+		if (!history?.previousTrack) {
 			try {
 				await timeline?.setPosition(0);
 			} catch (error) {
@@ -28,6 +29,12 @@ export const command: Command = {
 		}
 
 		try {
+			const trackMetadata = history.previousTrack.metadata as TrackMetadata | null | undefined;
+
+			if (trackMetadata?.skipped) {
+				history.previousTrack.setMetadata({ ...trackMetadata, skipped: false });
+			}
+
 			await history.previous(true);
 		} catch (error) {
 			console.error('History Error -', error);
