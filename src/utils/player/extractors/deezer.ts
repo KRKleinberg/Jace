@@ -71,7 +71,11 @@ export class DeezerExtractor extends DZExtractor {
 			try {
 				deezerResults = await search(searchParams.join(' '), 5);
 			} catch {
-				deezerResults = await search(`${title} ${artist}`, 5);
+				try {
+					deezerResults = await search(`${title} ${artist}`, 5);
+				} catch {
+					deezerResults = await search(title, 5);
+				}
 			}
 
 			const searchResults = buildTrackFromSearch(deezerResults, Player, track.requestedBy);
