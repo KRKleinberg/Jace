@@ -1,5 +1,5 @@
 import { App, type CommandContext } from '#utils/app';
-import { Player } from '#utils/player';
+import { Player, type TrackMetadata } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
 import { ChannelType } from 'discord.js';
 
@@ -36,11 +36,11 @@ Player.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
 		}
 	}
 
-	await App.respond(
-		ctx,
-		`There was an error playing _${track.cleanTitle}_ by _${track.author}_`,
-		'PLAYER_ERROR'
-	);
+	const trackMetadata = track.metadata as TrackMetadata | null | undefined;
+
+	track.setMetadata({ ...trackMetadata, skipped: true });
+
+	await App.respond(ctx, `Unable to play _${track.cleanTitle}_ by _${track.author}_`, 'PLAYER_ERROR');
 });
 
 Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {

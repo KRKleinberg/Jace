@@ -6,6 +6,8 @@ import {
 	ExtractorExecutionContext,
 	GuildQueueHistory,
 	Track,
+	useHistory,
+	type ExtractorExecutionResult,
 	type ExtractorInfo,
 	type ExtractorSearchContext,
 	type ExtractorStreamable,
@@ -285,7 +287,12 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			const spotifyTracks = await this.internal.getRecommendations(ids, 1);
 
 			if (spotifyTracks?.length) {
-				return this.createResponse(null, [this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] })]);
+				const track = this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] });
+				const trackMetadata = track.metadata as TrackMetadata | null | undefined;
+
+				track.setMetadata({ ...trackMetadata, isAutoplay: true });
+
+				return this.createResponse(null, [track]);
 			}
 		} catch (error) {
 			console.error('Spotify Autoplay Error:', error);
@@ -301,13 +308,43 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 			return stream;
 		}
 
-		const stream = await this.context.requestBridge(track, this);
+		let bridge: ExtractorExecutionResult<ExtractorStreamable> | undefined;
 
-		if (!stream.result) {
-			throw new Error('Spotify Extractor Error: Could not bridge this track');
+		try {
+			bridge = await this.context.requestBridge(track);
+		} catch {
+			const trackMetadata = track.metadata as TrackMetadata | null | undefined;
+
+			if (trackMetadata?.isAutoplay) {
+				for (let attempt = 0; attempt < 3; attempt++) {
+					try {
+						const history = useHistory(track.queue);
+
+						if (!history) {
+							throw new Error('No track history available');
+						}
+
+						const recommendations = await this.getRelatedTracks(track, history);
+
+						if (recommendations.tracks.length > 0) {
+							bridge = await this.context.requestBridge(recommendations.tracks[0]);
+						}
+
+						break;
+					} catch (error) {
+						if (attempt === 2) {
+							console.error('Spotify Autoplay Error -', error);
+						}
+					}
+				}
+			}
 		}
 
-		return stream.result;
+		if (!bridge?.result) {
+			throw new Error(`No stream found for "${track.cleanTitle}" by "${track.author}"`);
+		}
+
+		return bridge.result;
 	}
 
 	/**

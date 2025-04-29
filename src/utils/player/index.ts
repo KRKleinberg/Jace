@@ -27,6 +27,7 @@ export interface TrackMetadata {
 		name?: string;
 	};
 	skipped?: boolean;
+	isAutoplay?: boolean;
 }
 
 // CLASSES

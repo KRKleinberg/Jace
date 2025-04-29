@@ -49,65 +49,55 @@ export class DeezerExtractor extends DZExtractor {
 	 *
 	 * @throws This method does not throw errors directly but will return `null` if an error occurs during the search or streaming process.
 	 */
-	public async bridge(track: Track): Promise<ExtractorStreamable | null> {
+	public async bridge(track: Track): Promise<ExtractorStreamable> {
 		const title = track.cleanTitle.split(' (with ')[0];
 		const album = (track.metadata as TrackMetadata | null | undefined)?.album;
 		const artist = track.author.split(', ')[0].split(' & ')[0];
 		let deezerTrack: Track | undefined;
 
+		const searchParams = [`track:"${title}"`, `artist:"${artist}"`];
+		let deezerResults: DeezerSearchTrackResponse | undefined;
+
+		if (album?.name) {
+			searchParams.push(`album:"${album.name}"`);
+		} else if (track.durationMS) {
+			searchParams.push(
+				`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
+				`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
+			);
+		}
+
 		try {
-			const searchParams = [`track:"${title}"`, `artist:"${artist}"`];
-			let deezerResults: DeezerSearchTrackResponse | undefined;
-
-			if (album?.name) {
-				searchParams.push(`album:"${album.name}"`);
-			} else if (track.durationMS) {
-				searchParams.push(
-					`dur_min:"${(track.durationMS / 1_000 - 2).toString()}"`,
-					`dur_max:"${(track.durationMS / 1_000 + 2).toString()}"`
-				);
-			}
-
-			try {
-				deezerResults = await search(searchParams.join(' '), 5);
-			} catch {
-				try {
-					deezerResults = await search(`${title} ${artist}`, 5);
-				} catch {
-					deezerResults = await search(title, 5);
-				}
-			}
-
-			const searchResults = buildTrackFromSearch(deezerResults, Player, track.requestedBy);
-
-			if (searchResults.length) {
-				deezerTrack =
-					searchResults.find(
-						(searchResult) => searchResult.cleanTitle === title && searchResult.author.includes(artist)
-					) ??
-					searchResults.find((searchResult) => searchResult.cleanTitle === title) ??
-					(searchResults[0] || buildTrackFromSearch(await search(title, 1), Player, track.requestedBy)[0]);
-			}
-		} catch (error) {
-			console.error('Deezer Bridge Error -', error);
-
-			return null;
+			deezerResults = await search(searchParams.join(' '), 5);
+		} catch {
+			deezerResults = await search(`${title} ${artist}`, 5);
 		}
 
-		if (deezerTrack) {
-			const stream = await this.stream(deezerTrack);
+		const searchResults = buildTrackFromSearch(deezerResults, Player, track.requestedBy);
 
-			track.bridgedExtractor = this;
-			track.bridgedTrack = deezerTrack;
-
-			if (!track.durationMS) {
-				track.duration = deezerTrack.duration;
-			}
-
-			return stream;
+		if (searchResults.length) {
+			deezerTrack =
+				searchResults.find(
+					(searchResult) => searchResult.cleanTitle === title && searchResult.author.includes(artist)
+				) ??
+				searchResults.find((searchResult) => searchResult.cleanTitle === title) ??
+				(searchResults[0] || buildTrackFromSearch(await search(title, 1), Player, track.requestedBy)[0]);
 		}
 
-		return null;
+		if (!deezerTrack) {
+			throw new Error(`No Deezer track found for "${track.title}" by ${track.author}`);
+		}
+
+		const stream = await this.stream(deezerTrack);
+
+		track.bridgedExtractor = this;
+		track.bridgedTrack = deezerTrack;
+
+		if (!track.durationMS) {
+			track.duration = deezerTrack.duration;
+		}
+
+		return stream;
 	}
 }
 
