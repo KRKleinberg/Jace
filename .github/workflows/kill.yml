@@ -2,6 +2,9 @@ name: Kill Docker Container
 
 on: workflow_dispatch
 
+permissions:
+  contents: read
+
 jobs:
   run:
     runs-on: self-hosted
