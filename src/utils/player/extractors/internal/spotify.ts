@@ -457,7 +457,7 @@ export class SpotifyAPI {
 		});
 
 		if (!response.ok) {
-			throw new Error('SpotifyAPI Error: Failed to fetch Spotify data.');
+			throw new Error(`Spotify API Error: ${response.status.toString()} ${response.statusText}`);
 		}
 
 		return response;
@@ -497,14 +497,12 @@ export class SpotifyAPI {
 		try {
 			const response = await this.search(query, 'album');
 
-			if (!response.ok) {
-				return null;
-			}
-
 			const data = (await response.json()) as { albums: SpotifyItems<SpotifySimplifiedAlbum> };
 
 			return data.albums;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Album Search Error -', error);
+
 			return null;
 		}
 	}
@@ -526,16 +524,14 @@ export class SpotifyAPI {
 		try {
 			const response = await this.search(query, 'playlist');
 
-			if (!response.ok) {
-				return null;
-			}
-
 			const data = (await response.json()) as {
 				playlists: SpotifyItems<SpotifySimplifiedPlaylist | null>;
 			};
 
 			return data.playlists;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Playlist Search Error -', error);
+
 			return null;
 		}
 	}
@@ -551,14 +547,12 @@ export class SpotifyAPI {
 		try {
 			const response = await this.search(query, 'track');
 
-			if (!response.ok) {
-				return null;
-			}
-
 			const data = (await response.json()) as { tracks: SpotifyItems<SpotifyTrack> };
 
 			return data.tracks;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Track Search Error -', error);
+
 			return null;
 		}
 	}
@@ -595,10 +589,6 @@ export class SpotifyAPI {
 				`${this.base}/albums/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
 
-			if (!albumResponse.ok) {
-				return null;
-			}
-
 			const album = (await albumResponse.json()) as SpotifyAlbum;
 
 			if (!album.tracks.items.length) {
@@ -610,11 +600,6 @@ export class SpotifyAPI {
 			while (typeof next === 'string') {
 				try {
 					const nextResponse = await this.fetchData(next);
-
-					if (!nextResponse.ok) {
-						break;
-					}
-
 					const nextPage = (await nextResponse.json()) as SpotifyItems<SpotifySimplifiedTrack>;
 
 					album.tracks.items.push(...nextPage.items);
@@ -630,7 +615,9 @@ export class SpotifyAPI {
 			}
 
 			return album;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Album Error -', error);
+
 			return null;
 		}
 	}
@@ -667,10 +654,6 @@ export class SpotifyAPI {
 				`${this.base}/playlists/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
 
-			if (!playlistResponse.ok) {
-				return null;
-			}
-
 			const playlist = (await playlistResponse.json()) as SpotifyPlaylist;
 
 			if (!playlist.tracks.items.length) {
@@ -682,11 +665,6 @@ export class SpotifyAPI {
 			while (typeof next === 'string') {
 				try {
 					const nextResponse = await this.fetchData(next);
-
-					if (!nextResponse.ok) {
-						break;
-					}
-
 					const nextPage = (await nextResponse.json()) as SpotifyItems<SpotifyPlaylistTrack>;
 
 					playlist.tracks.items.push(...nextPage.items);
@@ -702,7 +680,9 @@ export class SpotifyAPI {
 			}
 
 			return playlist;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Playlist Error -', error);
+
 			return null;
 		}
 	}
@@ -733,14 +713,12 @@ export class SpotifyAPI {
 				`${this.base}/tracks/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
 
-			if (!trackResponse.ok) {
-				return null;
-			}
-
 			const track = (await trackResponse.json()) as SpotifyTrack;
 
 			return track;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Track Error -', error);
+
 			return null;
 		}
 	}
@@ -771,15 +749,13 @@ export class SpotifyAPI {
 				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}${this.market ? `&market=${this.market}` : ''}${limit && limit > 0 ? `&limit=${limit.toString()}` : ''}`
 			);
 
-			if (!recommendationResponse.ok) {
-				return null;
-			}
-
 			const recommendations = (await recommendationResponse.json()) as SpotifyRecommendedations;
 			const tracks = recommendations.tracks;
 
 			return tracks;
-		} catch {
+		} catch (error) {
+			console.error('Spotify Recommendations Error -', error);
+
 			return null;
 		}
 	}
