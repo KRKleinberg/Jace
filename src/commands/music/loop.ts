@@ -3,20 +3,15 @@ import { QueueRepeatMode, useQueue } from 'discord-player';
 import { InteractionType, SlashCommandBuilder } from 'discord.js';
 
 export const command: Command = {
-	data: new SlashCommandBuilder()
-		.setDescription('Sets loop mode')
-		.addStringOption((option) =>
-			option
-				.setName('mode')
-				.setDescription('The loop mode')
-				.setRequired(true)
-				.addChoices(
-					{ name: 'Off', value: 'off' },
-					{ name: 'Track', value: 'track' },
-					{ name: 'Queue', value: 'queue' },
-					{ name: 'Autoplay', value: 'autoplay' }
-				)
-		),
+	data: new SlashCommandBuilder().setDescription('Sets loop mode').addStringOption((option) =>
+		option.setName('mode').setDescription('The loop mode').setRequired(true).addChoices(
+			{ name: 'Off', value: 'off' },
+			{ name: 'Track', value: 'track' },
+			{ name: 'Queue', value: 'queue' }
+			// DISABLED
+			/* { name: 'Autoplay', value: 'autoplay' } */
+		)
+	),
 	async run(ctx) {
 		const input =
 			ctx.command.type === InteractionType.ApplicationCommand
@@ -61,10 +56,11 @@ export const command: Command = {
 				case 'queue':
 					queue.setRepeatMode(QueueRepeatMode.QUEUE);
 					break;
-				case 'auto':
+				// DISABLED
+				/* case 'auto':
 				case 'autoplay':
 					queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);
-					break;
+					break; */
 				default:
 					if (queue.repeatMode === QueueRepeatMode.OFF) {
 						queue.setRepeatMode(QueueRepeatMode.TRACK);
