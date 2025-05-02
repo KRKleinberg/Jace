@@ -272,18 +272,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return [];
 	}
 
-	/**
-	 * @deprecated Spotify API no longer supports the recommendations endpoint.
-	 *
-	 * Retrieves related tracks based on the provided track and the guild's queue history.
-	 * This method uses Spotify's recommendation system to fetch similar tracks.
-	 *
-	 * @param _track - The current track for which related tracks are being fetched.
-	 * @param history - The guild's queue history containing previously played tracks.
-	 * @returns A promise that resolves to an `ExtractorInfo` object containing the related tracks.
-	 *
-	 * @throws Will log an error if there is an issue with fetching recommendations from Spotify.
-	 */
 	public async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
 		try {
 			const ids = history.tracks.toArray().reduce((trackIds: string[], track: Track) => {
@@ -296,7 +284,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 				return trackIds;
 			}, []);
 
-			// eslint-disable-next-line @typescript-eslint/no-deprecated
 			const spotifyTracks = await this.internal.getRecommendations(ids, 1);
 
 			if (spotifyTracks?.length) {
@@ -337,7 +324,6 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 							throw new Error('No track history available');
 						}
 
-						// eslint-disable-next-line @typescript-eslint/no-deprecated
 						const recommendations = await this.getRelatedTracks(track, history);
 
 						if (recommendations.tracks.length > 0) {
