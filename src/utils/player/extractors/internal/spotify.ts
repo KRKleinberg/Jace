@@ -724,6 +724,8 @@ export class SpotifyAPI {
 	}
 
 	/**
+	 * @deprecated Spotify API no longer supports this endpoint.
+	 *
 	 * Fetches track recommendations from the Spotify API based on the provided track IDs.
 	 *
 	 * @param trackIds - An array of Spotify track IDs to use as seeds for generating recommendations.
