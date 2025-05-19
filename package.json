@@ -25,7 +25,7 @@
 		"#utils/player": "./src/utils/player/index.ts"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.26.0",
+		"@eslint/js": "^9.27.0",
 		"@types/node": "^22.15.18",
 		"eslint": "^9.26.0",
 		"ffmpeg-static": "^5.2.0",
