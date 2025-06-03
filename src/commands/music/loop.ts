@@ -8,7 +8,7 @@ export const command: Command = {
 			{ name: 'Off', value: 'off' },
 			{ name: 'Track', value: 'track' },
 			{ name: 'Queue', value: 'queue' }
-			// DISABLED
+			// DISABLED - No registered extractor supports autoplay
 			/* { name: 'Autoplay', value: 'autoplay' } */
 		)
 	),
@@ -56,7 +56,7 @@ export const command: Command = {
 				case 'queue':
 					queue.setRepeatMode(QueueRepeatMode.QUEUE);
 					break;
-				// DISABLED
+				// DISABLED - No registered extractor supports autoplay
 				/* case 'auto':
 				case 'autoplay':
 					queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);

@@ -1,16 +1,13 @@
 import { isUrl } from '#utils/helpers';
-import { Player, type PlayerSearchSource, type TrackMetadata } from '#utils/player';
+import { Player, type PlayerSearchSource } from '#utils/player';
 import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
 	ExtractorExecutionContext,
-	GuildQueueHistory,
 	Track,
-	useHistory,
-	type ExtractorExecutionResult,
 	type ExtractorInfo,
 	type ExtractorSearchContext,
-	type ExtractorStreamable,
+	type ExtractorStreamable
 } from 'discord-player';
 import type { ApplicationCommandOptionChoiceData } from 'discord.js';
 import type { Readable } from 'stream';
@@ -272,89 +269,15 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 		return [];
 	}
 
-	/**
-	 * @deprecated Spotify API no longer supports the recommendations endpoint.
-	 *
-	 * Retrieves related tracks based on the provided track and the guild's queue history.
-	 * This method uses Spotify's recommendation system to fetch similar tracks.
-	 *
-	 * @param _track - The current track for which related tracks are being fetched.
-	 * @param history - The guild's queue history containing previously played tracks.
-	 * @returns A promise that resolves to an `ExtractorInfo` object containing the related tracks.
-	 *
-	 * @throws Will log an error if there is an issue with fetching recommendations from Spotify.
-	 */
-	public async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
-		try {
-			const ids = history.tracks.toArray().reduce((trackIds: string[], track: Track) => {
-				const { id } = this.parse(track.url);
-
-				if (!(track.metadata as TrackMetadata | null | undefined)?.skipped && id && trackIds.length < 5) {
-					trackIds.push(id);
-				}
-
-				return trackIds;
-			}, []);
-
-			// eslint-disable-next-line @typescript-eslint/no-deprecated
-			const spotifyTracks = await this.internal.getRecommendations(ids, 1);
-
-			if (spotifyTracks?.length) {
-				const track = this.internal.buildTrack({ spotifyTrack: spotifyTracks[0] });
-				const trackMetadata = track.metadata as TrackMetadata | null | undefined;
-
-				track.setMetadata({ ...trackMetadata, isAutoplay: true });
-
-				return this.createResponse(null, [track]);
-			}
-		} catch (error) {
-			console.error('Spotify Autoplay Error:', error);
-		}
-
-		return this.createResponse();
-	}
-
 	public async stream(track: Track): Promise<ExtractorStreamable> {
 		if (this._stream) {
 			const stream = await this._stream(track.url, track);
 
 			return stream;
 		}
+		const bridge = await this.context.requestBridge(track);
 
-		let bridge: ExtractorExecutionResult<ExtractorStreamable> | undefined;
-
-		try {
-			bridge = await this.context.requestBridge(track);
-		} catch {
-			const trackMetadata = track.metadata as TrackMetadata | null | undefined;
-
-			if (trackMetadata?.isAutoplay) {
-				for (let attempt = 0; attempt < 3; attempt++) {
-					try {
-						const history = useHistory(track.queue);
-
-						if (!history) {
-							throw new Error('No track history available');
-						}
-
-						// eslint-disable-next-line @typescript-eslint/no-deprecated
-						const recommendations = await this.getRelatedTracks(track, history);
-
-						if (recommendations.tracks.length > 0) {
-							bridge = await this.context.requestBridge(recommendations.tracks[0]);
-						}
-
-						break;
-					} catch (error) {
-						if (attempt === 2) {
-							console.error('Spotify Autoplay Error -', error);
-						}
-					}
-				}
-			}
-		}
-
-		if (!bridge?.result) {
+		if (!bridge.result) {
 			throw new Error(`No stream found for "${track.cleanTitle}" by "${track.author}"`);
 		}
 

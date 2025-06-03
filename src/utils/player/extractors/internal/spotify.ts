@@ -184,18 +184,6 @@ interface SpotifySimplifiedArtist {
 	uri: string;
 }
 
-interface SpotifyRecommendedations {
-	seeds: {
-		afterFilteringSize: number;
-		afterRelinkingSize: number;
-		href: string;
-		id: string;
-		initialPoolSize: number;
-		type: string;
-	};
-	tracks: SpotifyTrack[];
-}
-
 export class SpotifyAPI {
 	private readonly base = 'https://api.spotify.com/v1';
 	private readonly userAgent =
@@ -718,45 +706,6 @@ export class SpotifyAPI {
 			return track;
 		} catch (error) {
 			console.error('Spotify Track Error -', error);
-
-			return null;
-		}
-	}
-
-	/**
-	 * @deprecated Spotify API no longer supports this endpoint.
-	 *
-	 * Fetches track recommendations from the Spotify API based on the provided track IDs.
-	 *
-	 * @param trackIds - An array of Spotify track IDs to use as seeds for generating recommendations.
-	 * @returns A promise that resolves to an array of recommended Spotify tracks (`SpotifyTrack[]`)
-	 *          or `null` if the request fails or no recommendations are available.
-	 *
-	 * @throws Will throw an error if the Spotify access token is unavailable or expired and cannot be refreshed.
-	 */
-	public async getRecommendations(
-		trackIds: string[],
-		limit?: number
-	): Promise<SpotifyTrack[] | null> {
-		try {
-			if (this.isTokenExpired()) {
-				await this.requestToken();
-			}
-
-			if (!this.accessToken) {
-				throw new Error('Spotify API Error: No Access Token');
-			}
-
-			const recommendationResponse = await this.fetchData(
-				`${this.base}/recommendations?seed_tracks=${trackIds.join(',')}${this.market ? `&market=${this.market}` : ''}${limit && limit > 0 ? `&limit=${limit.toString()}` : ''}`
-			);
-
-			const recommendations = (await recommendationResponse.json()) as SpotifyRecommendedations;
-			const tracks = recommendations.tracks;
-
-			return tracks;
-		} catch (error) {
-			console.error('Spotify Recommendations Error -', error);
 
 			return null;
 		}
