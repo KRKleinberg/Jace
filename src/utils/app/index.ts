@@ -21,7 +21,6 @@ import {
 	type SlashCommandOptionsOnlyBuilder,
 	type SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
-import { type EventEmitter } from 'stream';
 
 // TYPES
 export type CommandContext = ChatInputCommandInteractionContext | MessageCommandContext;
@@ -96,9 +95,7 @@ export interface Command {
 	 * a chat input command or a message command.
 	 * @returns A promise that resolves to a response or an event emitter.
 	 */
-	run: (
-		ctx: ChatInputCommandInteractionContext | MessageCommandContext
-	) => Promise<Response | EventEmitter>;
+	run: (ctx: ChatInputCommandInteractionContext | MessageCommandContext) => Promise<Response>;
 }
 
 // CLASSES
