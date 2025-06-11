@@ -223,52 +223,73 @@ export class SpotifyAPI {
 	}
 
 	/**
-	 * Requests an access token from Spotify's API.
+	 * Requests and retrieves a Spotify access token, handling both authenticated and unauthenticated flows.
 	 *
-	 * Depending on whether credentials are provided, this method will either:
-	 * - Fetch a token using a simple GET request (no credentials).
-	 * - Fetch a token using a POST request with client credentials.
+	 * - If credentials are provided, performs a POST request to the Spotify Accounts service to obtain a token using the Client Credentials flow.
+	 * - If credentials are not provided, fetches the access token from the Spotify web player.
+	 * - On failure, attempts to extract the access token directly from the Spotify web page as a fallback.
 	 *
-	 * The retrieved token and its expiration time are stored in the `accessToken` property.
-	 *
-	 * @throws {Error} If the access token cannot be retrieved.
+	 * @throws {Error} If unable to retrieve an access token from any source.
+	 * @returns {Promise<void>} Resolves when the access token is successfully retrieved and stored.
 	 */
-	public async requestToken() {
-		const accessTokenUrl = await this.getAccessTokenUrl();
-		const fetchOptions: RequestInit = !this.credentials
-			? {
-					headers: {
-						Referer: 'https://open.spotify.com/',
-						Origin: 'https://open.spotify.com',
-					},
+	public async requestToken(): Promise<void> {
+		try {
+			const accessTokenUrl = await this.getAccessTokenUrl();
+			const fetchOptions: RequestInit = !this.credentials
+				? {
+						headers: {
+							Referer: 'https://open.spotify.com/',
+							Origin: 'https://open.spotify.com',
+						},
+					}
+				: {
+						method: 'POST',
+						headers: {
+							'User-Agent': this.userAgent,
+							Authorization: `Basic ${this.authorizationKey}`,
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: 'grant_type=client_credentials',
+					};
+			const tokenData = (await (await fetch(accessTokenUrl, fetchOptions)).json()) as {
+				accessToken?: string;
+				accessTokenExpirationTimestampMs?: number;
+				access_token?: string;
+				expires_in?: number;
+			} | null;
+
+			if (!tokenData) {
+				throw new Error('SpotifyAPI Error: Failed to retrieve access token.');
+			}
+
+			this.accessToken = {
+				token: (!this.credentials ? tokenData.accessToken : tokenData.access_token) ?? '',
+				expiresAfter: !this.credentials
+					? (tokenData.accessTokenExpirationTimestampMs ?? 0)
+					: Date.now() + (tokenData.expires_in ?? 0) * 1000,
+				type: 'Bearer',
+			};
+		} catch {
+			try {
+				const response = await fetch('https://open.spotify.com/');
+				const body = await response.text();
+				const token = /"accessToken":"(.+?)"/.exec(body)?.[1];
+				const expiresAfter =
+					Number(/"accessTokenExpirationTimestampMs":(\d+)/.exec(body)?.[1]) || 1000 * 60 * 60;
+
+				if (!token) {
+					throw new Error('Failed to retrieve access token from Spotify.');
 				}
-			: {
-					method: 'POST',
-					headers: {
-						'User-Agent': this.userAgent,
-						Authorization: `Basic ${this.authorizationKey}`,
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-					body: 'grant_type=client_credentials',
+
+				this.accessToken = {
+					token,
+					expiresAfter: expiresAfter,
+					type: 'Bearer',
 				};
-		const tokenData = (await (await fetch(accessTokenUrl, fetchOptions)).json()) as {
-			accessToken?: string;
-			accessTokenExpirationTimestampMs?: number;
-			access_token?: string;
-			expires_in?: number;
-		} | null;
-
-		if (!tokenData) {
-			throw new Error('SpotifyAPI Error: Failed to retrieve access token.');
+			} catch {
+				throw new Error('Failed to retrieve access token from Spotify.');
+			}
 		}
-
-		this.accessToken = {
-			token: (!this.credentials ? tokenData.accessToken : tokenData.access_token) ?? '',
-			expiresAfter: !this.credentials
-				? (tokenData.accessTokenExpirationTimestampMs ?? 0)
-				: Date.now() + (tokenData.expires_in ?? 0) * 1000,
-			type: 'Bearer',
-		};
 	}
 
 	/**
@@ -279,7 +300,7 @@ export class SpotifyAPI {
 	 * @returns {URL} The fully constructed URL for fetching the access token.
 	 */
 	private buildTokenUrl(): URL {
-		const baseUrl = new URL('https://open.spotify.com/get_access_token');
+		const baseUrl = new URL('https://open.spotify.com/api/token');
 		baseUrl.searchParams.set('reason', 'init');
 		baseUrl.searchParams.set('productType', 'web-player');
 		return baseUrl;
@@ -331,11 +352,12 @@ export class SpotifyAPI {
 			12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54,
 		]);
 
+		const UA =
+			'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36';
 		const spotifyHtml = await (
 			await fetch('https://open.spotify.com', {
 				headers: {
-					'User-Agent':
-						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+					'User-Agent': UA,
 				},
 			})
 		).text();
@@ -352,8 +374,7 @@ export class SpotifyAPI {
 				headers: {
 					Dnt: '1',
 					Referer: 'https://open.spotify.com/',
-					'User-Agent':
-						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+					'User-Agent': UA,
 				},
 			})
 		).text();
@@ -368,10 +389,11 @@ export class SpotifyAPI {
 		const cTime = Date.now();
 		const sTime = (
 			(await (
-				await fetch('https://open.spotify.com/server-time', {
+				await fetch('https://open.spotify.com/api/server-time/', {
 					headers: {
 						Referer: 'https://open.spotify.com/',
 						Origin: 'https://open.spotify.com',
+						'User-Agent': UA,
 					},
 				})
 			).json()) as { serverTime: number }
