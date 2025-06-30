@@ -1,8 +1,9 @@
-FROM node:lts-ubuntu
+FROM ubuntu:latest
 
 WORKDIR /jace
 
 RUN apt-get update && apt-get install -y \
+  nodejs \
   build-essential \
   ffmpeg
 
