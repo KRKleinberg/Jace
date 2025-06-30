@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-ubuntu
 
 WORKDIR /jace
 
