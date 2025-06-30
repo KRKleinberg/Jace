@@ -4,6 +4,7 @@ WORKDIR /jace
 
 RUN apt-get update && apt-get install -y \
   nodejs \
+  npm \
   build-essential \
   ffmpeg
 
