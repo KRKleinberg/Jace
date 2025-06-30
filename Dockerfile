@@ -1,4 +1,4 @@
-FROM node:lts-bookworm-slim
+FROM node:lts-alpine
 
 WORKDIR /jace
 
