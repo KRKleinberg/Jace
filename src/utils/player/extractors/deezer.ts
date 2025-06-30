@@ -95,7 +95,7 @@ export class DeezerExtractor extends DZExtractor {
 		}
 
 		console.log('ATTEMPT STREAM', deezerTrack.title, deezerTrack.author);
-		const stream = await this.bridge(deezerTrack);
+		const stream = await this.stream(deezerTrack);
 
 		track.bridgedExtractor = this;
 		track.bridgedTrack = deezerTrack;
