@@ -10,9 +10,7 @@ export const command: Command = {
 	Modifiers (<modifier>:<search>):
 	${[`\`next\`*`]
 		.concat(
-			Player.extractors.store
-				.values()
-				.toArray()
+			Array.from(Player.extractors.store.values())
 				.flatMap((extractor) => {
 					return extractor.protocols.map((protocol) => `\`${protocol}\``).join(', ');
 				})
