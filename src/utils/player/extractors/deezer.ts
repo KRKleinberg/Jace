@@ -50,7 +50,6 @@ export class DeezerExtractor extends DZExtractor {
 	 * @throws This method does not throw errors directly but will return `null` if an error occurs during the search or streaming process.
 	 */
 	public async bridge(track: Track): Promise<ExtractorStreamable> {
-		console.log('BRIDGE', track.title, track.author);
 		const title = track.cleanTitle.split(' (with ')[0];
 		const album = (track.metadata as TrackMetadata | null | undefined)?.album;
 		const artist = track.author.split(', ')[0].split(' & ')[0];
@@ -69,14 +68,9 @@ export class DeezerExtractor extends DZExtractor {
 		}
 
 		try {
-			console.log('Deezer search params:', searchParams);
 			deezerResults = await search(searchParams.join(' '), 5);
-			console.log('Deezer search results:', deezerResults);
 		} catch {
-			console.log('Deezer search params:', searchParams);
-
 			deezerResults = await search(`${title} ${artist}`, 5);
-			console.log('Deezer search results:', deezerResults);
 		}
 
 		const searchResults = buildTrackFromSearch(deezerResults, Player, track.requestedBy);
