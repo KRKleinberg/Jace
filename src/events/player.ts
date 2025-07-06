@@ -3,9 +3,9 @@ import { Player, type TrackMetadata } from '#utils/player';
 import { GuildQueueEvent, Util } from 'discord-player';
 import { ChannelType } from 'discord.js';
 
-Player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
+/* Player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
 	console.log(message);
-});
+}); */
 
 Player.events.on(GuildQueueEvent.Error, async (queue, error) => {
 	console.error('Queue Error -', error);
