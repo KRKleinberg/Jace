@@ -36,4 +36,4 @@ jobs:
         run: docker image prune -f
 
       - name: Cleanup Build Cache
-        run: docker buildx prune -f --max-used-space=10gb
+        run: docker buildx prune -f --max-used-space=1gb
