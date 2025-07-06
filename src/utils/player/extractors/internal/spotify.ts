@@ -199,7 +199,6 @@ export class SpotifyAPI {
 		if (credentials?.clientId && credentials.clientSecret) {
 			this.credentials = credentials;
 		}
-
 		if (market) {
 			this.market = market;
 		}
@@ -301,8 +300,10 @@ export class SpotifyAPI {
 	 */
 	private buildTokenUrl(): URL {
 		const baseUrl = new URL('https://open.spotify.com/api/token');
+
 		baseUrl.searchParams.set('reason', 'init');
 		baseUrl.searchParams.set('productType', 'web-player');
+
 		return baseUrl;
 	}
 
@@ -317,6 +318,7 @@ export class SpotifyAPI {
 	private calculateToken(hex: number[]): Secret {
 		const token = hex.map((v, i) => v ^ ((i % 33) + 9));
 		const bufferToken = Buffer.from(token.join(''), 'utf8').toString('hex');
+
 		return Secret.fromHex(bufferToken);
 	}
 
@@ -351,7 +353,6 @@ export class SpotifyAPI {
 		const token = this.calculateToken([
 			12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54,
 		]);
-
 		const UA =
 			'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36';
 		const spotifyHtml = await (
@@ -366,9 +367,11 @@ export class SpotifyAPI {
 		const playerSrc = scriptTags
 			.find((v) => v.getAttribute('src')?.includes('web-player/web-player.'))
 			?.getAttribute('src');
+
 		if (!playerSrc) {
 			throw new Error('SpotifyAPI Error: Could not find player script source');
 		}
+
 		const playerScript = await (
 			await fetch(playerSrc, {
 				headers: {
@@ -378,14 +381,21 @@ export class SpotifyAPI {
 				},
 			})
 		).text();
+		const versionMatch =
+			/buildVer["']?\s*:\s*["']?([^,"'}\s]+)["']?,\s*buildDate["']?\s*:\s*["']?([^,"'}\s]+)["']?/.exec(
+				playerScript
+			);
 
-		const playerVerSplit = playerScript.split('buildVer');
-		const versionString = `{"buildVer"${playerVerSplit[1].split('}')[0].replace('buildDate', '"buildDate"')}}`;
-		const version = JSON.parse(versionString) as { buildVer: string; buildDate: string };
+		if (!versionMatch) {
+			throw new Error('SpotifyAPI Error: Could not find build version or date in player script');
+		}
 
+		const version = {
+			buildVer: versionMatch[1],
+			buildDate: versionMatch[2],
+		};
 		const url = this.buildTokenUrl();
 		const { searchParams } = url;
-
 		const cTime = Date.now();
 		const sTime = (
 			(await (
@@ -398,14 +408,12 @@ export class SpotifyAPI {
 				})
 			).json()) as { serverTime: number }
 		).serverTime;
-
 		const totp = new TOTP({
 			secret: token,
 			period: 30,
 			digits: 6,
 			algorithm: 'SHA1',
 		});
-
 		const totpServer = totp.generate({
 			timestamp: sTime * 1e3,
 		});
@@ -506,7 +514,6 @@ export class SpotifyAPI {
 	public async searchAlbums(query: string): Promise<SpotifyItems<SpotifySimplifiedAlbum> | null> {
 		try {
 			const response = await this.search(query, 'album');
-
 			const data = (await response.json()) as { albums: SpotifyItems<SpotifySimplifiedAlbum> };
 
 			return data.albums;
@@ -533,7 +540,6 @@ export class SpotifyAPI {
 	): Promise<SpotifyItems<SpotifySimplifiedPlaylist | null> | null> {
 		try {
 			const response = await this.search(query, 'playlist');
-
 			const data = (await response.json()) as {
 				playlists: SpotifyItems<SpotifySimplifiedPlaylist | null>;
 			};
@@ -556,7 +562,6 @@ export class SpotifyAPI {
 	public async searchTracks(query: string): Promise<SpotifyItems<SpotifyTrack> | null> {
 		try {
 			const response = await this.search(query, 'track');
-
 			const data = (await response.json()) as { tracks: SpotifyItems<SpotifyTrack> };
 
 			return data.tracks;
@@ -590,7 +595,6 @@ export class SpotifyAPI {
 			if (this.isTokenExpired()) {
 				await this.requestToken();
 			}
-
 			if (!this.accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
@@ -598,7 +602,6 @@ export class SpotifyAPI {
 			const albumResponse = await this.fetchData(
 				`${this.base}/albums/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
-
 			const album = (await albumResponse.json()) as SpotifyAlbum;
 
 			if (!album.tracks.items.length) {
@@ -655,7 +658,6 @@ export class SpotifyAPI {
 			if (this.isTokenExpired()) {
 				await this.requestToken();
 			}
-
 			if (!this.accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
@@ -663,7 +665,6 @@ export class SpotifyAPI {
 			const playlistResponse = await this.fetchData(
 				`${this.base}/playlists/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
-
 			const playlist = (await playlistResponse.json()) as SpotifyPlaylist;
 
 			if (!playlist.tracks.items.length) {
@@ -714,7 +715,6 @@ export class SpotifyAPI {
 			if (this.isTokenExpired()) {
 				await this.requestToken();
 			}
-
 			if (!this.accessToken) {
 				throw new Error('Spotify API Error: No Access Token');
 			}
@@ -722,7 +722,6 @@ export class SpotifyAPI {
 			const trackResponse = await this.fetchData(
 				`${this.base}/tracks/${id}${this.market ? `?market=${this.market}` : ''}`
 			);
-
 			const track = (await trackResponse.json()) as SpotifyTrack;
 
 			return track;
