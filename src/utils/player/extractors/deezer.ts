@@ -88,7 +88,6 @@ export class DeezerExtractor extends DZExtractor {
 			throw new Error(`No Deezer track found for "${track.title}" by ${track.author}`);
 		}
 
-		console.log('ATTEMPT STREAM', deezerTrack.title, deezerTrack.author);
 		const stream = await this.stream(deezerTrack);
 
 		track.bridgedExtractor = this;
@@ -98,8 +97,6 @@ export class DeezerExtractor extends DZExtractor {
 			track.duration = deezerTrack.duration;
 		}
 
-		console.log('Bridged track:', deezerTrack.title, deezerTrack.author);
-		console.log('Bridged stream:', stream);
 		return stream;
 	}
 }
