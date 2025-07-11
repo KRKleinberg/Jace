@@ -16,7 +16,7 @@ interface DeezerExtractorInit extends DeezerExtractorOptions {
 
 // CLASSES
 export class DeezerExtractor extends DZExtractor {
-	public priority = 10;
+	public priority = 20;
 	public searchSource: PlayerSearchSource = {
 		id: this.identifier,
 		streamable: true,

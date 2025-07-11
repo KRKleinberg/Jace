@@ -7,7 +7,7 @@ import {
 	type ExtractorInfo,
 	type ExtractorSearchContext,
 	type ExtractorStreamable,
-	type Track
+	type Track,
 } from 'discord-player';
 import type { ApplicationCommandOptionChoiceData } from 'discord.js';
 import type { Readable } from 'stream';

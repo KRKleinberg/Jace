@@ -7,7 +7,7 @@ import {
 
 // CLASSES
 export class SoundcloudExtractor extends SCExtractor {
-	public priority = 20;
+	public priority = 10;
 	public searchSource: PlayerSearchSource = {
 		id: this.identifier,
 		streamable: true,
