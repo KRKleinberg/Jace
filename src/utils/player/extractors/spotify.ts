@@ -3,11 +3,11 @@ import { Player, type PlayerSearchSource } from '#utils/player';
 import { SpotifyAPI } from '#utils/player/extractors/internal/spotify';
 import {
 	BaseExtractor,
-	ExtractorExecutionContext,
-	Track,
+	type ExtractorExecutionContext,
 	type ExtractorInfo,
 	type ExtractorSearchContext,
-	type ExtractorStreamable
+	type ExtractorStreamable,
+	type Track
 } from 'discord-player';
 import type { ApplicationCommandOptionChoiceData } from 'discord.js';
 import type { Readable } from 'stream';
@@ -38,7 +38,7 @@ export class SpotifyExtractor extends BaseExtractor<SpotifyExtractorInit> {
 	public static identifier = 'com.krkleinberg.spotifyextractor' as const;
 	private _stream?: (url: string, track: Track) => Promise<Readable | string>;
 	public internal: SpotifyAPI;
-	public priority = 30;
+	public priority = 40;
 	public searchSource: PlayerSearchSource = {
 		id: this.identifier,
 		streamable: false,

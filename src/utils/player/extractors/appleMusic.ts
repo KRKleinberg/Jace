@@ -1,5 +1,5 @@
 import { Player, type PlayerSearchSource } from '#utils/player';
-import { ExtractorExecutionContext } from 'discord-player';
+import type { ExtractorExecutionContext } from 'discord-player';
 import {
 	AppleMusicExtractor as AMExtractor,
 	type AppleMusicExtractorInit,
@@ -7,7 +7,7 @@ import {
 
 // CLASSES
 export class AppleMusicExtractor extends AMExtractor {
-	public priority = 20;
+	public priority = 30;
 	public searchSource: PlayerSearchSource = {
 		id: this.identifier,
 		streamable: false,

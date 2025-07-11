@@ -2,6 +2,7 @@ import { App, type AutocompleteInteractionContext, type CommandContext } from '#
 import { createNumberedList, isUrl, truncate } from '#utils/helpers';
 import { registerAppleMusic } from '#utils/player/extractors/appleMusic';
 import { registerDeezer } from '#utils/player/extractors/deezer';
+import { registerSoundcloud } from '#utils/player/extractors/soundcloud';
 import { registerSpotify, SpotifyExtractor } from '#utils/player/extractors/spotify';
 import {
 	Player as DiscordPlayer,
@@ -190,6 +191,7 @@ class PlayerClient extends DiscordPlayer {
 	public async registerExtractors() {
 		await registerSpotify();
 		await registerAppleMusic();
+		await registerSoundcloud();
 		await registerDeezer();
 
 		if (!this.searchSources.some((searchSource) => searchSource.streamable)) {
