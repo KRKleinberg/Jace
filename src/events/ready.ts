@@ -8,7 +8,7 @@ App.once(Events.ClientReady, async () => {
 		throw new Error('ENV Error: Environment variable "DISCORD_BOT_TOKEN" is not set!');
 	}
 	if (!process.env.DISCORD_APP_ID) {
-		throw new Error('ENV Error: Environment variable "DISCORD_BOT_TOKEN" is not set!');
+		throw new Error('ENV Error: Environment variable "DISCORD_APP_ID" is not set!');
 	}
 
 	const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
