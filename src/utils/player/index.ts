@@ -192,7 +192,7 @@ class PlayerClient extends DiscordPlayer {
 		await registerSpotify();
 		await registerAppleMusic();
 		await registerDeezer();
-		// await registerSoundcloud();
+		await registerSoundcloud();
 
 		if (!this.searchSources.some((searchSource) => searchSource.streamable)) {
 			throw new Error('Player Error: No streamable extractors were registered!');
