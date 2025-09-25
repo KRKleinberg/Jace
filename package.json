@@ -35,7 +35,7 @@
 	},
 	"dependencies": {
 		"discord-player": "^7.1.0",
-		"discord-player-applemusic": "^1.0.2",
+		"discord-player-applemusic": "^1.0.3",
 		"discord-player-deezer": "^2.5.0",
 		"discord-player-soundcloud": "^1.0.7",
 		"discord.js": "^14.22.1",
