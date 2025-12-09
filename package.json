@@ -4,8 +4,8 @@
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "node --import=tsx --openssl-legacy-provider src/index.ts",
-		"test": "node --import=tsx --openssl-legacy-provider --env-file=.env.local src/index.ts"
+		"start": "node --openssl-legacy-provider src/index.ts",
+		"test": "node --openssl-legacy-provider --env-file=.env.local src/index.ts"
 	},
 	"type": "module",
 	"repository": {
@@ -32,6 +32,7 @@
 		"globals": "^16.5.0",
 		"jiti": "^2.6.1",
 		"prettier": "^3.7.4",
+		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.49.0"
 	},
 	"dependencies": {
@@ -41,6 +42,7 @@
 		"discord-player-soundcloud": "^1.0.7",
 		"discord.js": "^14.25.1",
 		"mongodb": "^7.0.0",
-		"otpauth": "^9.4.1"
+		"otpauth": "^9.4.1",
+		"tsx": "^4.21.0"
 	}
 }
