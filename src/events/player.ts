@@ -77,38 +77,44 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 
 			let index = 1;
 			const interval = setInterval(
-				async () => {
-					if (queue.currentTrack !== track) {
-						clearInterval(interval);
+				() => {
+					void (async () => {
+						if (queue.currentTrack !== track) {
+							clearInterval(interval);
 
-						const embed = Player.createPlayEmbed(queue, track);
+							const embed = Player.createPlayEmbed(queue, track);
 
-						await response.edit({ embeds: [embed] });
-					} else {
+							await response.edit({ embeds: [embed] });
+
+							return;
+						}
+
 						const timestamp = queue.node.getTimestamp();
 
-						if (timestamp) {
-							const progressBarIndex = Math.round(
-								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
-							);
+						if (!timestamp) {
+							const embed = Player.createPlayEmbed(queue, track, lyrics);
 
-							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
-								index = progressBarIndex;
+							await response.edit({
+								embeds: [embed],
+							});
 
-								const embed = Player.createPlayEmbed(queue, track, lyrics);
+							return;
+						}
 
-								await response.edit({
-									embeds: [embed],
-								});
-							}
-						} else {
+						const progressBarIndex = Math.round(
+							(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
+						);
+
+						if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
+							index = progressBarIndex;
+
 							const embed = Player.createPlayEmbed(queue, track, lyrics);
 
 							await response.edit({
 								embeds: [embed],
 							});
 						}
-					}
+					})();
 				},
 				Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
 			);
@@ -158,12 +164,14 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 					await response.edit({ embeds: [embed] });
 				}
 			});
-			syncedLyrics.onUnsubscribe(async () => {
-				lyrics = undefined;
+			syncedLyrics.onUnsubscribe(() => {
+				void (async () => {
+					lyrics = undefined;
 
-				const embed = Player.createPlayEmbed(queue, track);
+					const embed = Player.createPlayEmbed(queue, track);
 
-				await response.edit({ embeds: [embed] });
+					await response.edit({ embeds: [embed] });
+				})();
 			});
 			syncedLyrics.subscribe();
 		} catch (error) {
@@ -175,38 +183,40 @@ Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
 
 		let index = 1;
 		const interval = setInterval(
-			async () => {
-				if (queue.currentTrack !== track) {
-					clearInterval(interval);
+			() => {
+				void (async () => {
+					if (queue.currentTrack !== track) {
+						clearInterval(interval);
 
-					const embed = Player.createPlayEmbed(queue, track);
+						const embed = Player.createPlayEmbed(queue, track);
 
-					await response.edit({ embeds: [embed] });
-				} else {
-					const timestamp = queue.node.getTimestamp();
+						await response.edit({ embeds: [embed] });
+					} else {
+						const timestamp = queue.node.getTimestamp();
 
-					if (timestamp) {
-						const progressBarIndex = Math.round(
-							(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
-						);
+						if (timestamp) {
+							const progressBarIndex = Math.round(
+								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
+							);
 
-						if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
-							index = progressBarIndex;
+							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
+								index = progressBarIndex;
 
+								const embed = Player.createPlayEmbed(queue, track);
+
+								await response.edit({
+									embeds: [embed],
+								});
+							}
+						} else {
 							const embed = Player.createPlayEmbed(queue, track);
 
 							await response.edit({
 								embeds: [embed],
 							});
 						}
-					} else {
-						const embed = Player.createPlayEmbed(queue, track);
-
-						await response.edit({
-							embeds: [embed],
-						});
 					}
-				}
+				})();
 			},
 			Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
 		);
