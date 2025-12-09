@@ -4,8 +4,8 @@
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "node --import=tsx --openssl-legacy-provider src/index.ts",
-		"test": "node --import=tsx --openssl-legacy-provider --env-file=.env.local src/index.ts"
+		"start": "tsx --openssl-legacy-provider src/index.ts",
+		"test": "tsx --openssl-legacy-provider --env-file=.env.local src/index.ts"
 	},
 	"type": "module",
 	"repository": {
