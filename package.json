@@ -41,7 +41,7 @@
 		"discord-player-deezer": "^2.5.0",
 		"discord-player-soundcloud": "^1.0.7",
 		"discord.js": "^14.25.1",
-		"mongodb": "^7.0.0",
+		"mongodb": "^7.1.0",
 		"otpauth": "^9.4.1",
 		"tsx": "^4.21.0"
 	}
