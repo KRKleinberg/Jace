@@ -1,6 +1,6 @@
 {
 	"name": "jace",
-	"version": "9.1.1",
+	"version": "9.2.0",
 	"description": "A multipurpose Discord music app written in TypeScript.",
 	"main": "dist/index.js",
 	"scripts": {
@@ -36,6 +36,7 @@
 		"typescript-eslint": "^8.56.1"
 	},
 	"dependencies": {
+		"@snazzah/davey": "^0.1.9",
 		"discord-player": "^7.2.0",
 		"discord-player-applemusic": "^1.0.3",
 		"discord-player-deezer": "^2.5.0",
