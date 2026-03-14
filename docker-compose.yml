@@ -1,15 +1,73 @@
 services:
-  main:
-    build: .
-    container_name: jace
+  lavalink-init:
+    image: busybox
+    container_name: jace-lavalink-init
+    command: chown -R 322:322 /plugins
+    volumes:
+      - lavalink_plugins:/plugins
+    restart: "no"
+
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4
+    container_name: jace-lavalink
+    restart: unless-stopped
+    depends_on:
+      lavalink-init:
+        condition: service_completed_successfully
+    dns:
+      - 9.9.9.9
+      - 149.112.112.112
     environment:
       - DEEZER_ARL
       - DEEZER_KEY
-      - DISCORD_APP_ID
-      - DISCORD_BOT_TOKEN
-      - ENV
-      - MONGODB_COLLECTION_NAME
-      - MONGODB_URL
+      - LAVALINK_PASSWORD
       - SPOTIFY_CLIENT_ID
       - SPOTIFY_CLIENT_SECRET
-    restart: always
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
+      - lavalink_plugins:/opt/Lavalink/plugins
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-H",
+          "Authorization: ${LAVALINK_PASSWORD}",
+          "http://localhost:2333/version",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  redis:
+    image: redis:7-alpine
+    container_name: jace-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --save "" --appendonly no
+    environment:
+      - REDIS_PASSWORD
+
+  jace:
+    build: .
+    init: true
+    depends_on:
+      lavalink:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - DISCORD_APP_ID
+      - DISCORD_BOT_TOKEN
+      - INSTANCE
+      - LAVALINK_PASSWORD
+      - LOG_LEVEL
+      - MONGODB_COLLECTION_NAME
+      - MONGODB_URL
+      - REDIS_PASSWORD
+    restart: on-failure
+    stop_grace_period: 30s
+
+volumes:
+  lavalink_plugins:

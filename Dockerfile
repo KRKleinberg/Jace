@@ -1,17 +1,10 @@
-FROM node:lts-slim
-
+FROM node:lts-slim AS build
 WORKDIR /jace
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    ffmpeg \
-  && rm -rf /var/lib/apt/lists/*
-
 COPY package.json package-lock.json ./
-
 RUN npm install --omit=dev
-
 COPY . .
 
-# Start the app.
-CMD ["npm", "start"]
+FROM cgr.dev/chainguard/node:latest
+WORKDIR /jace
+COPY --from=build /jace .
+CMD ["node_modules/.bin/tsx", "src/index.ts"]

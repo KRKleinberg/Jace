@@ -1,37 +1,80 @@
 import { App } from '#utils/app';
-import { Data } from '#utils/data';
+import { env } from '#utils/env';
+import { log } from '#utils/log';
+import { Database } from '#utils/mongodb';
+import { Player } from '#utils/player';
+import { Redis } from '#utils/redis';
 import { Events, REST, Routes } from 'discord.js';
 
-App.once(Events.ClientReady, () => {
-	void (async () => {
-		// REST API
-		if (!process.env.DISCORD_BOT_TOKEN) {
-			throw new Error('ENV Error: Environment variable "DISCORD_BOT_TOKEN" is not set!');
-		}
-		if (!process.env.DISCORD_APP_ID) {
-			throw new Error('ENV Error: Environment variable "DISCORD_APP_ID" is not set!');
-		}
+App.once(Events.ClientReady, async () => {
+	if (!App.user) {
+		throw new Error('[Ready] Error: App.user is undefined!');
+	}
 
-		const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
-		const preferences = await Data.getPreferences();
+	try {
+		const rest = new REST().setToken(env.DISCORD_BOT_TOKEN);
 
-		try {
-			await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), {
-				body: App.commands.map((command) => command.data),
-			});
-		} catch (error) {
-			console.error('Application Command Setup Error -', error);
-		}
-
-		// Prevent crashes on uncaught exceptions and unhandled promise rejections
-		process.on('uncaughtException', (error) => {
-			console.error(`EXCEPTION CAUGHT: ${error}\n` + `EXCEPTION ORIGIN: ${error.stack ?? 'Unknown'}`);
-		});
-		process.on('unhandledRejection', (reason, promise) => {
-			console.error('UNHANDLED REJECTION:', promise, 'REASON:', reason);
+		await rest.put(Routes.applicationCommands(env.DISCORD_APP_ID), {
+			body: App.commands.map((command) => command.data),
 		});
 
-		// Log Start
-		console.log(`${App.user?.tag ?? 'UNDEFINED_TAG'} is online! Prefix set as "${preferences.prefix}"`);
-	})();
+		log.debug('[Ready] Application commands registered');
+	} catch (error) {
+		log.error('[Ready] Failed to register application commands:', error);
+	}
+
+	if (!Redis.isNewInstance) {
+		log.info('[Ready] Existing instance detected, requesting handoff...');
+
+		await new Promise<void>((resolve) => {
+			const timeout = setTimeout(() => {
+				log.warn('[Ready] Handoff timed out, proceeding without handoff');
+
+				resolve();
+			}, 5000);
+
+			const subscriber = Redis.client.duplicate();
+
+			void (async () => {
+				try {
+					await subscriber.connect();
+					await subscriber.subscribe('jace:handoff:ready', async () => {
+						clearTimeout(timeout);
+
+						await subscriber.unsubscribe();
+
+						subscriber.destroy();
+
+						log.info('[Ready] Received handoff ready signal, proceeding with startup');
+
+						resolve();
+					});
+
+					await Redis.client.publish('jace:handoff:request', 'Requesting handoff');
+
+					log.info('[Ready] Requesting handoff from existing instance...');
+				} catch (error) {
+					log.error('[Ready] Handoff error:', error);
+
+					clearTimeout(timeout);
+
+					resolve();
+				}
+			})();
+		});
+	}
+
+	await Redis.client.set('jace:instance', Redis.instanceId);
+
+	try {
+		await Player.init({ id: App.user.id, username: App.user.username });
+	} catch (error) {
+		log.error('[Ready] Lavalink initialization failed:', error);
+	}
+
+	const preferences = Database.getPreferences();
+
+	log.info(
+		`[Ready] Logged in as ${App.user.tag} (ID: ${App.user.id}, Prefix: ${preferences.prefix})`,
+	);
 });

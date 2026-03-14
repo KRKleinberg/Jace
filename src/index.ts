@@ -1,9 +1,63 @@
 import { App } from '#utils/app';
+import { env } from '#utils/env';
+import { log } from '#utils/log';
 import { Player } from '#utils/player';
+import { Redis } from '#utils/redis';
 
-await Player.registerExtractors();
+let shuttingDown = false;
 
-await App.initializeCommands();
-await App.initializeEvents();
+process.on('SIGTERM', async () => {
+	if (shuttingDown) return;
 
-await App.login(process.env.DISCORD_BOT_TOKEN);
+	shuttingDown = true;
+
+	log.info('[Shutdown] Received SIGTERM, shutting down gracefully...');
+
+	try {
+		await subscriber.unsubscribe();
+		subscriber.destroy();
+
+		await new Promise<void>((resolve) => {
+			const timeout = setTimeout(() => {
+				log.warn('[Shutdown] Lavalink disconnect timed out');
+
+				resolve();
+			}, 5000);
+
+			Player.nodeManager.once('disconnect', () => {
+				clearTimeout(timeout);
+
+				log.debug('[Shutdown] Lavalink connection released');
+
+				resolve();
+			});
+
+			Player.nodeManager.nodes.forEach((node) => {
+				node.disconnect('Session handoff');
+			});
+		});
+
+		await Redis.client.publish('jace:handoff:ready', 'Done');
+	} catch (error) {
+		log.error('[Shutdown] Error:', error);
+	}
+
+	process.exit(0);
+});
+
+const subscriber = Redis.client.duplicate();
+
+await subscriber.connect();
+await subscriber.subscribe('jace:handoff:request', async () => {
+	const currentInstance = await Redis.client.get('jace:instance');
+
+	if (currentInstance !== Redis.instanceId) return;
+
+	log.info('[Handoff] Received handoff request, shutting down...');
+
+	process.emit('SIGTERM', 'SIGTERM');
+});
+
+await App.loadCommands();
+await App.loadEvents();
+await App.login(env.DISCORD_BOT_TOKEN);

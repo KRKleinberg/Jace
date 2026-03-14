@@ -1,49 +1,40 @@
 {
 	"name": "jace",
-	"version": "9.2.0",
-	"description": "A multipurpose Discord music app written in TypeScript.",
-	"main": "dist/index.js",
-	"scripts": {
-		"start": "tsx --openssl-legacy-provider src/index.ts",
-		"test": "tsx --openssl-legacy-provider --env-file=.env.local src/index.ts"
+	"version": "10.0.0",
+	"description": "A multipurpose Discord music app written in TypeScript",
+	"homepage": "https://github.com/KRKleinberg/Jace#readme",
+	"bugs": {
+		"url": "https://github.com/KRKleinberg/Jace/issues"
 	},
-	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/KRKleinberg/Jace.git"
 	},
-	"author": "Kevin Kleinberg",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/KRKleinberg/Jace/issues"
+	"author": "Kevin Kleinberg",
+	"type": "module",
+	"main": "src/index.ts",
+	"scripts": {
+		"test": "docker compose up --build",
+		"dev": "tsx --env-file=.env src/index.ts"
 	},
-	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"imports": {
-		"#utils/*": "./src/utils/*.ts",
-		"#utils/app": "./src/utils/app/index.ts",
-		"#utils/data": "./src/utils/data/index.ts",
-		"#utils/player": "./src/utils/player/index.ts"
+		"#utils/*": "./src/utils/*.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@types/node": "^25.3.5",
-		"eslint": "^10.0.2",
-		"ffmpeg-static": "^5.3.0",
+		"@eslint/json": "^1.1.0",
+		"@types/node": "^25.5.0",
+		"eslint": "^10.0.3",
 		"globals": "^17.4.0",
-		"jiti": "^2.6.1",
-		"prettier": "^3.8.1",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.56.1"
+		"typescript-eslint": "^8.57.0"
 	},
 	"dependencies": {
-		"@snazzah/davey": "^0.1.10",
-		"discord-player": "^7.2.0",
-		"discord-player-applemusic": "^1.0.3",
-		"discord-player-deezer": "^2.5.0",
-		"discord-player-soundcloud": "^1.0.7",
 		"discord.js": "^14.25.1",
+		"lavalink-client": "^2.9.7",
 		"mongodb": "^7.1.0",
-		"otpauth": "^9.5.0",
-		"tsx": "^4.21.0"
+		"redis": "^5.11.0",
+		"tsx": "^4.21.0",
+		"zod": "^4.3.6"
 	}
 }

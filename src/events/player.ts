@@ -1,224 +1,89 @@
-import { App, type CommandContext } from '#utils/app';
-import { Player, type TrackMetadata } from '#utils/player';
-import { GuildQueueEvent, Util } from 'discord-player';
-import { ChannelType } from 'discord.js';
+import { App } from '#utils/app';
+import { log } from '#utils/log';
+import { Player, PlayerClient } from '#utils/player';
+import { Redis } from '#utils/redis';
 
-/* Player.events.on(GuildQueueEvent.Debug, (_queue, message) => {
-	console.log(message);
-}); */
+interface LavalinkReadyPayload {
+	op: 'ready';
+	resumed: boolean;
+	sessionId: string;
+}
 
-Player.events.on(GuildQueueEvent.Error, async (queue, error) => {
-	console.error('Queue Error -', error);
+function isReadyPayload(payload: unknown): payload is LavalinkReadyPayload {
+	return typeof payload === 'object' && payload !== null && 'op' in payload && payload.op === 'ready';
+}
 
-	const ctx: CommandContext = queue.metadata as CommandContext;
+Player.nodeManager.on('raw', async (node, payload) => {
+	if (isReadyPayload(payload) && !payload.resumed) {
+		node.sessionId = payload.sessionId;
 
-	if (ctx.command.channel?.type === ChannelType.GuildText) {
-		try {
-			await ctx.command.channel.sendTyping();
-		} catch (error) {
-			console.error('Channel Send Typing Error -', error);
-		}
+		await node.updateSession(true, 60);
+		await PlayerClient.saveSession(node, 0);
+
+		log.debug(`[Lavalink] Node ${node.options.id} session configured`);
 	}
-
-	await App.respond(ctx, `There was an error with the queue`, 'PLAYER_ERROR');
 });
 
-Player.events.on(GuildQueueEvent.PlayerError, async (queue, error, track) => {
-	console.error('Player Error -', error);
+Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
+	if (!Array.isArray(fetchedPlayers)) {
+		log.error(`[Lavalink] Failed to fetch players on resume:`, fetchedPlayers);
 
-	const ctx: CommandContext = queue.metadata as CommandContext;
+		return;
+	}
 
-	if (ctx.command.channel?.type === ChannelType.GuildText) {
-		try {
-			await ctx.command.channel.sendTyping();
-		} catch (error) {
-			console.error('Channel Send Typing Error -', error);
+	for (const fetchedPlayer of fetchedPlayers) {
+		if (!fetchedPlayer.state.connected) {
+			log.debug(`[Lavalink] Skipping disconnected player for ${fetchedPlayer.guildId}`);
+
+			continue;
 		}
-	}
 
-	const trackMetadata = track.metadata as TrackMetadata | null | undefined;
+		if (!fetchedPlayer.voice.channelId) {
+			log.debug(`[Lavalink] Skipping player with no voice channel for ${fetchedPlayer.guildId}`);
 
-	track.setMetadata({ ...trackMetadata, skipped: true });
+			continue;
+		}
 
-	await App.respond(ctx, `Unable to play _${track.cleanTitle}_ by _${track.author}_`, 'PLAYER_ERROR');
-});
+		const textChannelId = await Redis.client.get(`jace:player:${fetchedPlayer.guildId}:text-channel`);
 
-Player.events.on(GuildQueueEvent.PlayerStart, async (queue, track) => {
-	const ctx: CommandContext = queue.metadata as CommandContext;
+		const player = Player.createPlayer({
+			guildId: fetchedPlayer.guildId,
+			node: node.id,
+			voiceChannelId: fetchedPlayer.voice.channelId,
+			...(textChannelId && { textChannelId }),
+			selfDeaf: true,
+		});
 
-	if (ctx.command.channel?.type === ChannelType.GuildText) {
-		await ctx.command.channel.sendTyping();
-	}
+		await player.connect();
+		await player.queue.utils.sync(true, false);
 
-	const lyricsResults = await Player.lyrics.search({
-		trackName: track.cleanTitle,
-		artistName: track.author,
-	});
-	const lyricsResult = lyricsResults[0];
-
-	if (lyricsResults.length && lyricsResult.syncedLyrics) {
-		try {
-			const waitLyric = '○\u2002○\u2002○';
-			const waitLyricBold = '●\u2002●\u2002●';
-			const endLyric = 'END_OF_LYRICS';
-			const syncedLyrics = queue.syncedLyrics(lyricsResult);
-			const syncedVerses = lyricsResult.syncedLyrics.split('\n').map((verse, index, array) => {
-				if (index === array.length - 1) {
-					return `${verse.slice(0, 11)}${endLyric}`;
-				} else if (verse.slice(11).length === 0) {
-					return `${verse.slice(0, 11)}${waitLyric}`;
-				} else {
-					return verse;
-				}
-			});
-			let lyrics: string[] | undefined = [waitLyricBold, syncedVerses[0].slice(11)];
-			const embed = Player.createPlayEmbed(queue, track, lyrics);
-			const response = await App.respond(ctx, { embeds: [embed] }, 'CHANNEL');
-
-			let index = 1;
-			const interval = setInterval(
-				() => {
-					void (async () => {
-						if (queue.currentTrack !== track) {
-							clearInterval(interval);
-
-							const embed = Player.createPlayEmbed(queue, track);
-
-							await response.edit({ embeds: [embed] });
-
-							return;
-						}
-
-						const timestamp = queue.node.getTimestamp();
-
-						if (!timestamp) {
-							const embed = Player.createPlayEmbed(queue, track, lyrics);
-
-							await response.edit({
-								embeds: [embed],
-							});
-
-							return;
-						}
-
-						const progressBarIndex = Math.round(
-							(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
-						);
-
-						if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
-							index = progressBarIndex;
-
-							const embed = Player.createPlayEmbed(queue, track, lyrics);
-
-							await response.edit({
-								embeds: [embed],
-							});
-						}
-					})();
-				},
-				Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
+		if (fetchedPlayer.track) {
+			player.queue.current = Player.utils.buildTrack(
+				fetchedPlayer.track,
+				player.queue.current?.requester || App.user,
 			);
-
-			syncedLyrics.load(syncedVerses.join('\n'));
-			syncedLyrics.onChange(async (currentVerse, timestamp) => {
-				try {
-					const currentVerseIndex = syncedVerses.findIndex((verse) =>
-						verse.includes(`${Util.formatDuration(timestamp)}.${timestamp.toString().slice(-2)}`)
-					);
-
-					if (
-						currentVerseIndex + 1 < syncedVerses.length &&
-						syncedVerses[currentVerseIndex + 1]?.includes(endLyric)
-					) {
-						lyrics = [syncedVerses[currentVerseIndex - 1].slice(11), `**${currentVerse}**`];
-					} else if (currentVerse.includes(endLyric)) {
-						lyrics = [
-							syncedVerses[currentVerseIndex - 2].slice(11),
-							syncedVerses[currentVerseIndex - 1].slice(11),
-						];
-
-						setTimeout(() => {
-							if (queue.currentTrack === track) {
-								syncedLyrics.unsubscribe();
-							}
-						}, 5_000);
-					} else if (currentVerse && syncedVerses[currentVerseIndex + 1]) {
-						lyrics = [
-							`**${currentVerse === waitLyric ? waitLyricBold : currentVerse}**`,
-							syncedVerses[currentVerseIndex + 1].slice(11),
-						];
-					} else {
-						lyrics = undefined;
-					}
-
-					const embed = Player.createPlayEmbed(queue, track, lyrics);
-
-					await response.edit({
-						embeds: [embed],
-					});
-				} catch (error) {
-					console.error('Synced Lyrics Change Error -', error);
-
-					const embed = Player.createPlayEmbed(queue, track);
-
-					await response.edit({ embeds: [embed] });
-				}
-			});
-			syncedLyrics.onUnsubscribe(() => {
-				void (async () => {
-					lyrics = undefined;
-
-					const embed = Player.createPlayEmbed(queue, track);
-
-					await response.edit({ embeds: [embed] });
-				})();
-			});
-			syncedLyrics.subscribe();
-		} catch (error) {
-			console.error('Synced Lyrics Error -', error);
 		}
-	} else {
-		const embed = Player.createPlayEmbed(queue, track);
-		const response = await App.respond(ctx, { embeds: [embed] }, 'CHANNEL');
 
-		let index = 1;
-		const interval = setInterval(
-			() => {
-				void (async () => {
-					if (queue.currentTrack !== track) {
-						clearInterval(interval);
+		player.lastPosition = fetchedPlayer.state.position;
+		player.lastPositionChange = Date.now();
+		player.ping.lavalink = fetchedPlayer.state.ping;
+		player.paused = fetchedPlayer.paused;
+		player.playing = !fetchedPlayer.paused && !!fetchedPlayer.track;
 
-						const embed = Player.createPlayEmbed(queue, track);
-
-						await response.edit({ embeds: [embed] });
-					} else {
-						const timestamp = queue.node.getTimestamp();
-
-						if (timestamp) {
-							const progressBarIndex = Math.round(
-								(timestamp.current.value / timestamp.total.value) * Player.getProgressBarLength(track)
-							);
-
-							if (progressBarIndex > index && progressBarIndex <= Player.getProgressBarLength(track)) {
-								index = progressBarIndex;
-
-								const embed = Player.createPlayEmbed(queue, track);
-
-								await response.edit({
-									embeds: [embed],
-								});
-							}
-						} else {
-							const embed = Player.createPlayEmbed(queue, track);
-
-							await response.edit({
-								embeds: [embed],
-							});
-						}
-					}
-				})();
-			},
-			Math.max(track.durationMS / Player.getProgressBarLength(track), 1_000)
-		);
+		log.debug(`[Lavalink] Resumed player for guild ${fetchedPlayer.guildId}`);
 	}
+});
+
+Player.on('trackStart', async (player, track) => {
+	log.info(`[Player] Track started: ${track?.info.title}`);
+
+	if (player.textChannelId) {
+		await Redis.client.set(`jace:player:${player.guildId}:text-channel`, player.textChannelId, {
+			EX: 60 * 60 * 6,
+		});
+	}
+});
+
+Player.on('playerDestroy', async (player) => {
+	await Redis.client.del(`jace:player:${player.guildId}:text-channel`);
 });

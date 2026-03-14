@@ -1,0 +1,50 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run:
+    runs-on: self-hosted
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Secrets
+        uses: bitwarden/sm-action@v2
+        with:
+          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
+          secrets: |
+            bbd9a7e5-44d2-4cb0-9e5d-b4080004f125 > DEEZER_ARL
+            9516fb46-aa0f-4a5e-9d7c-b4080004e3a3 > DEEZER_KEY
+            8ec9791f-842d-4938-9042-b4070157b005 > DISCORD_APP_ID
+            c9837d79-ed7f-42ad-a400-b40701577f69 > DISCORD_BOT_TOKEN
+            b3d8ae13-d8e9-4a25-8d70-b407015ebb71 > INSTANCE
+            507bf217-a926-4019-b9c3-b4070188a283 > LAVALINK_PASSWORD
+            090f8747-8fc9-4333-a9d6-b40d0101a64b > LOG_LEVEL
+            180bf87b-e2d9-4994-8b78-b407015dce74 > MONGODB_COLLECTION_NAME
+            29c44817-e411-4e10-910a-b407015d716e > MONGODB_URL
+            bc08ef6b-a4de-4566-9921-b408011f60f6 > REDIS_PASSWORD
+            4a1eeecb-7ddf-4fc2-a051-b4080006bd4c > SPOTIFY_CLIENT_ID
+            a1addc4b-fc07-43a6-bdaf-b40800069aa0 > SPOTIFY_CLIENT_SECRET
+
+      - name: Build New Image
+        run: docker compose build jace
+
+      - name: Deploy
+        run: bash scripts/deploy.sh
+
+      - name: Cleanup Unused Images
+        run: docker image prune -f
+
+      - name: Cleanup Build Cache
+        run: docker buildx prune -f --max-used-space=1gb
