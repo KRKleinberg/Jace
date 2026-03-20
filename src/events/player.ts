@@ -97,15 +97,16 @@ function formatLyricsDisplay(lyricLines: string[], index: number): string[] | un
 	if (index < 0 || index >= lyricLines.length) return undefined;
 
 	const currentLine = lyricLines[index] ?? '';
-	const previousLine = index > 0 ? (lyricLines[index - 1] ?? '') : '';
+	const previousLine = lyricLines[index - 1] ?? '';
+	const secondPreviousLine = lyricLines[index - 2] ?? '';
 	const nextLine = lyricLines[index + 1];
 
 	if (index >= lyricLines.length - 1) {
-		return [previousLine ?? '', currentLine];
+		return [secondPreviousLine, previousLine];
 	}
 
 	if (index === lyricLines.length - 2) {
-		return [previousLine ?? '', boldLine(currentLine)];
+		return [previousLine, boldLine(currentLine)];
 	}
 
 	if (nextLine !== undefined) {
@@ -123,9 +124,9 @@ async function fetchAndSubscribeLyrics(
 
 		if (!lyrics?.lines?.length) return undefined;
 
-		const lyricLines = lyrics.lines.map((line) => {
+		const lyricLines = lyrics.lines.map((line, index) => {
 			if (line.line === '♪') return INSTRUMENTAL;
-			if (line.line.length === 0) return SILENCE;
+			if (line.line.length === 0 && index !== lyrics.lines.length - 1) return SILENCE;
 
 			return line.line;
 		});
