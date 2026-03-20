@@ -32,7 +32,7 @@ export const command: Command = {
 		const player = Player.getPlayer(ctx.guild.id);
 
 		if (!player) {
-			return await ctx.respond('Nothing is playing', { type: 'USER_ERROR' });
+			return await ctx.respond('There is no active player', { type: 'USER_ERROR' });
 		}
 
 		if (ctx.member.voice.channelId !== player.voiceChannelId) {

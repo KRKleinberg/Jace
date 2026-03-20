@@ -13,7 +13,7 @@ export const command: Command = {
 		const currentTrack = player?.queue.current;
 
 		if (!player) {
-			return await ctx.respond('There is no active queue', { type: 'USER_ERROR' });
+			return await ctx.respond('There is no active player', { type: 'USER_ERROR' });
 		}
 
 		if (ctx.member.voice.channelId !== player.voiceChannelId) {

@@ -14,16 +14,19 @@ export const command: Command = {
 		const currentTrack = player?.queue.current;
 
 		if (!player) {
-			return await ctx.respond('There is no active queue', { type: 'USER_ERROR' });
+			return await ctx.respond('There is no active player', { type: 'USER_ERROR' });
 		}
+
 		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});
 		}
+
 		if (!currentTrack) {
 			return await ctx.respond('Nothing is playing', { type: 'USER_ERROR' });
 		}
+
 		if (player.paused) {
 			return await ctx.respond('Player is already paused', { type: 'USER_ERROR' });
 		}
