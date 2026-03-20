@@ -3,7 +3,7 @@ import { Player } from '#utils/player';
 import { SlashCommandBuilder } from 'discord.js';
 
 export const command: Command = {
-	aliases: ['rem'],
+	aliases: ['rm'],
 	data: new SlashCommandBuilder()
 		.setDescription('Removes a track from the queue')
 		.addIntegerOption((option) =>

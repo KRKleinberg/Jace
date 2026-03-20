@@ -114,6 +114,17 @@ export const command: Command = {
 
 		const query = ctx.getOption('search');
 		if (!query) {
+			if (player.paused && player.queue.current) {
+				await player.resume();
+
+				return await ctx.respond(
+					`Resumed _${player.queue.current.info.title}_ by _${player.queue.current.info.author}_`,
+					{
+						emoji: '▶️',
+					},
+				);
+			}
+
 			return await ctx.respond('No search query provided', { type: 'USER_ERROR' });
 		}
 

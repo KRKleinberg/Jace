@@ -29,8 +29,10 @@ plugins:
     providers:
       - "dzisrc:%ISRC%"
       - "dzsearch:%QUERY%"
+      - "scsearch:%QUERY%"
     sources:
       spotify: true
+      applemusic: true
       deezer: true
     lyrics-sources:
       spotify: true
@@ -43,6 +45,8 @@ plugins:
       preferAnonymousToken: false
       spDc: ${SPOTIFY_SP_DC}
       customTokenEndpoint: "http://spotify-tokener:8080/api/token"
+    applemusic:
+      countryCode: "US"
     deezer:
       masterDecryptionKey: ${DEEZER_KEY}
       arl: ${DEEZER_ARL}
