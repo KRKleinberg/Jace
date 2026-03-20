@@ -83,7 +83,7 @@ App.once(Events.ClientReady, async () => {
 	App.user.setPresence({
 		activities: [
 			{
-				name: `📻 | ${Database.getPreferences().prefix}help | v${version}`,
+				name: `📻 | ${preferences.prefix}help | v${version}`,
 				type: ActivityType.Custom,
 			},
 		],
