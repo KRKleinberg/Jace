@@ -16,7 +16,7 @@ export const command: Command = {
 		if (!player) {
 			return await ctx.respond('There is no active queue', { type: 'USER_ERROR' });
 		}
-		if (ctx.member.voice.channel.id !== player.voiceChannelId) {
+		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});

@@ -10,12 +10,13 @@ export const command: Command = {
 		}
 
 		const player = Player.getPlayer(ctx.guild.id);
+		const currentTrack = player?.queue.current;
 
 		if (!player) {
 			return await ctx.respond('There is no active queue', { type: 'USER_ERROR' });
 		}
 
-		if (ctx.member.voice.channel.id !== player.voiceChannelId) {
+		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});
@@ -24,7 +25,7 @@ export const command: Command = {
 		const previous = player.queue.previous.shift();
 
 		if (!previous) {
-			if (player.queue.current) {
+			if (currentTrack) {
 				await player.seek(0);
 
 				return await ctx.respond(`Restarting track`, { emoji: '⏮️' });
@@ -33,8 +34,8 @@ export const command: Command = {
 			return await ctx.respond('There is no previous track in the queue', { type: 'USER_ERROR' });
 		}
 
-		if (player.queue.current) {
-			await player.queue.add(player.queue.current, 0);
+		if (currentTrack) {
+			await player.queue.add(currentTrack, 0);
 		}
 
 		await player.queue.add(previous, 0);

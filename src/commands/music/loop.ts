@@ -35,7 +35,7 @@ export const command: Command = {
 			return await ctx.respond('Nothing is playing', { type: 'USER_ERROR' });
 		}
 
-		if (ctx.member.voice.channel.id !== player.voiceChannelId) {
+		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});

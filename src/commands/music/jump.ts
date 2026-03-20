@@ -22,7 +22,7 @@ export const command: Command = {
 		if (!player || !player.queue.tracks.length) {
 			return await ctx.respond('There are no tracks in the queue', { type: 'USER_ERROR' });
 		}
-		if (ctx.member.voice.channel.id !== player.voiceChannelId) {
+		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});

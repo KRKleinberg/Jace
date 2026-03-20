@@ -9,13 +9,13 @@ export const command: Command = {
 	data: new SlashCommandBuilder().setDescription('Displays the queue'),
 	async execute(ctx) {
 		const player = Player.getPlayer(ctx.guild.id);
+		const currentTrack = player?.queue.current;
 
-		if (!player?.queue.current) {
+		if (!currentTrack) {
 			return await ctx.respond('There are no tracks in the queue', { type: 'USER_ERROR' });
 		}
 
-		const current = player.queue.current;
-		const nowPlaying = `**Now Playing:**\n[**${current.info.title}**](${current.info.uri}) by **${current.info.author}**\n\n`;
+		const nowPlaying = `**Now Playing:**\n[**${currentTrack.info.title}**](${currentTrack.info.uri}) by **${currentTrack.info.author}**\n\n`;
 
 		const queuedTracks = player.queue.tracks.map(
 			(track, index) =>

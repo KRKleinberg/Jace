@@ -14,14 +14,15 @@ export const command: Command = {
 			return await ctx.respond('You are not in a voice channel', { type: 'USER_ERROR' });
 		}
 		const player = Player.getPlayer(ctx.guild.id);
+		const currentTrack = player?.queue.current;
 
 		if (!player) {
 			return await ctx.respond('There is no active queue', { type: 'USER_ERROR' });
 		}
-		if (!player.queue.current) {
+		if (!currentTrack) {
 			return await ctx.respond('Nothing is playing', { type: 'USER_ERROR' });
 		}
-		if (ctx.member.voice.channel.id !== player.voiceChannelId) {
+		if (ctx.member.voice.channelId !== player.voiceChannelId) {
 			return await ctx.respond('You are not in the same voice channel as the app', {
 				type: 'USER_ERROR',
 			});
@@ -33,13 +34,12 @@ export const command: Command = {
 			return await ctx.respond('Please enter a valid time (e.g. 1:30)', { type: 'USER_ERROR' });
 		}
 
-		if (position >= player.queue.current.info.duration) {
+		if (position >= currentTrack.info.duration) {
 			await player.skip();
 
-			return await ctx.respond(
-				`Skipped _${player.queue.current.info.title}_ by _${player.queue.current.info.author}_`,
-				{ emoji: '⏭️' },
-			);
+			return await ctx.respond(`Skipped _${currentTrack.info.title}_ by _${currentTrack.info.author}_`, {
+				emoji: '⏭️',
+			});
 		}
 
 		const currentPosition = player.position;
@@ -48,7 +48,7 @@ export const command: Command = {
 		const emoji = currentPosition <= position ? '⏩️' : '⏪️';
 
 		return await ctx.respond(
-			`Seeked to _${formatDuration(position)}_ in _${player.queue.current.info.title}_ by _${player.queue.current.info.author}_`,
+			`Seeked to _${formatDuration(position)}_ in _${currentTrack.info.title}_ by _${currentTrack.info.author}_`,
 			{ emoji },
 		);
 	},
