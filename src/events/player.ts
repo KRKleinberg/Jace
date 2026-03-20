@@ -345,9 +345,11 @@ Player.on('LyricsLine', async (player, _track, payload) => {
 	await editNowPlaying(player);
 
 	if (payload.lineIndex >= lyricLines.length - 1) {
+		const currentTrack = player.queue.current;
+
 		setTimeout(async () => {
 			try {
-				if (player.queue.current) {
+				if (player.queue.current && player.queue.current === currentTrack) {
 					player.setData('currentLyricsDisplay', undefined);
 
 					player.setData('lastLyricsEdit', Date.now());
