@@ -1,0 +1,33 @@
+name: Restart Services
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  restart:
+    runs-on: self-hosted
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restart All Services
+        run: docker compose down && docker compose up -d
+
+    env:
+      DEEZER_ARL: ${{ secrets.DEEZER_ARL }}
+      DEEZER_KEY: ${{ secrets.DEEZER_KEY }}
+      DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+      INSTANCE: ${{ secrets.INSTANCE }}
+      LAVALINK_PASSWORD: ${{ secrets.LAVALINK_PASSWORD }}
+      LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+      MONGODB_COLLECTION_NAME: ${{ secrets.MONGODB_COLLECTION_NAME }}
+      MONGODB_URL: ${{ secrets.MONGODB_URL }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+      SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
