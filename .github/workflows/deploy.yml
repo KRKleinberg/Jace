@@ -19,25 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Get Secrets
-        uses: bitwarden/sm-action@v2
-        with:
-          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
-          secrets: |
-            bbd9a7e5-44d2-4cb0-9e5d-b4080004f125 > DEEZER_ARL
-            9516fb46-aa0f-4a5e-9d7c-b4080004e3a3 > DEEZER_KEY
-            8ec9791f-842d-4938-9042-b4070157b005 > DISCORD_APP_ID
-            c9837d79-ed7f-42ad-a400-b40701577f69 > DISCORD_BOT_TOKEN
-            b3d8ae13-d8e9-4a25-8d70-b407015ebb71 > INSTANCE
-            507bf217-a926-4019-b9c3-b4070188a283 > LAVALINK_PASSWORD
-            090f8747-8fc9-4333-a9d6-b40d0101a64b > LOG_LEVEL
-            180bf87b-e2d9-4994-8b78-b407015dce74 > MONGODB_COLLECTION_NAME
-            29c44817-e411-4e10-910a-b407015d716e > MONGODB_URL
-            bc08ef6b-a4de-4566-9921-b408011f60f6 > REDIS_PASSWORD
-            4a1eeecb-7ddf-4fc2-a051-b4080006bd4c > SPOTIFY_CLIENT_ID
-            a1addc4b-fc07-43a6-bdaf-b40800069aa0 > SPOTIFY_CLIENT_SECRET
-            2bb9f0c0-cb5c-4f20-bf87-b412015ea909 > SPOTIFY_SP_DC
-
       - name: Build New Image
         run: docker compose build jace
 
@@ -49,3 +30,18 @@ jobs:
 
       - name: Cleanup Build Cache
         run: docker buildx prune -f --max-used-space=1gb
+
+    env:
+      DEEZER_ARL: ${{ secrets.DEEZER_ARL }}
+      DEEZER_KEY: ${{ secrets.DEEZER_KEY }}
+      DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+      INSTANCE: ${{ secrets.INSTANCE }}
+      LAVALINK_PASSWORD: ${{ secrets.LAVALINK_PASSWORD }}
+      LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+      MONGODB_COLLECTION_NAME: ${{ secrets.MONGODB_COLLECTION_NAME }}
+      MONGODB_URL: ${{ secrets.MONGODB_URL }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+      SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
