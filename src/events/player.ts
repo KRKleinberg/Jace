@@ -356,7 +356,7 @@ Player.on('LyricsLine', async (player, _track, payload) => {
 			} catch (error) {
 				log.error(`[Player] Error clearing lyrics after track end for guild ${player.guildId}:`, error);
 			}
-		}, 5000);
+		}, 7000);
 	}
 });
 
