@@ -36,6 +36,7 @@ jobs:
             bc08ef6b-a4de-4566-9921-b408011f60f6 > REDIS_PASSWORD
             4a1eeecb-7ddf-4fc2-a051-b4080006bd4c > SPOTIFY_CLIENT_ID
             a1addc4b-fc07-43a6-bdaf-b40800069aa0 > SPOTIFY_CLIENT_SECRET
+            2bb9f0c0-cb5c-4f20-bf87-b412015ea909 > SPOTIFY_SP_DC
 
       - name: Build New Image
         run: docker compose build jace

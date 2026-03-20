@@ -28,6 +28,35 @@ if [ -n "$OLD" ]; then
 
     $DC up -d --no-recreate --scale jace=2 jace
 
+    # Wait for new instance to appear
+    NEW=""
+    for i in $(seq 1 15); do
+        NEW=$($DC ps jace --format '{{.Name}}' 2>/dev/null | grep -v "^${OLD}$" | head -1)
+        if [ -n "$NEW" ]; then
+            break
+        fi
+        sleep 1
+    done
+
+    if [ -z "$NEW" ]; then
+        echo "New instance failed to start, keeping old instance"
+        $DC ps jace --status exited --format '{{.Name}}' 2>/dev/null | xargs -r docker rm
+        exit 1
+    fi
+
+    echo "New instance: $NEW"
+
+    # Wait and check for crash-looping
+    sleep 5
+    RESTARTS=$(docker inspect --format '{{.RestartCount}}' "$NEW" 2>/dev/null || echo "0")
+
+    if [ "$RESTARTS" -gt 0 ]; then
+        echo "New instance is crash-looping (${RESTARTS} restarts), keeping old instance"
+        docker stop "$NEW" 2>/dev/null || true
+        docker rm "$NEW" 2>/dev/null || true
+        exit 1
+    fi
+
     echo "Waiting for old instance to exit..."
     for i in $(seq 1 30); do
         if ! docker ps --format '{{.Names}}' | grep -q "^${OLD}$"; then
@@ -42,8 +71,8 @@ if [ -n "$OLD" ]; then
         docker stop "$OLD"
     fi
 
-    $DC up -d --scale jace=1 jace
+    docker rm "$OLD" 2>/dev/null || true
 else
     echo "No existing instance, starting fresh..."
-    $DC up -d jace
+    $DC up -d
 fi

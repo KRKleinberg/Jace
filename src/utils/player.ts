@@ -45,7 +45,7 @@ export class PlayerClient extends LavalinkManager {
 	public static async create(): Promise<PlayerClient> {
 		const sessionId = await PlayerClient.getSession(env.INSTANCE, 0);
 
-		if (sessionId) log.debug('[Lavalink] Resuming session: ${sessionId}');
+		if (sessionId) log.debug(`[Lavalink] Resuming session: ${sessionId}`);
 		else log.debug('[Lavalink] No existing session found, starting fresh');
 
 		const instance = new PlayerClient({
@@ -68,10 +68,10 @@ export class PlayerClient extends LavalinkManager {
 			autoSkipOnResolveError: true,
 			playerOptions: {
 				applyVolumeAsFilter: true,
+				defaultSearchPlatform: 'spsearch',
 				clientBasedPositionUpdateInterval: 50,
 				onDisconnect: {
-					autoReconnect: true,
-					destroyPlayer: false,
+					destroyPlayer: true,
 				},
 				onEmptyQueue: {
 					destroyAfterMs: 30_000,

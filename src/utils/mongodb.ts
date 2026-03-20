@@ -146,6 +146,13 @@ class DatabaseClient {
 		};
 	}
 
+	public async updatePreferences(
+		discordId: string,
+		preferences: Partial<Preferences>,
+	): Promise<void> {
+		await this.collection.updateOne({ discordId }, { $set: { preferences } }, { upsert: true });
+	}
+
 	public async destroy(): Promise<void> {
 		await this.cache.destroy();
 		await this.client.close();

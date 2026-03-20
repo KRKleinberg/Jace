@@ -23,6 +23,7 @@ services:
       - LAVALINK_PASSWORD
       - SPOTIFY_CLIENT_ID
       - SPOTIFY_CLIENT_SECRET
+      - SPOTIFY_SP_DC
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink_plugins:/opt/Lavalink/plugins
@@ -48,6 +49,17 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD} --save "" --appendonly no
     environment:
       - REDIS_PASSWORD
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  spotify-tokener:
+    image: ghcr.io/topi314/spotify-tokener:master
+    container_name: spotify-tokener
+    restart: unless-stopped
 
   jace:
     build: .
@@ -56,6 +68,8 @@ services:
       lavalink:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      spotify-tokener:
         condition: service_started
     environment:
       - DISCORD_APP_ID
