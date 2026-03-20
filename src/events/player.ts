@@ -169,7 +169,7 @@ Player.nodeManager.on('raw', async (node, payload) => {
 		node.sessionId = payload.sessionId;
 
 		try {
-			await node.updateSession(true, 60);
+			await node.updateSession(true, 120);
 			await saveSession(node, 0);
 
 			log.debug(`[Lavalink] Node ${node.options.id} session configured`);
@@ -293,7 +293,11 @@ Player.on('trackStart', async (player, track) => {
 	player.setData('embedColor', color);
 
 	const result = await fetchAndSubscribeLyrics(player);
-	const initialLyrics = result ? [INSTRUMENTAL_ACTIVE, result.lyricLines[0] ?? ''] : undefined;
+	const initialLyrics = result
+		? result.timestamps[0] !== undefined && result.timestamps[0] <= 1000
+			? [boldLine(result.lyricLines[0] ?? ''), result.lyricLines[1] ?? '']
+			: [boldLine(INSTRUMENTAL), result.lyricLines[0] ?? '']
+		: undefined;
 
 	if (result?.lyricLines) {
 		log.debug(`[Player] Lyrics found and subscribed for track: ${track.info.title}`);
