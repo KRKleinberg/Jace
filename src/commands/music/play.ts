@@ -12,12 +12,13 @@ export const command: Command = {
 		.setDescription('Plays a song, album, or playlist')
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName('next')
-				.setDescription('Plays a song at the top of the queue')
+				.setName('song')
+				.setDescription('Plays a song')
 				.addStringOption((option) =>
 					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true),
 				),
 		)
+
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('album')
@@ -44,12 +45,13 @@ export const command: Command = {
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName('song')
-				.setDescription('Plays a song')
+				.setName('next')
+				.setDescription('Plays a song at the top of the queue')
 				.addStringOption((option) =>
 					option.setName('search').setDescription('The song to play').setAutocomplete(true).setRequired(true),
 				),
 		),
+
 	async autocomplete(ctx) {
 		const focused = ctx.source.options.getFocused(true);
 		const node = Player.nodeManager.nodes.get(env.INSTANCE);
