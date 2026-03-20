@@ -34,6 +34,7 @@ process.on('SIGTERM', async () => {
 			});
 
 			Player.nodeManager.nodes.forEach((node) => {
+				node.options.retryAmount = 0;
 				node.disconnect('Session handoff');
 			});
 		});
@@ -47,6 +48,15 @@ process.on('SIGTERM', async () => {
 	}
 
 	process.exit(0);
+});
+
+process.on('unhandledRejection', (error) => {
+	log.error('[Process] Unhandled rejection:', error);
+});
+process.on('uncaughtException', (error) => {
+	log.error('[Process] Uncaught exception:', error);
+
+	process.exit(1);
 });
 
 const subscriber = Redis.client.duplicate();
