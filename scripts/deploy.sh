@@ -2,7 +2,7 @@
 
 set -e
 
-ENV_FILE=".env"
+ENV_FILE=""
 BUILD=false
 
 while [[ $# -gt 0 ]]; do
@@ -10,11 +10,10 @@ while [[ $# -gt 0 ]]; do
         --build) BUILD=true; shift ;;
         --env-file) ENV_FILE="$2"; shift 2 ;;
         *) echo "Unknown option: $1"; exit 1 ;;
-
     esac
 done
 
-DC="docker compose --env-file $ENV_FILE"
+DC="docker compose${ENV_FILE:+ --env-file $ENV_FILE}"
 
 if [ "$BUILD" = true ]; then
     echo "Building image..."
