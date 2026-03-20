@@ -6,7 +6,7 @@ import {
 	resolveEmbedColor,
 } from '#utils/embeds';
 import { log } from '#utils/log';
-import { Player, PlayerClient } from '#utils/player';
+import { Player, saveSession } from '#utils/player';
 import { Redis } from '#utils/redis';
 import type { ColorResolvable, Message } from 'discord.js';
 import { Player as LLPlayer, type Track } from 'lavalink-client';
@@ -45,8 +45,10 @@ async function editNowPlaying(player: LLPlayer): Promise<void> {
 		await message.edit({
 			embeds: [buildPlayEmbed({ player, track, color, avatarUrl: resolveAvatarUrl(track), lyrics })],
 		});
-	} catch {
-		player.set('nowPlayingMessage', null);
+	} catch (error) {
+		log.error(`[Player] Failed to edit now playing message for guild ${player.guildId}:`, error);
+
+		player.setData('nowPlayingMessage', null);
 	}
 }
 
@@ -62,7 +64,7 @@ function startProgressBarUpdates(player: LLPlayer, track: typeof player.queue.cu
 				if (player.queue.current !== track) {
 					clearInterval(interval);
 
-					player.set('progressInterval', null);
+					player.setData('progressInterval', null);
 
 					return;
 				}
@@ -82,13 +84,13 @@ function startProgressBarUpdates(player: LLPlayer, track: typeof player.queue.cu
 
 				clearInterval(interval);
 
-				player.set('progressInterval', null);
+				player.setData('progressInterval', null);
 			}
 		},
 		Math.max(track.info.duration / barLength, 1000),
 	);
 
-	player.set('progressInterval', interval);
+	player.setData('progressInterval', interval);
 }
 
 function formatLyricsDisplay(lyricLines: string[], index: number): string[] | undefined {
@@ -130,7 +132,7 @@ async function fetchAndSubscribeLyrics(
 
 		const timestamps = lyrics.lines.map((line) => line.timestamp);
 
-		player.set('lyricLines', lyricLines);
+		player.setData('lyricLines', lyricLines);
 
 		await player.subscribeLyrics();
 
@@ -144,13 +146,13 @@ function clearPlayerState(player: LLPlayer): void {
 	const interval = player.get<ReturnType<typeof setInterval>>('progressInterval');
 	if (interval) clearInterval(interval);
 
-	player.set('lyricLines', null);
-	player.set('currentLyricsDisplay', null);
-	player.set('nowPlayingMessage', null);
-	player.set('embedColor', null);
-	player.set('progressInterval', null);
-	player.set('lastLyricIndex', null);
-	player.set('lastLyricsEdit', null);
+	player.setData('lyricLines', null);
+	player.setData('currentLyricsDisplay', null);
+	player.setData('nowPlayingMessage', null);
+	player.setData('embedColor', null);
+	player.setData('progressInterval', null);
+	player.setData('lastLyricIndex', null);
+	player.setData('lastLyricsEdit', null);
 }
 
 async function cleanupRedisKeys(guildId: string, ...keys: string[]): Promise<void> {
@@ -167,7 +169,7 @@ Player.nodeManager.on('raw', async (node, payload) => {
 
 		try {
 			await node.updateSession(true, 60);
-			await PlayerClient.saveSession(node, 0);
+			await saveSession(node, 0);
 
 			log.debug(`[Lavalink] Node ${node.options.id} session configured`);
 		} catch (error) {
@@ -225,7 +227,7 @@ Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
 
 			if (fetchedPlayer.track && player.textChannelId) {
 				const color = resolveEmbedColor(player.textChannelId);
-				player.set('embedColor', color);
+				player.setData('embedColor', color);
 
 				const messageId = await Redis.client.get(`jace:player:${player.guildId}:now-playing`);
 
@@ -235,7 +237,7 @@ Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
 						if (channel?.isTextBased()) {
 							const message = await channel.messages.fetch(messageId);
 
-							player.set('nowPlayingMessage', message);
+							player.setData('nowPlayingMessage', message);
 
 							startProgressBarUpdates(player, player.queue.current);
 
@@ -254,7 +256,7 @@ Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
 					if (currentIndex >= 0) {
 						const display = formatLyricsDisplay(result.lyricLines, currentIndex);
 
-						player.set('currentLyricsDisplay', display);
+						player.setData('currentLyricsDisplay', display);
 					}
 
 					log.debug(`[Lavalink] Re-subscribed to lyrics for guild ${fetchedPlayer.guildId}`);
@@ -273,7 +275,7 @@ Player.on('trackStart', async (player, track) => {
 
 	if (!track || !player.textChannelId) return;
 
-	player.set('currentTrack', track);
+	player.setData('currentTrack', track);
 
 	try {
 		await Redis.client.set(`jace:player:${player.guildId}:text-channel`, player.textChannelId, {
@@ -287,7 +289,7 @@ Player.on('trackStart', async (player, track) => {
 	if (!channel?.isTextBased() || !channel.isSendable()) return;
 
 	const color = resolveEmbedColor(player.textChannelId);
-	player.set('embedColor', color);
+	player.setData('embedColor', color);
 
 	const result = await fetchAndSubscribeLyrics(player);
 	const initialLyrics = result ? [INSTRUMENTAL_ACTIVE, result.lyricLines[0] ?? ''] : undefined;
@@ -296,7 +298,7 @@ Player.on('trackStart', async (player, track) => {
 		log.debug(`[Player] Lyrics found and subscribed for track: ${track.info.title}`);
 	}
 
-	player.set('currentLyricsDisplay', initialLyrics);
+	player.setData('currentLyricsDisplay', initialLyrics);
 
 	try {
 		const embed = buildPlayEmbed({
@@ -308,7 +310,7 @@ Player.on('trackStart', async (player, track) => {
 		});
 		const message = await channel.send({ embeds: [embed] });
 
-		player.set('nowPlayingMessage', message);
+		player.setData('nowPlayingMessage', message);
 
 		await Redis.client.set(`jace:player:${player.guildId}:now-playing`, message.id, {
 			EX: 60 * 60 * 6,
@@ -329,21 +331,21 @@ Player.on('LyricsLine', async (player, _track, payload) => {
 	const lastIndex = player.get<number>('lastLyricIndex') ?? -1;
 	if (payload.lineIndex === lastIndex) return;
 
-	player.set('lastLyricIndex', payload.lineIndex);
+	player.setData('lastLyricIndex', payload.lineIndex);
 
 	const lyrics = formatLyricsDisplay(lyricLines, payload.lineIndex);
-	player.set('currentLyricsDisplay', lyrics);
+	player.setData('currentLyricsDisplay', lyrics);
 
-	player.set('lastLyricsEdit', Date.now());
+	player.setData('lastLyricsEdit', Date.now());
 	await editNowPlaying(player);
 
 	if (payload.lineIndex >= lyricLines.length - 1) {
 		setTimeout(async () => {
 			try {
 				if (player.queue.current) {
-					player.set('currentLyricsDisplay', undefined);
+					player.setData('currentLyricsDisplay', undefined);
 
-					player.set('lastLyricsEdit', Date.now());
+					player.setData('lastLyricsEdit', Date.now());
 					await editNowPlaying(player);
 				}
 			} catch (error) {
@@ -367,8 +369,11 @@ Player.on('trackEnd', async (player, track) => {
 					buildPlayEmbed({ player, track, color, avatarUrl: resolveAvatarUrl(track), isPlaying: false }),
 				],
 			});
-		} catch {
-			log.error(`[Player] Failed to edit now playing message on track end for guild ${player.guildId}`);
+		} catch (error) {
+			log.error(
+				`[Player] Failed to edit now playing message on track end for guild ${player.guildId}`,
+				error,
+			);
 		}
 	}
 });
@@ -388,9 +393,10 @@ Player.on('playerDestroy', async (player) => {
 					buildPlayEmbed({ player, track, color, avatarUrl: resolveAvatarUrl(track), isPlaying: false }),
 				],
 			});
-		} catch {
+		} catch (error) {
 			log.error(
 				`[Player] Failed to edit now playing message on player destroy for guild ${player.guildId}`,
+				error,
 			);
 		}
 	}

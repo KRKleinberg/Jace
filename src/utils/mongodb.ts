@@ -92,10 +92,12 @@ class PreferencesCache {
 	public get(discordId: string): Preferences | undefined;
 	public get(discordId: string): Preferences | undefined {
 		const id = this.byDiscordId.get(discordId);
+		const preferences = id ? this.byMongoId.get(id)?.preferences : undefined;
 
-		if (id) return this.byMongoId.get(id)?.preferences;
+		if (discordId === '0' && !preferences)
+			throw new Error('[MongoDB] Master preferences not found in cache!');
 
-		return undefined;
+		return preferences;
 	}
 
 	public async destroy(): Promise<void> {
@@ -150,7 +152,11 @@ class DatabaseClient {
 		discordId: string,
 		preferences: Partial<Preferences>,
 	): Promise<void> {
-		await this.collection.updateOne({ discordId }, { $set: { preferences } }, { upsert: true });
+		const $set = Object.fromEntries(
+			Object.entries(preferences).map(([key, value]) => [`preferences.${key}`, value]),
+		);
+
+		await this.collection.updateOne({ discordId }, { $set }, { upsert: true });
 	}
 
 	public async destroy(): Promise<void> {

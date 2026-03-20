@@ -1,8 +1,7 @@
 import type { EmbedType } from '#utils/embeds';
 import { log } from '#utils/log';
-import { Database, type Preferences } from '#utils/mongodb';
+import { type Preferences } from '#utils/mongodb';
 import {
-	ActivityType,
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
@@ -16,11 +15,9 @@ import {
 	type SlashCommandOptionsOnlyBuilder,
 	type SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
-import { readFileSync } from 'fs';
 import { glob } from 'fs/promises';
 import path, { basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
-
 type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
 
 type Response = Message | InteractionResponse;
@@ -54,8 +51,6 @@ export interface Command {
 	}) => Promise<void>;
 	execute: (ctx: CommandContext) => Promise<Response>;
 }
-
-const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 class AppClient extends Client {
 	public readonly commands = new Collection<string, Command>();
@@ -97,12 +92,4 @@ export const App = new AppClient({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.MessageContent,
 	],
-	presence: {
-		activities: [
-			{
-				name: `📻 | ${Database.getPreferences().prefix}help | v${version}`,
-				type: ActivityType.Custom,
-			},
-		],
-	},
 });

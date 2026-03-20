@@ -9,6 +9,20 @@ import {
 	type StoredQueue,
 } from 'lavalink-client';
 
+function sessionKey(nodeId: string, shardId: number): string {
+	return `jace:session:${nodeId}:${shardId}`;
+}
+
+export async function saveSession(node: LavalinkNode, shardId: number): Promise<void> {
+	if (!node.sessionId) return;
+
+	await Redis.client.set(sessionKey(node.id, shardId), node.sessionId, { EX: 60 * 60 * 24 });
+}
+
+async function getSession(nodeId: string, shardId: number): Promise<string | undefined> {
+	return (await Redis.client.get(sessionKey(nodeId, shardId))) ?? undefined;
+}
+
 class RedisQueueStore implements QueueStoreManager {
 	private key(guildId: string): string {
 		return `jace:queue:${guildId}`;
@@ -43,7 +57,7 @@ export class PlayerClient extends LavalinkManager {
 	}
 
 	public static async create(): Promise<PlayerClient> {
-		const sessionId = await PlayerClient.getSession(env.INSTANCE, 0);
+		const sessionId = await getSession(env.INSTANCE, 0);
 
 		if (sessionId) log.debug(`[Lavalink] Resuming session: ${sessionId}`);
 		else log.debug('[Lavalink] No existing session found, starting fresh');
@@ -88,20 +102,6 @@ export class PlayerClient extends LavalinkManager {
 		});
 
 		return instance;
-	}
-
-	private static sessionKey(nodeId: string, shardId: number): string {
-		return `jace:session:${nodeId}:${shardId}`;
-	}
-
-	public static async saveSession(node: LavalinkNode, shardId: number): Promise<void> {
-		if (!node.sessionId) return;
-
-		await Redis.client.set(this.sessionKey(node.id, shardId), node.sessionId, { EX: 60 * 60 * 24 });
-	}
-
-	public static async getSession(nodeId: string, shardId: number): Promise<string | undefined> {
-		return (await Redis.client.get(this.sessionKey(nodeId, shardId))) ?? undefined;
 	}
 }
 

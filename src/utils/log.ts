@@ -11,20 +11,24 @@ class Logger {
 		this.level = levels.indexOf(level);
 	}
 
+	private timestamp(): string {
+		return new Date().toISOString();
+	}
+
 	debug(...args: unknown[]) {
-		if (this.level <= 0) console.debug('[DEBUG]', ...args);
+		if (this.level <= 0) console.debug(this.timestamp(), '[DEBUG]', ...args);
 	}
 
 	info(...args: unknown[]) {
-		if (this.level <= 1) console.info('[INFO]', ...args);
+		if (this.level <= 1) console.info(this.timestamp(), '[INFO]', ...args);
 	}
 
 	warn(...args: unknown[]) {
-		if (this.level <= 2) console.warn('[WARN]', ...args);
+		if (this.level <= 2) console.warn(this.timestamp(), '[WARN]', ...args);
 	}
 
 	error(...args: unknown[]) {
-		if (this.level <= 3) console.error('[ERROR]', ...args);
+		if (this.level <= 3) console.error(this.timestamp(), '[ERROR]', ...args);
 	}
 }
 

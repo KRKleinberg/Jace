@@ -1,6 +1,7 @@
 import { App } from '#utils/app';
 import { env } from '#utils/env';
 import { log } from '#utils/log';
+import { Database } from '#utils/mongodb';
 import { Player } from '#utils/player';
 import { Redis } from '#utils/redis';
 
@@ -38,6 +39,9 @@ process.on('SIGTERM', async () => {
 		});
 
 		await Redis.client.publish('jace:handoff:ready', 'Done');
+		await Redis.client.quit();
+
+		await Database.destroy();
 	} catch (error) {
 		log.error('[Shutdown] Error:', error);
 	}

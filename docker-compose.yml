@@ -80,7 +80,7 @@ services:
       - MONGODB_COLLECTION_NAME
       - MONGODB_URL
       - REDIS_PASSWORD
-    restart: on-failure
+    restart: on-failure:5
     stop_grace_period: 30s
 
 volumes:

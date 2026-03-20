@@ -1,10 +1,6 @@
 export function isUrl(query: string): boolean {
 	try {
-		if (URL.canParse(query)) {
-			return ['https:', 'http:'].includes(new URL(query).protocol);
-		}
-
-		return false;
+		return ['https:', 'http:'].includes(new URL(query).protocol);
 	} catch {
 		return false;
 	}

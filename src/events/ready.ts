@@ -4,7 +4,10 @@ import { log } from '#utils/log';
 import { Database } from '#utils/mongodb';
 import { Player } from '#utils/player';
 import { Redis } from '#utils/redis';
-import { Events, REST, Routes } from 'discord.js';
+import { ActivityType, Events, REST, Routes } from 'discord.js';
+import { readFileSync } from 'fs';
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 App.once(Events.ClientReady, async () => {
 	if (!App.user) {
@@ -26,6 +29,8 @@ App.once(Events.ClientReady, async () => {
 	if (!Redis.isNewInstance) {
 		log.info('[Ready] Existing instance detected, requesting handoff...');
 
+		const subscriber = Redis.client.duplicate();
+
 		await new Promise<void>((resolve) => {
 			const timeout = setTimeout(() => {
 				log.warn('[Ready] Handoff timed out, proceeding without handoff');
@@ -33,17 +38,11 @@ App.once(Events.ClientReady, async () => {
 				resolve();
 			}, 5000);
 
-			const subscriber = Redis.client.duplicate();
-
 			void (async () => {
 				try {
 					await subscriber.connect();
 					await subscriber.subscribe('jace:handoff:ready', async () => {
 						clearTimeout(timeout);
-
-						await subscriber.unsubscribe();
-
-						subscriber.destroy();
 
 						log.info('[Ready] Received handoff ready signal, proceeding with startup');
 
@@ -62,6 +61,13 @@ App.once(Events.ClientReady, async () => {
 				}
 			})();
 		});
+
+		try {
+			await subscriber.unsubscribe();
+			subscriber.destroy();
+		} catch (error) {
+			// If the subscriber is already closed, we can ignore the error
+		}
 	}
 
 	await Redis.client.set('jace:instance', Redis.instanceId);
@@ -73,6 +79,15 @@ App.once(Events.ClientReady, async () => {
 	}
 
 	const preferences = Database.getPreferences();
+
+	App.user.setPresence({
+		activities: [
+			{
+				name: `📻 | ${Database.getPreferences().prefix}help | v${version}`,
+				type: ActivityType.Custom,
+			},
+		],
+	});
 
 	log.info(
 		`[Ready] Logged in as ${App.user.tag} (ID: ${App.user.id}, Prefix: ${preferences.prefix})`,

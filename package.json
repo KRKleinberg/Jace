@@ -23,15 +23,15 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@eslint/json": "^1.1.0",
+		"@eslint/json": "^1.2.0",
 		"@types/node": "^25.5.0",
 		"eslint": "^10.0.3",
 		"globals": "^17.4.0",
-		"typescript-eslint": "^8.57.0"
+		"typescript-eslint": "^8.57.1"
 	},
 	"dependencies": {
 		"discord.js": "^14.25.1",
-		"lavalink-client": "^2.9.7",
+		"lavalink-client": "^2.9.9",
 		"mongodb": "^7.1.0",
 		"redis": "^5.11.0",
 		"tsx": "^4.21.0",

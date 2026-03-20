@@ -9,7 +9,8 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --build) BUILD=true; shift ;;
         --env-file) ENV_FILE="$2"; shift 2 ;;
-        *) shift ;;
+        *) echo "Unknown option: $1"; exit 1 ;;
+
     esac
 done
 
