@@ -202,7 +202,7 @@ export const command: Command = {
 
 		const embed = isPlaylist
 			? buildQueuedEmbed(tracks, color, resolveAvatarUrl(result.tracks[0]), {
-					playlist: { info: result.playlist!, type: 'playlist' },
+					playlist: { info: result.playlist!, type: shouldShuffle ? 'playlist' : 'album' },
 				})
 			: buildQueuedEmbed([tracks[0]!], color, resolveAvatarUrl(result.tracks[0]), {
 					position: isNext && player.queue.tracks.length > 0 ? 1 : player.queue.tracks.length,
