@@ -422,7 +422,7 @@ Player.on('trackStuck', async (player, track, error) => {
 
 	await channel.send({
 		embeds: [
-			buildEmbed(`Track Stuck: _${track.info.title}_ by ${track.info.author}`, {
+			buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_: Track timed out`, {
 				color,
 				type: 'APP_ERROR',
 			}),
@@ -442,7 +442,7 @@ Player.on('trackError', async (player, track, error) => {
 
 	await channel.send({
 		embeds: [
-			buildEmbed(`Track Error: _${track.info.title}_ by ${track.info.author}`, {
+			buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_: Could not load track`, {
 				color,
 				type: 'APP_ERROR',
 			}),
