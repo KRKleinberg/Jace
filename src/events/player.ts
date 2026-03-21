@@ -1,5 +1,6 @@
 import { App } from '#utils/app';
 import {
+	buildEmbed,
 	buildPlayEmbed,
 	getProgressBarLength,
 	resolveAvatarUrl,
@@ -34,12 +35,12 @@ function isReadyPayload(payload: unknown): payload is LavalinkReadyPayload {
 }
 
 async function editNowPlaying(player: LLPlayer): Promise<void> {
-	const message = player.get<Message>('nowPlayingMessage');
+	const message = player.getData<Message>('nowPlayingMessage');
 	const track = player.queue.current;
 	if (!message || !track) return;
 
-	const color = player.get<ColorResolvable | null>('embedColor');
-	const lyrics = player.get<string[] | undefined>('currentLyricsDisplay');
+	const color = player.getData<ColorResolvable | null>('embedColor');
+	const lyrics = player.getData<string[] | undefined>('currentLyricsDisplay');
 
 	try {
 		await message.edit({
@@ -74,7 +75,7 @@ function startProgressBarUpdates(player: LLPlayer, track: typeof player.queue.cu
 				if (barIndex > lastBarIndex && barIndex <= barLength) {
 					lastBarIndex = barIndex;
 
-					const lastLyricsEdit = player.get<number>('lastLyricsEdit') ?? 0;
+					const lastLyricsEdit = player.getData<number>('lastLyricsEdit') ?? 0;
 					if (Date.now() - lastLyricsEdit < 1000) return;
 
 					await editNowPlaying(player);
@@ -144,7 +145,7 @@ async function fetchAndSubscribeLyrics(
 }
 
 function clearPlayerState(player: LLPlayer): void {
-	const interval = player.get<ReturnType<typeof setInterval>>('progressInterval');
+	const interval = player.getData<ReturnType<typeof setInterval>>('progressInterval');
 	if (interval) clearInterval(interval);
 
 	player.setData('lyricLines', null);
@@ -328,12 +329,12 @@ Player.on('trackStart', async (player, track) => {
 });
 
 Player.on('LyricsLine', async (player, _track, payload) => {
-	const lyricLines = player.get<string[] | undefined>('lyricLines');
+	const lyricLines = player.getData<string[] | undefined>('lyricLines');
 	if (!lyricLines?.length) return;
 
 	if (payload.line.timestamp < player.position - 2000) return;
 
-	const lastIndex = player.get<number>('lastLyricIndex') ?? -1;
+	const lastIndex = player.getData<number>('lastLyricIndex') ?? -1;
 	if (payload.lineIndex === lastIndex) return;
 
 	player.setData('lastLyricIndex', payload.lineIndex);
@@ -363,8 +364,8 @@ Player.on('LyricsLine', async (player, _track, payload) => {
 });
 
 Player.on('trackEnd', async (player, track) => {
-	const message = player.get<Message>('nowPlayingMessage');
-	const color = player.get<ColorResolvable | null>('embedColor');
+	const message = player.getData<Message>('nowPlayingMessage');
+	const color = player.getData<ColorResolvable | null>('embedColor');
 
 	clearPlayerState(player);
 	await cleanupRedisKeys(player.guildId, 'now-playing');
@@ -386,9 +387,9 @@ Player.on('trackEnd', async (player, track) => {
 });
 
 Player.on('playerDestroy', async (player) => {
-	const message = player.get<Message>('nowPlayingMessage');
-	const color = player.get<ColorResolvable | null>('embedColor');
-	const track = player.get<Track>('currentTrack') ?? player.queue.current;
+	const message = player.getData<Message>('nowPlayingMessage');
+	const color = player.getData<ColorResolvable | null>('embedColor');
+	const track = player.getData<Track>('currentTrack') ?? player.queue.current;
 
 	clearPlayerState(player);
 	await cleanupRedisKeys(player.guildId, 'text-channel', 'now-playing');
@@ -407,4 +408,44 @@ Player.on('playerDestroy', async (player) => {
 			);
 		}
 	}
+});
+
+Player.on('trackStuck', async (player, track, error) => {
+	log.error(`[Player] Track stuck in guild ${player.guildId}:`, error);
+
+	if (!track || !player.textChannelId) return;
+
+	const channel = App.channels.cache.get(player.textChannelId);
+	if (!channel?.isTextBased() || !channel.isSendable()) return;
+
+	const color = player.getData<ColorResolvable | null>('embedColor');
+
+	await channel.send({
+		embeds: [
+			buildEmbed(`Track Stuck: _${track.info.title}_ by ${track.info.author}`, {
+				color,
+				type: 'APP_ERROR',
+			}),
+		],
+	});
+});
+
+Player.on('trackError', async (player, track, error) => {
+	log.error(`[Player] Track error in guild ${player.guildId}:`, error);
+
+	if (!track || !player.textChannelId) return;
+
+	const channel = App.channels.cache.get(player.textChannelId);
+	if (!channel?.isTextBased() || !channel.isSendable()) return;
+
+	const color = player.getData<ColorResolvable | null>('embedColor');
+
+	await channel.send({
+		embeds: [
+			buildEmbed(`Track Error: _${track.info.title}_ by ${track.info.author}`, {
+				color,
+				type: 'APP_ERROR',
+			}),
+		],
+	});
 });
