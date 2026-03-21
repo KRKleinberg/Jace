@@ -421,13 +421,13 @@ Player.on('trackStuck', async (player, track, error) => {
 	const color = player.getData<ColorResolvable | null>('embedColor');
 
 	await channel.send({
-		embeds: [
-			buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_: Track timed out`, {
-				color,
-				type: 'APP_ERROR',
-			}),
-		],
-	});
+	embeds: [
+		buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_ — Track timed out`, {
+			color,
+			type: 'APP_ERROR',
+		}),
+	],
+});
 });
 
 Player.on('trackError', async (player, track, error) => {
@@ -441,11 +441,11 @@ Player.on('trackError', async (player, track, error) => {
 	const color = player.getData<ColorResolvable | null>('embedColor');
 
 	await channel.send({
-		embeds: [
-			buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_: Could not load track`, {
-				color,
-				type: 'APP_ERROR',
-			}),
-		],
-	});
+	embeds: [
+		buildEmbed(`Skipped _${track.info.title}_ by _${track.info.author}_ — Could not load track`, {
+			color,
+			type: 'APP_ERROR',
+		}),
+	],
+});
 });
