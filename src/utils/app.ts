@@ -18,6 +18,7 @@ import {
 import { glob } from 'fs/promises';
 import path, { basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 
 type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
 
@@ -52,6 +53,8 @@ export interface Command {
 	}) => Promise<void>;
 	execute: (ctx: CommandContext) => Promise<Response>;
 }
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 class AppClient extends Client {
 	public readonly commands = new Collection<string, Command>();
