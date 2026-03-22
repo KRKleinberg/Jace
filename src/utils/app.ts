@@ -100,4 +100,5 @@ export const App = new AppClient({
 				type: ActivityType.Custom,
 			},
 		],
+	}
 });
