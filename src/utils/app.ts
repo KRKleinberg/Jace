@@ -18,6 +18,9 @@ import {
 import { glob } from 'fs/promises';
 import path, { basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import ( Database } from '#utils/mongodb';
+
+
 type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
 
 type Response = Message | InteractionResponse;
@@ -92,4 +95,11 @@ export const App = new AppClient({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.MessageContent,
 	],
+	presence: {
+		activities: [
+			{
+				name: `📻 | ${Database.getPreferences().prefix}help | v${version}`,
+				type: ActivityType.Custom,
+			},
+		],
 });
