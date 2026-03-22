@@ -1,15 +1,13 @@
 services:
   lavalink-init:
     image: busybox
-    container_name: jace-lavalink-init
     command: chown -R 322:322 /plugins
     volumes:
       - lavalink_plugins:/plugins
     restart: "no"
 
   lavalink:
-    image: ghcr.io/lavalink-devs/lavalink:4
-    container_name: jace-lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4-alpine
     restart: unless-stopped
     depends_on:
       lavalink-init:
@@ -31,9 +29,10 @@ services:
       test:
         [
           "CMD",
-          "curl",
-          "-sf",
-          "-H",
+          "wget",
+          "-q",
+          "--spider",
+          "--header",
           "Authorization: ${LAVALINK_PASSWORD}",
           "http://localhost:2333/version",
         ]
@@ -44,7 +43,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: jace-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD} --save "" --appendonly no
     environment:
@@ -58,10 +56,9 @@ services:
 
   spotify-tokener:
     image: ghcr.io/topi314/spotify-tokener:master
-    container_name: spotify-tokener
     restart: unless-stopped
 
-  jace:
+  client:
     build: .
     init: true
     depends_on:
