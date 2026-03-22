@@ -77,7 +77,6 @@ App.on(Events.MessageCreate, async (message): Promise<void> => {
 					const ctx: CommandContext = {
 						guild,
 						member,
-						args,
 						preferences,
 						source: message,
 						getOption: (name) => {
@@ -142,7 +141,6 @@ App.on(Events.InteractionCreate, async (interaction): Promise<void> => {
 					const ctx: CommandContext = {
 						guild,
 						member,
-						args: [],
 						preferences,
 						source: interaction,
 						getOption: (name) => {

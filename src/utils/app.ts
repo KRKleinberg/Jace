@@ -18,7 +18,7 @@ import {
 } from 'discord.js';
 import { readFileSync } from 'fs';
 import { glob } from 'fs/promises';
-import path, { basename, dirname } from 'path';
+import { basename, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
 
 type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
@@ -34,7 +34,6 @@ export interface ResponseOptions {
 export interface CommandContext {
 	guild: Guild;
 	member: GuildMember;
-	args: string[];
 	preferences: Required<Preferences>;
 	source: Message | ChatInputCommandInteraction;
 	getOption: (name: string) => string | null;
@@ -44,7 +43,6 @@ export interface CommandContext {
 
 export interface Command {
 	aliases?: string[];
-	help?: string;
 	data: SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
 	autocomplete?: (ctx: {
 		guild: Guild;
@@ -63,7 +61,7 @@ class AppClient extends Client {
 
 	public async loadCommands(): Promise<void> {
 		for await (const file of glob('./src/commands/**/*.ts')) {
-			const importPath = path.relative(this.cwd, file);
+			const importPath = relative(this.cwd, file);
 
 			log.debug(`[Commands] Loading ${importPath}`);
 
@@ -79,7 +77,7 @@ class AppClient extends Client {
 
 	public async loadEvents(): Promise<void> {
 		for await (const file of glob('./src/events/**/*.ts')) {
-			const importPath = path.relative(this.cwd, file);
+			const importPath = relative(this.cwd, file);
 
 			log.debug(`[Events] Loading ${importPath}`);
 
