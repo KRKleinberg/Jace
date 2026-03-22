@@ -32,7 +32,7 @@ process.on('SIGTERM', async () => {
 				log.debug('[Shutdown] Lavalink connection released');
 
 				// Wait to ensure the connection is fully closed before proceeding with session handoff
-				setTimeout(resolve, 250);
+				setTimeout(resolve, 50);
 			});
 
 			Player.nodeManager.nodes.forEach((node) => {
