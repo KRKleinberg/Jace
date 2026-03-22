@@ -4,7 +4,7 @@ import { log } from '#utils/log';
 import { Database } from '#utils/mongodb';
 import { Player } from '#utils/player';
 import { Redis } from '#utils/redis';
-import { ActivityType, Events, REST, Routes } from 'discord.js';
+import { Events, REST, Routes } from 'discord.js';
 
 App.once(Events.ClientReady, async () => {
 	if (!App.user) {
