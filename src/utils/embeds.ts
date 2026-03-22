@@ -52,7 +52,7 @@ function createProgressBar(
 	duration: number,
 	length = getProgressBarLength(duration),
 ): string {
-	const progress = Math.round((position / duration) * length);
+	const progress = Math.min(Math.round((position / duration) * length), length - 1);
 	const bar = '▬'.repeat(length);
 
 	return `${bar.slice(0, progress)}🔘${bar.slice(progress + 1)}`;
