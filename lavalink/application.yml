@@ -63,3 +63,4 @@ logging:
     lavalink.server.io.RequestLoggingFilter: WARN
     lavalink.server.config.RequestAuthorizationFilter: ERROR
     org.springframework.web.socket.handler.ExceptionWebSocketHandlerDecorator: ERROR
+    com.github.topi314.lavasrc.LavaSrcTools: OFF
