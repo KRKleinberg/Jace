@@ -1,4 +1,4 @@
-name: Restart Services
+name: Restart
 
 on:
   workflow_dispatch:
@@ -22,6 +22,7 @@ jobs:
       DEEZER_KEY: ${{ secrets.DEEZER_KEY }}
       DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
       DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+      COMPOSE_PROJECT_NAME: ${{ secrets.COMPOSE_PROJECT_NAME }}
       INSTANCE: ${{ secrets.INSTANCE }}
       LAVALINK_PASSWORD: ${{ secrets.LAVALINK_PASSWORD }}
       LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
