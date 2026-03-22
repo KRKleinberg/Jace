@@ -2,6 +2,7 @@ import type { EmbedType } from '#utils/embeds';
 import { log } from '#utils/log';
 import { type Preferences, Database } from '#utils/mongodb';
 import {
+	ActivityType,
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
