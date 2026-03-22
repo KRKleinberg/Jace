@@ -1,6 +1,6 @@
 import type { EmbedType } from '#utils/embeds';
 import { log } from '#utils/log';
-import { type Preferences } from '#utils/mongodb';
+import { type Preferences, Database } from '#utils/mongodb';
 import {
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
@@ -18,8 +18,6 @@ import {
 import { glob } from 'fs/promises';
 import path, { basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import ( Database } from '#utils/mongodb';
-
 
 type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
 
