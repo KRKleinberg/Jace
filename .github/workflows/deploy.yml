@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Build New Image
-        run: docker compose build jace
+        run: docker compose build client
 
       - name: Deploy
         run: bash scripts/deploy.sh
