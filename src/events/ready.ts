@@ -78,18 +78,7 @@ App.once(Events.ClientReady, async () => {
 		log.error('[Ready] Lavalink initialization failed:', error);
 	}
 
-	const preferences = Database.getPreferences();
-
-	App.user.setPresence({
-		activities: [
-			{
-				name: `📻 | ${preferences.prefix}help | v${version}`,
-				type: ActivityType.Custom,
-			},
-		],
-	});
-
 	log.info(
-		`[Ready] Logged in as ${App.user.tag} (ID: ${App.user.id}, Prefix: ${preferences.prefix})`,
+		`[Ready] Logged in as ${App.user.tag} (ID: ${App.user.id}, Prefix: ${Database.getPreferences().prefix})`,
 	);
 });
