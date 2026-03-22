@@ -7,7 +7,7 @@ services:
     restart: "no"
 
   lavalink:
-    image: ghcr.io/lavalink-devs/lavalink:4
+    image: ghcr.io/lavalink-devs/lavalink:4-alpine
     restart: unless-stopped
     depends_on:
       lavalink-init:
