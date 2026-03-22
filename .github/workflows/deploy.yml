@@ -19,11 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Build New Image
-        run: docker compose build jace
-
-      - name: Deploy
-        run: bash scripts/deploy.sh
+      - name: Build & Deploy
+        run: bash scripts/deploy.sh --build
 
       - name: Cleanup Unused Images
         run: docker image prune -f
