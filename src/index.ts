@@ -4,6 +4,7 @@ import { log } from '#utils/log';
 import { Database } from '#utils/mongodb';
 import { Player } from '#utils/player';
 import { Redis } from '#utils/redis';
+import { Events } from 'discord.js';
 
 let shuttingDown = false;
 
@@ -30,7 +31,8 @@ process.on('SIGTERM', async () => {
 
 				log.debug('[Shutdown] Lavalink connection released');
 
-				resolve();
+				// Wait to ensure the connection is fully closed before proceeding with session handoff
+				setTimeout(resolve, 250);
 			});
 
 			Player.nodeManager.nodes.forEach((node) => {
@@ -66,6 +68,9 @@ await subscriber.subscribe('jace:handoff:request', async () => {
 	const currentInstance = await Redis.client.get('jace:instance');
 
 	if (currentInstance !== Redis.instanceId) return;
+
+	App.removeAllListeners(Events.MessageCreate);
+	App.removeAllListeners(Events.InteractionCreate);
 
 	log.info('[Handoff] Received handoff request, shutting down...');
 
