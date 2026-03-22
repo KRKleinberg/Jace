@@ -5,9 +5,6 @@ import { Database } from '#utils/mongodb';
 import { Player } from '#utils/player';
 import { Redis } from '#utils/redis';
 import { ActivityType, Events, REST, Routes } from 'discord.js';
-import { readFileSync } from 'fs';
-
-const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 App.once(Events.ClientReady, async () => {
 	if (!App.user) {
