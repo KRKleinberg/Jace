@@ -46,9 +46,9 @@ App.once(Events.ClientReady, async () => {
 						resolve();
 					});
 
-					await Redis.client.publish('jace:handoff:request', 'Requesting handoff');
-
 					log.info('[Ready] Requesting handoff from existing instance...');
+
+					await Redis.client.publish('jace:handoff:request', 'Requesting handoff');
 				} catch (error) {
 					log.error('[Ready] Handoff error:', error);
 
