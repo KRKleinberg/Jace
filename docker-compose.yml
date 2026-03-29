@@ -38,8 +38,8 @@ services:
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
-      start_period: 15s
+      retries: 5
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -49,10 +49,10 @@ services:
       - REDIS_PASSWORD
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+      start_period: 2s
 
   spotify-tokener:
     image: ghcr.io/topi314/spotify-tokener:master
@@ -78,7 +78,7 @@ services:
       - MONGODB_URL
       - REDIS_PASSWORD
     restart: on-failure:5
-    stop_grace_period: 30s
+    stop_grace_period: 15s
 
 volumes:
   lavalink_plugins:
