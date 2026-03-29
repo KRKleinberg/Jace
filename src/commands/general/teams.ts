@@ -1,7 +1,7 @@
 import { type Command } from '#utils/app';
 import { resolveEmbedColor } from '#utils/embeds';
 import { randomizeArray } from '#utils/helpers';
-import { EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
 export const command: Command = {
 	data: new SlashCommandBuilder().setDescription('Splits voice channel members into two teams'),
@@ -10,13 +10,9 @@ export const command: Command = {
 			return await ctx.respond('You are not in a voice channel', { type: 'USER_ERROR' });
 		}
 
-		const voiceMembers = randomizeArray(
-			ctx.member.voice.channel.members.reduce((voiceMembers: GuildMember[], voiceMember) => {
-				if (!voiceMember.user.bot) voiceMembers.push(voiceMember);
-
-				return voiceMembers;
-			}, []),
-		);
+		const voiceMembers = randomizeArray([
+			...ctx.member.voice.channel?.members.filter((member) => !member.user.bot).values(),
+		]);
 		const half = Math.ceil(voiceMembers.length / 2);
 		const mapChoice = voiceMembers[Math.floor(Math.random() * voiceMembers.length)];
 

@@ -21,13 +21,10 @@ import { glob } from 'fs/promises';
 import { basename, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
 
-type DeliveryMethod = 'DEFAULT' | 'CHANNEL' | 'REPLY';
-
 type Response = Message | InteractionResponse;
 
 export interface ResponseOptions {
 	type?: EmbedType;
-	delivery?: DeliveryMethod;
 	emoji?: string;
 }
 
@@ -53,7 +50,7 @@ export interface Command {
 	execute: (ctx: CommandContext) => Promise<Response>;
 }
 
-const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string };
 
 class AppClient extends Client {
 	public readonly commands = new Collection<string, Command>();

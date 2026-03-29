@@ -68,7 +68,6 @@ export function buildQueuedEmbed(
 			type: 'playlist' | 'album';
 		};
 		position?: number;
-		next?: boolean;
 	},
 ): EmbedBuilder {
 	const track = tracks[0];
@@ -87,7 +86,7 @@ export function buildQueuedEmbed(
 	if (playlist) {
 		const list = tracks.map(
 			(track, index) =>
-				`**${(index + 1).toString()}.** [**${track.info.title}**](${track.info.uri}) by **${track.info.author}**`,
+				`**${index + 1}.** [**${track.info.title}**](${track.info.uri}) by **${track.info.author}**`,
 		);
 
 		embed.setDescription(truncateList(list, 4096));

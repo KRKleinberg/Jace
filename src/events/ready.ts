@@ -62,7 +62,7 @@ App.once(Events.ClientReady, async () => {
 		try {
 			await subscriber.unsubscribe();
 			subscriber.destroy();
-		} catch (error) {
+		} catch {
 			// If the subscriber is already closed, we can ignore the error
 		}
 	}

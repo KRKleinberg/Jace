@@ -3,7 +3,6 @@ import { Player } from '#utils/player';
 import { SlashCommandBuilder } from 'discord.js';
 
 export const command: Command = {
-	aliases: [],
 	data: new SlashCommandBuilder().setDescription('Pauses the currently playing track'),
 	async execute(ctx) {
 		if (!ctx.member.voice.channel) {

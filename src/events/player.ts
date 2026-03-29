@@ -30,17 +30,21 @@ function boldLine(line: string): string {
 	return `**${line}**`;
 }
 
+function playerKey(guildId: string, suffix: string): string {
+	return `jace:player:${guildId}:${suffix}`;
+}
+
 function isReadyPayload(payload: unknown): payload is LavalinkReadyPayload {
 	return typeof payload === 'object' && payload !== null && 'op' in payload && payload.op === 'ready';
 }
 
 async function editNowPlaying(player: LLPlayer): Promise<void> {
-	const message = player.getData<Message>('nowPlayingMessage');
+	const message = player.getData<Message | null>('nowPlayingMessage');
 	const track = player.queue.current;
 	if (!message || !track) return;
 
 	const color = player.getData<ColorResolvable | null>('embedColor');
-	const lyrics = player.getData<string[] | undefined>('currentLyricsDisplay');
+	const lyrics = player.getData<string[] | null>('currentLyricsDisplay') ?? [];
 
 	try {
 		await message.edit({
@@ -75,7 +79,7 @@ function startProgressBarUpdates(player: LLPlayer, track: typeof player.queue.cu
 				if (barIndex > lastBarIndex && barIndex <= barLength) {
 					lastBarIndex = barIndex;
 
-					const lastLyricsEdit = player.getData<number>('lastLyricsEdit') ?? 0;
+					const lastLyricsEdit = player.getData<number | null>('lastLyricsEdit') ?? 0;
 					if (Date.now() - lastLyricsEdit < 1000) return;
 
 					await editNowPlaying(player);
@@ -145,7 +149,7 @@ async function fetchAndSubscribeLyrics(
 }
 
 function clearPlayerState(player: LLPlayer): void {
-	const interval = player.getData<ReturnType<typeof setInterval>>('progressInterval');
+	const interval = player.getData<ReturnType<typeof setInterval> | null>('progressInterval');
 	if (interval) clearInterval(interval);
 
 	player.setData('lyricLines', null);
@@ -159,7 +163,7 @@ function clearPlayerState(player: LLPlayer): void {
 
 async function cleanupRedisKeys(guildId: string, ...keys: string[]): Promise<void> {
 	try {
-		await Promise.all(keys.map((key) => Redis.client.del(`jace:player:${guildId}:${key}`)));
+		await Promise.all(keys.map((key) => Redis.client.del(playerKey(guildId, key))));
 	} catch (error) {
 		log.error(`[Player] Failed to clean up Redis keys for guild ${guildId}:`, error);
 	}
@@ -201,7 +205,7 @@ Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
 				continue;
 			}
 
-			const textChannelId = await Redis.client.get(`jace:player:${fetchedPlayer.guildId}:text-channel`);
+			const textChannelId = await Redis.client.get(playerKey(fetchedPlayer.guildId, 'text-channel'));
 
 			const player = Player.createPlayer({
 				guildId: fetchedPlayer.guildId,
@@ -231,7 +235,7 @@ Player.nodeManager.on('resumed', async (node, _payload, fetchedPlayers) => {
 				const color = resolveEmbedColor(player.textChannelId);
 				player.setData('embedColor', color);
 
-				const messageId = await Redis.client.get(`jace:player:${player.guildId}:now-playing`);
+				const messageId = await Redis.client.get(playerKey(fetchedPlayer.guildId, 'now-playing'));
 
 				if (messageId) {
 					try {
@@ -280,7 +284,7 @@ Player.on('trackStart', async (player, track) => {
 	player.setData('currentTrack', track);
 
 	try {
-		await Redis.client.set(`jace:player:${player.guildId}:text-channel`, player.textChannelId, {
+		await Redis.client.set(playerKey(player.guildId, 'text-channel'), player.textChannelId, {
 			EX: 60 * 60 * 6,
 		});
 	} catch (error) {
@@ -318,7 +322,7 @@ Player.on('trackStart', async (player, track) => {
 
 		player.setData('nowPlayingMessage', message);
 
-		await Redis.client.set(`jace:player:${player.guildId}:now-playing`, message.id, {
+		await Redis.client.set(playerKey(player.guildId, 'now-playing'), message.id, {
 			EX: 60 * 60 * 6,
 		});
 	} catch (error) {
@@ -329,12 +333,12 @@ Player.on('trackStart', async (player, track) => {
 });
 
 Player.on('LyricsLine', async (player, _track, payload) => {
-	const lyricLines = player.getData<string[] | undefined>('lyricLines');
+	const lyricLines = player.getData<string[] | null>('lyricLines');
 	if (!lyricLines?.length) return;
 
 	if (payload.line.timestamp < player.position - 2000) return;
 
-	const lastIndex = player.getData<number>('lastLyricIndex') ?? -1;
+	const lastIndex = player.getData<number | null>('lastLyricIndex') ?? -1;
 	if (payload.lineIndex === lastIndex) return;
 
 	player.setData('lastLyricIndex', payload.lineIndex);
@@ -364,7 +368,7 @@ Player.on('LyricsLine', async (player, _track, payload) => {
 });
 
 Player.on('trackEnd', async (player, track) => {
-	const message = player.getData<Message>('nowPlayingMessage');
+	const message = player.getData<Message | null>('nowPlayingMessage');
 	const color = player.getData<ColorResolvable | null>('embedColor');
 
 	clearPlayerState(player);
@@ -387,9 +391,9 @@ Player.on('trackEnd', async (player, track) => {
 });
 
 Player.on('playerDestroy', async (player) => {
-	const message = player.getData<Message>('nowPlayingMessage');
+	const message = player.getData<Message | null>('nowPlayingMessage');
 	const color = player.getData<ColorResolvable | null>('embedColor');
-	const track = player.getData<Track>('currentTrack') ?? player.queue.current;
+	const track = player.getData<Track | null>('currentTrack') ?? player.queue.current;
 
 	clearPlayerState(player);
 	await cleanupRedisKeys(player.guildId, 'text-channel', 'now-playing');
