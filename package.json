@@ -31,7 +31,7 @@
 	},
 	"dependencies": {
 		"discord.js": "^14.25.1",
-		"lavalink-client": "^2.9.9",
+		"lavalink-client": "^2.9.11",
 		"mongodb": "^7.1.1",
 		"redis": "^5.11.0",
 		"tsx": "^4.21.0",
