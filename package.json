@@ -26,7 +26,7 @@
 		"@eslint/json": "^1.2.0",
 		"@types/node": "^25.6.0",
 		"eslint": "^10.3.0",
-		"globals": "^17.5.0",
+		"globals": "^17.6.0",
 		"typescript-eslint": "^8.59.1"
 	},
 	"dependencies": {
