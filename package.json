@@ -30,7 +30,7 @@
 		"typescript-eslint": "^8.59.1"
 	},
 	"dependencies": {
-		"discord.js": "^14.26.3",
+		"discord.js": "^14.26.4",
 		"lavalink-client": "^2.10.1",
 		"mongodb": "^7.2.0",
 		"redis": "^5.12.1",
