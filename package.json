@@ -1,6 +1,6 @@
 {
 	"name": "jace",
-	"version": "10.0.0",
+	"version": "10.0.1",
 	"description": "A multipurpose Discord music app written in TypeScript",
 	"homepage": "https://github.com/KRKleinberg/Jace#readme",
 	"bugs": {
@@ -24,7 +24,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@eslint/json": "^1.2.0",
-		"@types/node": "^25.6.0",
+		"@types/node": "^25.6.1",
 		"eslint": "^10.3.0",
 		"globals": "^17.6.0",
 		"typescript-eslint": "^8.59.2"

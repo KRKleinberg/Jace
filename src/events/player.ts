@@ -10,7 +10,7 @@ import { log } from '#utils/log';
 import { Player, saveSession } from '#utils/player';
 import { Redis } from '#utils/redis';
 import type { ColorResolvable, Message } from 'discord.js';
-import { Player as LLPlayer, type Track } from 'lavalink-client';
+import { Player as LLPlayer, type Track, type UnresolvedTrack } from 'lavalink-client';
 
 interface LavalinkReadyPayload {
 	op: 'ready';
@@ -36,6 +36,10 @@ function playerKey(guildId: string, suffix: string): string {
 
 function isReadyPayload(payload: unknown): payload is LavalinkReadyPayload {
 	return typeof payload === 'object' && payload !== null && 'op' in payload && payload.op === 'ready';
+}
+
+function isResolvedTrack(track: Track | UnresolvedTrack | null | undefined): track is Track {
+	return typeof track?.info.identifier === 'string';
 }
 
 async function editNowPlaying(player: LLPlayer): Promise<void> {
@@ -374,7 +378,7 @@ Player.on('trackEnd', async (player, track) => {
 	clearPlayerState(player);
 	await cleanupRedisKeys(player.guildId, 'now-playing');
 
-	if (message && track) {
+	if (message && isResolvedTrack(track)) {
 		try {
 			await message.edit({
 				embeds: [
@@ -390,6 +394,29 @@ Player.on('trackEnd', async (player, track) => {
 	}
 });
 
+Player.on('queueEnd', async (player, track) => {
+	const message = player.getData<Message | null>('nowPlayingMessage');
+	const color = player.getData<ColorResolvable | null>('embedColor');
+
+	clearPlayerState(player);
+	await cleanupRedisKeys(player.guildId, 'now-playing');
+
+	if (message && isResolvedTrack(track)) {
+		try {
+			await message.edit({
+				embeds: [
+					buildPlayEmbed({ player, track, color, avatarUrl: resolveAvatarUrl(track), isPlaying: false }),
+				],
+			});
+		} catch (error) {
+			log.error(
+				`[Player] Failed to edit now playing message on queue end for guild ${player.guildId}`,
+				error,
+			);
+		}
+	}
+});
+
 Player.on('playerDestroy', async (player) => {
 	const message = player.getData<Message | null>('nowPlayingMessage');
 	const color = player.getData<ColorResolvable | null>('embedColor');
@@ -398,7 +425,7 @@ Player.on('playerDestroy', async (player) => {
 	clearPlayerState(player);
 	await cleanupRedisKeys(player.guildId, 'text-channel', 'now-playing');
 
-	if (message && track) {
+	if (message && isResolvedTrack(track)) {
 		try {
 			await message.edit({
 				embeds: [
