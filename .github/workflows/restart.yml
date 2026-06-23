@@ -12,7 +12,7 @@ jobs:
     environment: production
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Restart All Services
         run: docker compose down && docker compose up -d
