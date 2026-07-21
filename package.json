@@ -27,7 +27,7 @@
 		"@types/node": "^26.1.1",
 		"eslint": "^10.7.0",
 		"globals": "^17.7.0",
-		"typescript-eslint": "^8.64.0"
+		"typescript-eslint": "^8.65.0"
 	},
 	"dependencies": {
 		"discord.js": "^14.27.0",
